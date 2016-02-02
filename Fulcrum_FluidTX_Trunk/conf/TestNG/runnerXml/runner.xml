@@ -1,0 +1,9 @@
+<suite name="Trigger suite" allow-return-values="true">
+
+<test name="TestNG Trigger Test">
+    <classes>
+      <class name="com.proj.runner.TestNGRunner"/>
+    </classes>
+ </test>
+ 
+</suite>

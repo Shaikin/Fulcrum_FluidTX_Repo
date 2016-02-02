@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites>
+  <testsuite errors="0" failures="0" hostname="Shaik" id="0" name="TestNGRunner" package="com.proj.runner" tests="1" time="0.868" timestamp="24 Jan 2016 10:33:40 GMT">
+      <testcase classname="com.proj.runner.TestNGRunner" name="triggertestNGXMLrunner" time="0.868" />
+
+  </testsuite>
+  <testsuite errors="0" failures="0" hostname="Shaik" id="1" name="Documents_New" package="com.proj.suiteDOCS" tests="1" time="56.586" timestamp="24 Jan 2016 10:54:16 GMT">
+      <testcase classname="com.proj.suiteDOCS.Documents_New" name="TestDocuments_New" time="56.586" />
+
+  </testsuite>
+  <testsuite errors="0" failures="0" hostname="Shaik" id="2" name="Transmittals_New_ChangeNote" package="com.proj.suiteTRANSMITTALS" tests="3" time="806.977" timestamp="24 Jan 2016 10:54:16 GMT">
+      <testcase classname="com.proj.suiteTRANSMITTALS.Transmittals_New_ChangeNote" name="TestTransmittals_New_ChangeNote" time="365.330" />
+
+      <testcase classname="com.proj.suiteTRANSMITTALS.Transmittals_New_ChangeNote" name="TestTransmittals_New_ChangeNote" time="218.649" />
+
+      <testcase classname="com.proj.suiteTRANSMITTALS.Transmittals_New_ChangeNote" name="TestTransmittals_New_ChangeNote" time="222.998" />
+
+  </testsuite>
+  <testsuite errors="0" failures="0" hostname="Shaik" id="3" name="Transmittals_New_ConsultantAdvice" package="com.proj.suiteTRANSMITTALS" tests="1" time="214.435" timestamp="24 Jan 2016 10:54:16 GMT">
+      <testcase classname="com.proj.suiteTRANSMITTALS.Transmittals_New_ConsultantAdvice" name="TestTransmittals_New_ConsultantAdvice" time="214.435" />
+
+  </testsuite>
+  <testsuite errors="0" failures="0" hostname="Shaik" id="4" name="Transmittals_New_Correspondence" package="com.proj.suiteTRANSMITTALS" tests="1" time="129.642" timestamp="24 Jan 2016 10:54:16 GMT">
+      <testcase classname="com.proj.suiteTRANSMITTALS.Transmittals_New_Correspondence" name="TestTransmittals_New_Correspondence" time="129.642" />
+
+  </testsuite>
+</testsuites>

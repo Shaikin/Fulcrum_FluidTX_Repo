@@ -1,0 +1,286 @@
+/* This file is currently associated to an HTML file of the same name and is drawing content from it.  Until the files are disassociated, you will not be able to move, delete, rename, or make any other changes to this file. */
+
+function DisplayTemplate_5a9ea6bef559448dac3d1f531e9988b0(ctx) {
+  var ms_outHtml=[];
+  var cachePreviousTemplateData = ctx['DisplayTemplateData'];
+  ctx['DisplayTemplateData'] = new Object();
+  DisplayTemplate_5a9ea6bef559448dac3d1f531e9988b0.DisplayTemplateData = ctx['DisplayTemplateData'];
+
+  ctx['DisplayTemplateData']['TemplateUrl']='~sitecollection\u002f_catalogs\u002fmasterpage\u002fDisplay Templates\u002fContent Web Parts\u002fMyCheckedOutDocs_ControlTemplate.js';
+  ctx['DisplayTemplateData']['TemplateType']='Control';
+  ctx['DisplayTemplateData']['TargetControlType']=['SearchResults', 'Content Web Parts'];
+  this.DisplayTemplateData = ctx['DisplayTemplateData'];
+
+ms_outHtml.push('',''
+,''
+); 
+$(function(){
+    if(isIE9D()){
+    	$('.searchLoadingDocuments').remove();
+    }
+});
+        
+if (!$isNull(ctx.ClientControl) &&
+    !$isNull(ctx.ClientControl.shouldRenderControl) &&
+    !ctx.ClientControl.shouldRenderControl())
+{
+    return "";
+}
+ctx.ListDataJSONGroupsKey = "ResultTables";
+ctx["CurrentItems"] = ctx.ListData.ResultTables[0].ResultRows;
+var $noResults = Srch.ContentBySearch.getControlTemplateEncodedNoResultsMessage(ctx.ClientControl);
+ 
+var encodedID = $htmlEncode(ctx.ClientControl.get_nextUniqueId() + "_Table_");
+ 
+var noResultsClassName = "ms-srch-result-noResults";
+if(!checkdocVersionD()){
+ctx.OnPostRender = [];
+ 
+ctx.OnPostRender.push(function () {
+
+    $("#" + encodedID).dataTable(
+    {        
+       "bPaginate": false,
+        "bLengthChange": false,
+        "bFilter": false,
+        "bSort": false,
+        "bInfo": false,
+        "bAutoWidth": false,
+        "sPaginationType": "full_numbers"
+     }
+     );
+     
+     $("#" + encodedID + " thead th.ms-vh2").mouseover(function(){
+     $(this).addClass('ms-headerCellStyleHover');
+     }).mouseleave(function(){
+     $(this).removeClass('ms-headerCellStyleHover');
+     });
+     
+     function thClickEvent(){
+        $("table.dataTable th div.ms-vh-div span").remove(".ms-sortarrowup-iconouter");
+        $("table.dataTable th div.ms-vh-div span").remove(".ms-sortarrowdown-iconouter");
+		$("table.dataTable th.sorting_desc div.ms-vh-div").append("<span class='ms-sortarrowdown-iconouter'><img class='ms-sortarrowdown-icon' src='/_layouts/15/images/spcommon.png?rev=23'/></span>");
+		$("table.dataTable th.sorting_asc div.ms-vh-div").append("<span class='ms-sortarrowup-iconouter'><img class='ms-sortarrowup-icon' src='/_layouts/15/images/spcommon.png?rev=23'/></span>");
+	}
+
+     $("table.dataTable th.ms-vh2").click(function(){
+		thClickEvent();
+	});
+
+	$('.searchLoadingDocuments').remove();
+});
+            }
+function getInternetExplorerVersionD()
+// Returns the version of Internet Explorer or a -1
+// (indicating the use of another browser).
+{
+    var rv = -1; // Return value assumes failure.
+    if (navigator.appName == 'Microsoft Internet Explorer')
+    {
+        var ua = navigator.userAgent;
+        var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+    if (re.exec(ua) != null)
+        rv = parseFloat( RegExp.$1 );
+    }
+    return rv;
+}
+function isIE9D() {
+    var ver = getInternetExplorerVersionD();
+    if (ver > -1) {
+        if (ver > 9.0)
+            return false;
+        else
+            return true;
+    }
+    else
+        return false;
+}
+function checkdocVersionD()
+{
+    var msg = "You're not using Internet Explorer.";
+    var ver = getInternetExplorerVersionD();
+
+    if ( ver > -1 )
+    {
+        if ( ver <= 9.0 ) 
+            return true;
+            //msg = "You're using a recent copy of Internet Explorer."
+        else
+            return false;
+            //msg = "You should upgrade your copy of Internet Explorer.";
+    }
+    //alert( msg );
+}    
+ms_outHtml.push(''
+,''
+,'        <table class="artis-tasktable" id="', encodedID ,'" border="0" cellspacing="0" cellpadding="1" bordercolor="#CCCCCC">'
+,'            <thead>'
+,'                <tr class="ms-viewheadertr ms-vhltr">'
+,'                    <th scope="col" bordercolor="#CCCCCC" class="sorting ms-vh2" style="width:15px">'
+,'                        <div class="ms-vh-div"></div>'
+,'                    </th>'
+,'                    <th scope="col" bordercolor="#CCCCCC" class="sorting ms-vh2">'
+,'                        <div class="ms-vh-div"><a class="ms-headerSortTitleLink">Name</a></div>'
+,'                    </th>'
+,'                </tr>'
+,'            </thead>'
+,'            <tbody>'
+,'                <ul id="Paging" class="ms-srch-Paging">'
+); 
+           
+                if(ctx.ClientControl.get_showPaging()){
+                    var pagingInfo = ctx.ClientControl.get_pagingInfo();
+                    if(!$isEmptyArray(pagingInfo)){ 
+ms_outHtml.push(''
+,''
+); 
+                        for (var i = 0; i < pagingInfo.length; i++) {
+                            var pl = pagingInfo[i];
+                            if(!$isNull(pl)) {
+                                var imagesUrl = GetThemedImageUrl('searchresultui.png');
+                                if(pl.startItem == -1) { 
+                                    var selfLinkId = "SelfLink_" + pl.pageNumber;
+ms_outHtml.push(''
+,'                    <li id="PagingSelf"><a id="', $htmlEncode(selfLinkId) ,'">', $htmlEncode(pl.pageNumber) ,'</a></li>'
+); 
+                                } else if(pl.pageNumber == -1) { 
+                                    var iconClass = Srch.U.isRTL() ? "ms-srch-pagingNext" : "ms-srch-pagingPrev";                                    
+ms_outHtml.push(''
+,'                    <li id="PagingImageLink"><a id="PageLinkPrev" href="#" class="ms-commandLink ms-promlink-button ms-promlink-button-enabled ms-verticalAlignMiddle" title="', $htmlEncode(pl.title) ,'" onclick="$getClientControl(this).page(', $htmlEncode(pl.startItem) ,');return Srch.U.cancelEvent(event);">'
+,'                        <span class="ms-promlink-button-image">'
+,'                            <img src="', $urlHtmlEncode(imagesUrl) ,'" class="', $htmlEncode(iconClass) ,'" alt="', $htmlEncode(pl.title) ,'" />'
+,'                        </span>'
+,'                    </a></li>'
+); 
+                                } else if(pl.pageNumber == -2) { 
+                                    var iconClass = Srch.U.isRTL() ? "ms-srch-pagingPrev" : "ms-srch-pagingNext";
+ms_outHtml.push(''
+,'                    <li id="Li1"><a id="PageLinkNext" href="#" class="ms-commandLink ms-promlink-button ms-promlink-button-enabled ms-verticalAlignMiddle" title="', $htmlEncode(pl.title) ,'" onclick="$getClientControl(this).page(', $htmlEncode(pl.startItem) ,');return Srch.U.cancelEvent(event);">'
+,'                        <span class="ms-promlink-button-image">'
+,'                            <img src="', $urlHtmlEncode(imagesUrl) ,'" class="', $htmlEncode(iconClass) ,'" alt="', $htmlEncode(pl.title) ,'" />'
+,'                        </span>'
+,'                    </a></li>'
+); 
+                                } else { 
+                                    var pageLinkId = "PageLink_" + pl.pageNumber;
+ms_outHtml.push(''
+,'                    <li id="PagingLink"><a id="', $htmlEncode(pageLinkId) ,'" href="#" title="', $htmlEncode(pl.title) ,'" onclick="$getClientControl(this).page(', $htmlEncode(pl.startItem) ,');return Srch.U.cancelEvent(event);">', $htmlEncode(pl.pageNumber) ,'</a></li>'
+); 
+                                }
+                            }
+                        } 
+ms_outHtml.push(''
+,''
+);
+    }
+}
+ms_outHtml.push(''
+,'                    <div class="ms-srch-resultFooter">'
+);
+                     if(ctx.ClientControl.get_showResultCount() && ctx.DataProvider.get_totalRows() > 0){
+                     var start = ctx.DataProvider.get_currentQueryState().s;
+                     var resultsPerPage = ctx.DataProvider.get_resultsPerPage();
+                     var totalRows = ctx.DataProvider.get_totalRows();
+                     var countDisplayString = Srch.Res.rs_ApproximateResultCount;
+                             var countdocs="";
+                            if(totalRows>10)
+                             countdocs="About {0} results";
+                            else if(totalRows==1)
+                             countdocs="{0} result";
+                            else
+                              countdocs="{0} results";
+                     var exactCount = Srch.Res.rs_ResultCount;		                       
+				     if (start + resultsPerPage > totalRows) { countDisplayString = (totalRows == 1)? Srch.Res.rs_SingleResultCount : Srch.Res.rs_ResultCount; }
+                      var finalResults;
+                     if($isNull(localStorage.getItem('querycache')))
+                     {
+                     localStorage.setItem('querycache', ctx.DataProvider.get_currentQueryState().k);
+                     localStorage.setItem('totalResults', ctx.DataProvider.get_totalRows());
+                     finalResults = totalRows;
+                     }
+                     else
+                     {
+                     if(localStorage.getItem('querycache') == ctx.DataProvider.get_currentQueryState().k )
+                     {
+                     finalResults = totalRows;
+                     }
+ 
+                     else
+                     {
+                     localStorage.setItem('querycache', ctx.DataProvider.get_currentQueryState().k);
+                     localStorage.setItem('totalResults', ctx.DataProvider.get_totalRows());
+                     finalResults = totalRows;
+                     }
+                     }
+                    ms_outHtml.push(''
+,''
+,''
+,'                        <div id="ResultCount" class="ms-srch-resultscount" style="text-align: left; margin-top: 10px">'
+,'                           <!-- ', String.format(countdocs, $htmlEncode(finalResults)) ,'-->'
+,' '
+,'                        </div>'
+);
+                     }
+                    ms_outHtml.push(''
+,'                    </div>'
+,''
+);
+if (ctx.ClientControl.get_shouldShowNoResultMessage())
+{
+ms_outHtml.push(''
+,'                    <div class="', noResultsClassName ,'">', $noResults ,'</div>'
+);
+}
+ms_outHtml.push(''
+,'                    ', ctx.RenderGroups(ctx) ,''
+,'                </ul>'
+,'            </tbody>'
+,'        </table>'
+,''
+,'    '
+);
+
+  ctx['DisplayTemplateData'] = cachePreviousTemplateData;
+  return ms_outHtml.join('');
+}
+function RegisterTemplate_5a9ea6bef559448dac3d1f531e9988b0() {
+
+if ("undefined" != typeof (Srch) &&"undefined" != typeof (Srch.U) &&typeof(Srch.U.registerRenderTemplateByName) == "function") {
+  Srch.U.registerRenderTemplateByName("Documents_DataTable", DisplayTemplate_5a9ea6bef559448dac3d1f531e9988b0);
+}
+
+if ("undefined" != typeof (Srch) &&"undefined" != typeof (Srch.U) &&typeof(Srch.U.registerRenderTemplateByName) == "function") {
+  Srch.U.registerRenderTemplateByName("~sitecollection\u002f_catalogs\u002fmasterpage\u002fDisplay Templates\u002fContent Web Parts\u002fMyCheckedOutDocs_ControlTemplate.js", DisplayTemplate_5a9ea6bef559448dac3d1f531e9988b0);
+}
+//
+        $includeScript("~sitecollection\u002f_catalogs\u002fmasterpage\u002fDisplay Templates\u002fContent Web Parts\u002fMyCheckedOutDocs_ControlTemplate.js","~SiteCollection/Style Library/CRL/SearchScripts/jquery.dataTables.js");
+        $includeScript("~sitecollection\u002f_catalogs\u002fmasterpage\u002fDisplay Templates\u002fContent Web Parts\u002fMyCheckedOutDocs_ControlTemplate.js","~SiteCollection/Style Library/CRL/SearchScripts/jquery.dataTables.css");
+    //
+}
+RegisterTemplate_5a9ea6bef559448dac3d1f531e9988b0();
+if (typeof(RegisterModuleInit) == "function" && typeof(Srch.U.replaceUrlTokens) == "function") {
+  RegisterModuleInit(Srch.U.replaceUrlTokens("~sitecollection\u002f_catalogs\u002fmasterpage\u002fDisplay Templates\u002fContent Web Parts\u002fMyCheckedOutDocs_ControlTemplate.js"), RegisterTemplate_5a9ea6bef559448dac3d1f531e9988b0);
+}ôÚ×~”œ              <à¦XwF    ª:http://atprojects.leapthought.co.nz/sites/cid/_catalogs/masterpage/display%20templates/content%20web%20parts/mycheckedoutdocs_controltemplate.js?ctag=112$$15.0.4649.1000 request-method GET auth NTLM response-head HTTP/1.1 200 OK
+Expires: Thu, 12 Jan 2017 09:04:32 GMT
+Date: Wed, 13 Jan 2016 09:04:32 GMT
+Content-Type: application/javascript
+Etag: "{078761F3-7815-4B58-A79D-39F7D12014EE},2"
+Server: Microsoft-IIS/8.0
+Cache-Control: private,max-age=31536000
+Last-Modified: Mon, 13 Jul 2015 21:38:48 GMT
+X-SharePointHealthScore: 0
+ResourceTag: rt:078761F3-7815-4B58-A79D-39F7D12014EE@00000000002
+Content-Disposition: attachment; filename="mycheckedoutdocs_controltemplate.js"
+X-Download-Options: noopen
+Public-Extension: http://schemas.microsoft.com/repl-2
+SPRequestGuid: 78c6549d-42ef-209c-f465-371210149ade
+request-id: 78c6549d-42ef-209c-f465-371210149ade
+x-frame-options: SAMEORIGIN
+SPRequestDuration: 23
+SPIisLatency: 0
+Persistent-Auth: true
+X-Powered-By: ASP.NET
+MicrosoftSharePointTeamServices: 15.0.0.4535
+x-content-type-options: nosniff
+X-MS-InvokeApp: 1; RequireReadOnly
+ uncompressed-len 0   /

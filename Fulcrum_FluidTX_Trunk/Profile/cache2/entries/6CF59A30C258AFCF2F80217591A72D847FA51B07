@@ -1,0 +1,574 @@
+ï»¿var transmittalsForm = window.transmittalsForm || {};
+
+transmittalsForm = {
+    Properties: {
+        ParentTransmittalField: 'ParentTransmittal',
+        ParentTransmittalRelationshipField: 'ParentTransmittalRelationship',
+        AttachedDocIdsField: 'AttachedDocIds',
+        SupportingDocIdsField: 'SupportingDocIds',
+        MessageStatusField: 'MessageStatus',
+        WhenSentField: 'WhenSent',
+        IsConfidentialField: 'IsConfidential',
+        WhenSentField: 'WhenSent',
+        SenderOrganisationField: 'SenderOrganisation',
+        RecipientOrganisationField: 'RecipientOrganisations',
+        TransmittalLocationField: 'TransmittalLocation',
+        IssueReasonField: 'IssueReason',
+        TransmittalTraceField: "TransmittalTrace",
+        InitialTxIdField: "InitialTxId",
+        ReviewSheetField: "CollaborationFiles",
+        TransmittalMessageField: "TransmittalMessage"
+    },
+
+    AttachDocuments: function (result, selectedFiles) {
+        if (selectedFiles && selectedFiles.length > 0) {
+            $.each(selectedFiles, function (index, value) {
+                if (transmittalsForm.AddDocIdToField(transmittalsForm.Properties.AttachedDocIdsField, value.DocId, value.Version)) {
+                    $("#divTransmittalFiles > ul").append("<li>" + crlCommon.fixAspxFileName(value.FileName) + "(" + value.Version + ")&nbsp; <a href='#' class='RemoveFile' data-val='" + value.DocId + "'>Remove</a></li>").find("a.RemoveFile").click(function ()
+                    { transmittalsForm.RemoveDocument(transmittalsForm.Properties.AttachedDocIdsField, $(this)); return false; });
+                }
+            });
+            transmittalsForm.InitDocListPanel();
+
+        }
+    },
+
+    AttachSupportDocuments: function (result, selectedFiles) {
+        if (selectedFiles && selectedFiles.length > 0) {
+            $.each(selectedFiles, function (index, value) {
+                if (transmittalsForm.AddDocIdToField(transmittalsForm.Properties.SupportingDocIdsField, value.DocId, value.Version)) {
+                    $("#divSupportingFiles > ul").append("<li>" + crlCommon.fixAspxFileName(value.FileName) + "(" + value.Version + ")&nbsp; <a href='#' class='RemoveFile' data-val='" + value.DocId + "'>Remove</a></li>").find("a.RemoveFile").click(function ()
+                    { transmittalsForm.RemoveDocument(transmittalsForm.Properties.SupportingDocIdsField, $(this)); return false; });
+                }
+            });
+            transmittalsForm.InitDocListPanel();
+        }
+    },
+
+    RemoveDocument: function (field, obj) {
+        obj.closest('li').remove();
+        transmittalsForm.RemoveDocIdFromField(field, obj.data('val'));
+
+        if (obj.closest('ul').children.length <= 3) {
+            $('#divTransmittalFiles').css('height', 'auto');
+        }
+        transmittalsForm.InitDocListPanel();
+    },
+
+    IsIssuedForApproval: function () {
+
+        var txType = $('input[id*=TransmittalType_]').val();
+        if (txType != "") {
+            var pos = txType.indexOf("|");
+            txType = txType.substring(0, pos);
+        }
+
+        return txType == "Change Note" ||
+            txType == "Task Plan" ||
+            txType == "Site Instruction" ||
+            txType == "Variation Order" ||
+            txType == "Notice to Contractor" ||
+            txType == "Client Instruction";
+    },
+
+    AddDocIdToField: function (fieldId, docId, versionLabel) {
+        var obj = $('textarea[id^=' + fieldId + ']');
+        var rawIds = obj.val();
+        var returnValue = true;
+        var docIdVersion;
+        if (!versionLabel) {
+            docIdVersion = docId;
+        } else {
+            docIdVersion = docId + "|" + versionLabel;
+        }
+
+        if (rawIds == undefined || rawIds == '') {
+            obj.val(docIdVersion);
+        }
+        else {
+            var IdVersions = rawIds.split(',');
+            if ($.inArray(docIdVersion, IdVersions) == -1) {
+                if (rawIds != '') rawIds += ',';
+                rawIds += docIdVersion;
+                obj.val(rawIds);
+            }
+            else { returnValue = false; }
+        }
+
+        if (fieldId == "AttachedDocIds" && transmittalsForm.IsIssuedForApproval()) {
+            minorVersion = parseInt(versionLabel.split(".")[1], 10)
+            if (minorVersion >= 1) {
+                var closeBtnUrl = crlCommon.getStyleLibFolderUrl() + 'img/close-button-grey-24.png';
+                var img = '<img alt="Close notification" src="' + closeBtnUrl + '"/>';
+                var message = '<a style="float:right" href="#" title="close notification" onclick="javascript:startTransmittal.closeStatusBar(startTransmittal.statusId);return false;">'
+                    + img + '</a><span class="unpublished-files" style="font-weight:bold"> Minor versions of files cannot be attached to transmittals which have been issued for approval. Please remove before sending.</span>';
+                startTransmittal.notifyUser(message);
+                $("[id$='SaveItem']").attr('disabled', 'disabled');
+            }
+        }
+        return returnValue;
+    },
+
+    RemoveDocIdFromField: function (fieldId, docId) {
+        var obj = $('textarea[id^=' + fieldId + ']');
+        var rawIds = obj.val();
+        var IdVersions = rawIds.split(',');
+
+        var ids = [];
+        var versions = [];
+        for (var i = 0; i < IdVersions.length; i++) {
+            var IdVersion = IdVersions[i].split('|');
+            ids.push(IdVersion[0]);
+            versions.push(IdVersion[1]);
+        }
+        var removeItemIndex = $.inArray(docId, ids);
+        //there was some issues with splice method
+        var newArray = [];
+        for (var i = 0; i < ids.length; i++) {
+            if (i != removeItemIndex && ids[i].length > 0) {
+                newArray.push(ids[i] + "|" + versions[i]);
+            }
+        }
+        obj.val(newArray.join());
+        transmittalsForm.TransmitDraftVersionsAsSupportingDocs(newArray.join());
+    },
+
+    InitDocsAttached: function () {
+        var rawIds = $('.hdnDocIds').val();
+        var attachedDocIdField = $('textarea[id^=' + transmittalsForm.Properties.AttachedDocIdsField + ']').val();
+        var supportingDocIdField = $('textarea[id^=' + transmittalsForm.Properties.SupportingDocIdsField + ']').val();
+
+        if (rawIds != undefined && rawIds != '') {
+
+            var docIds = rawIds.split(',');
+            for (var i = 0; i < docIds.length; i++) {
+                transmittalsForm.AddDocIdToField(transmittalsForm.Properties.AttachedDocIdsField, docIds[i]);
+            }
+
+            if (docIds.length > 3) {
+                $('#divTransmittalFiles').css('height', '70px');
+            }
+        }
+
+        var rawSupportingIds = $('.hdnSupportDocIds').val();
+        if (rawSupportingIds != undefined && rawSupportingIds != '') {
+            var supportingDocIds = rawSupportingIds.split(',');
+            if (supportingDocIds.length > 3) {
+                $('#divSupportingFiles').css('height', '70px');
+            }
+        }
+
+    },
+
+    InitDocListPanel: function () {
+        $('#divTransmittalFiles').toggle($('#divTransmittalFiles').find("li").length > 0);
+        $('#divSupportingFiles').toggle($('#divSupportingFiles').find("li").length > 0);
+
+    },
+
+    InitRemoveClick: function () {
+        $('#divTransmittalFiles').on('click', 'a.RemoveFile', function (event) { event.preventDefault(); transmittalsForm.RemoveDocument(transmittalsForm.Properties.AttachedDocIdsField, $(this)); return false; });
+        $('#divSupportingFiles').on('click', 'a.RemoveFile', function (event) { event.preventDefault(); transmittalsForm.RemoveDocument(transmittalsForm.Properties.SupportingDocIdsField, $(this)); return false; });
+    },
+
+    InitSaveButton: function () {
+        $("span[id='Ribbon.ListForm.Edit.Commit-LargeLarge-0-0']").find("span.ms-cui-ctl-largelabel").first().text("Send");
+        $("input[Value='Save']").val("Send");
+        // Hide tooltip for Send button
+        $('html > head').append($('<style>#Ribbon\\.ListForm\\.Edit\\.Commit\\.Publish_ToolTip { display: none; }</style>'));
+        $("a[id='Ribbon.ListForm.Edit.Commit.Publish-Large'] img").css('top', '-374px').css('left', '-238px');
+
+        $("a[id='Ribbon.ListItem.Actions.AttachReviewSheetFile-Large']").bind("click", function () {
+            if ($(this).hasClass('ms-cui-disabled'))
+                return;
+
+            $("a[id='Ribbon.ListForm.Edit.Commit.Publish-Large']").hide();
+        });
+
+        $(".ms-attachUploadButtons input[type='button']").bind("click", function () {
+            if ($("#csrAttachmentUploadDiv #partAttachment").is(":visible"))
+                return;
+
+            $("a[id='Ribbon.ListForm.Edit.Commit.Publish-Large']").show();
+        });
+    },
+
+    InitAttachReviewSheet: function () {
+
+        var txType = $('#TransmittalType_\\$input').val();
+        //hook up to change event. input is hidden so jquery changed event won't work
+        $('#TransmittalType_\\$containereditableRegion').bind('DOMSubtreeModified', function () {
+            var newTxType = $('#TransmittalType_\\$input').val();
+            if (newTxType != txType) {
+                RefreshCommandUI();
+            }
+        });
+
+        //move attachment field to the top
+        $("tr[id='idAttachmentsRow']").closest("tbody").prepend($("tr[id='idAttachmentsRow']"));
+        $("tr[id='idAttachmentsRow']").find("td.ms-formlabel h3 nobr").html("Review Sheet");
+        $("tr[id='idAttachmentsRow']").addClass("reviewSheetAtt");
+    },
+
+    InitDisplayReviewSheet: function () {
+        //review sheet
+        if ($("div[id^='CollaborationFiles']").find("ul.DocRegisterLinks li").length > 0) {
+            $("div[id^='CollaborationFiles']").find("ul.DocRegisterLinks li").each(function () {
+                $("div[id='divReviewSheet'] ul").append("<li>" + $(this).html() + "</li>");
+            });
+            $("div[id='divReviewSheet'] ul li").each(function () {
+                var item = $(this);
+                $(this).append("&nbsp;&nbsp; <a href='#' class='RemoveFile'>Remove</a>").find("a.RemoveFile").click(function (event) {
+                    event.preventDefault(event);
+                    var docHref = item.find("a.collabDocLink").attr('href');
+                    var docName = item.find("a.collabDocLink").text();
+                    var result = confirm("Do you want to remove '" + docName + "'?");
+                    //todo: change it to SP dialog box for support in Chrome
+                    if (result) {
+                        $("div[id^='CollaborationFiles']").find("ul.DocRegisterLinks li a[href='" + docHref + "']").parent().remove();
+                        item.remove();
+                    }
+                    return false;
+                });
+            });
+            $("div[id='divReviewSheet']").show();
+        }
+    },
+
+    InitBIMURL: function () {
+        if (window.frameElement != null && window.frameElement.dialogArgs != null) {
+            var args = window.frameElement.dialogArgs;
+            if (args.BIMURL != null) {
+                var bimLink = '<a href="' + args.BIMURL + '" class="BIMLink" target="_blank">BIM Link</a><br/>';
+                var obj = $('div[id^=' + transmittalsForm.Properties.TransmittalMessageField + '] > p');
+                obj.html(bimLink + obj.html());
+            }
+        }
+    },
+
+    HideFormElements: function () {
+        $('textarea[id^=' + transmittalsForm.Properties.AttachedDocIdsField + ']').closest('tr').hide();
+        $('select[id^=' + transmittalsForm.Properties.MessageStatusField + ']').closest('tr').hide();
+        $('input[id^=' + transmittalsForm.Properties.ParentTransmittalField + ']').closest('tr').hide();
+        $('select[id^=' + transmittalsForm.Properties.ParentTransmittalRelationshipField + ']').closest('tr').hide();
+        $('textarea[id^=' + transmittalsForm.Properties.SupportingDocIdsField + ']').closest('tr').hide();
+        // $('input[id^=' + transmittalsForm.Properties.IsConfidentialField + ']').closest('tr').hide();
+        $('input[id^=' + transmittalsForm.Properties.InitialTxIdField + ']').closest('tr').hide();
+        $('table[id^=' + transmittalsForm.Properties.WhenSentField + ']').closest('tr').hide();
+        $('input[id^=' + transmittalsForm.Properties.SenderOrganisationField + ']').closest('tr').hide();
+        $('input[id^=' + transmittalsForm.Properties.RecipientOrganisationField + ']').closest('tr').hide();
+        $('select[id^=' + transmittalsForm.Properties.TransmittalLocationField + ']').closest('tr').hide();
+        $('textarea[id^=' + transmittalsForm.Properties.TransmittalTraceField + ']').closest('tr').hide();
+        $('div[id^=' + transmittalsForm.Properties.ReviewSheetField + ']').closest('tr').hide();
+        $("select[id^='" + transmittalsForm.Properties.IssueReasonField + "']").parent().parent().parent().hide();
+        $('input[id^=Completed_Date]').closest('tr').parent().parent().parent().parent().parent().hide();
+        $('input[id^=TxAge]').closest('tr').hide();
+
+        // hide default attach file button
+        var id = "Ribbon.ListForm.Edit.Actions.AttachFile-Large";
+        id = id.replace(/\./g, '\\.');
+        $('#' + id).closest('.ms-cui-section').hide();
+    },
+
+    //When user checks confidential force transmittal type to Correspondance.
+    SetConfidentialRules: function () {
+        $('input[id^=' + transmittalsForm.Properties.IsConfidentialField + ']').click(function () {
+            var IsConfidential = this;
+            if ($(IsConfidential).is(":checked")) {
+                transmittalsForm.setTransmittalValueCorrespondance();
+                transmittalsForm.enableTransmittalType(false);
+            }
+            else {
+                transmittalsForm.enableTransmittalType(true);
+            }
+        });
+    },
+
+    setTransmittalValueCorrespondance: function () {
+        //set hidden input value with guid
+        $('input[id*=TransmittalType_]').val("Correspondence|93aaecae-2782-40b8-9944-387857a567b2"); //GUID universal between environments
+
+        //set text value displayed. 
+        if ($('div[id*=TransmittalType_]').children("span").length == 1) { //if value already in field
+            $($('div[id*=TransmittalType_]').children("span")[0]).text('Correspondence ');  //need space there otherwise goes red when click other metadata field
+        }
+        else { //if no value in field
+            var contentDiv = $($('div[id*=TransmittalType_]')).find("div[contenteditable]");
+            contentDiv.html('<span class="valid-text" title="">Correspondenceâ€‹<span id="ms-rterangecursor-start"></span><span id="ms-rterangecursor-end"></span></span>');
+        }
+
+    },
+
+    enableTransmittalType: function (enable) {
+        var contentDiv = $($('div[id*=TransmittalType_]')).find("div[contenteditable]");
+        var metaBtn = $('div[id*=TransmittalType_]').children("img");
+
+        if (enable) {
+            //show button and enable control
+            metaBtn.show();
+            contentDiv.attr("contenteditable", "true");
+            contentDiv.css('background-color', '#E4EFF8');
+        } else {
+
+            //hide button and disable control
+            metaBtn.hide();
+            contentDiv.attr("contenteditable", "false");
+            contentDiv.css('background-color', 'lightgray');
+        }
+    },
+
+    SetReplyAllConfidentialRules: function () {
+        var transmittalType = decodeURIComponent(GetQueryString("TransmittalType"));
+        var isConfidentialFld = $('input[id^=' + transmittalsForm.Properties.IsConfidentialField + ']');
+        if ((isConfidentialFld).is(":checked")) {
+            if (transmittalType == "Replied To") {
+                isConfidentialFld.attr('disabled', true);
+                transmittalsForm.setTransmittalValueCorrespondance();
+                transmittalsForm.enableTransmittalType(false);
+                var toFld = $('[id^=TransmittalTo]');
+                var ccFld = $('[id^=TransmittalCC]');
+                $("input.sp-peoplepicker-editorInput[title='To']").prop('disabled', true); //disable input textbox
+                $("div.sp-peoplepicker-topLevel[title='To']").addClass("sp-peoplepicker-topLevelDisabled"); //set the correct css class for disabled
+                $("input.sp-peoplepicker-editorInput[title='CC']").prop('disabled', true); //disable input textbox
+                $("div.sp-peoplepicker-topLevel[title='CC']").addClass("sp-peoplepicker-topLevelDisabled"); //set the correct css class for disabled
+                SharePointUserOnMouseover("To", "TransmittalTo");
+                SharePointUserOnMouseover("CC", "TransmittalCC");
+            }
+        }
+    },
+
+    RelocateErrorMsg: function () {
+        var transmittalMessgaeFld = $('div[id^=TransmittalMessage]').closest('td');
+        var transmittalErrorMessgaeFld = $('span[id^=Error_TransmittalMessage]');
+        if (transmittalErrorMessgaeFld.length > 0)
+            transmittalMessgaeFld.prepend(transmittalErrorMessgaeFld);
+        prependErrorMessage(50, 0);
+    },
+
+    TranmitDraftDocsCondition: function () {
+        var txType = $('#TransmittalType_\\$input').val();
+
+        //hook up to change event. input is hidden so jquery changed event won't work
+        $('#TransmittalType_\\$containereditableRegion').bind('DOMSubtreeModified', function () {
+            var flag = true;
+            if (transmittalsForm.IsIssuedForApproval()) {
+                var attachedDocIds = $("textarea[id^='AttachedDocIds']").val();
+                if (attachedDocIds != "") {
+                    var arr = attachedDocIds.split(',');
+                    $.each(arr, function (n, val) {
+                        var minorVersion = parseInt(val.split("|")[1].split(".")[1], 10);
+                        if (minorVersion >= 1)
+                            flag = false;
+                    });
+                }
+                if (!flag) {
+                    var closeBtnUrl = crlCommon.getStyleLibFolderUrl() + 'img/close-button-grey-24.png';
+                    var img = '<img alt="Close notification" src="' + closeBtnUrl + '"/>';
+                    var message = '<a style="float:right" href="#" title="close notification" onclick="javascript:startTransmittal.closeStatusBar(startTransmittal.statusId);return false;">'
+                        + img + '</a><span class="unpublished-files" style="font-weight:bold"> Minor versions of files cannot be attached to transmittals which have been issued for approval. Please remove before sending.</span>';
+                    startTransmittal.notifyUser(message);
+                    $("[id$='SaveItem']").attr('disabled', 'disabled');
+                }
+            }
+            else {
+                $("[id$='SaveItem']").removeAttr('disabled');
+                SP.UI.Status.removeAllStatus(true);
+            }
+        });
+    },
+
+    TransmitDraftVersionsAsSupportingDocs: function (docIds) {
+
+        if (transmittalsForm.IsIssuedForApproval()) {
+            var flag = true;
+            if (docIds != "") {
+                var arr = docIds.split(',');
+                $.each(arr, function (n, val) {
+                    var minorVersion = parseInt(val.split("|")[1].split(".")[1], 10);
+                    if (minorVersion >= 1)
+                        flag = false;
+                });
+            }
+
+            if (flag) {
+                $("[id$='SaveItem']").removeAttr('disabled');
+                SP.UI.Status.removeAllStatus(true);
+            }
+        }
+    },
+
+    PreSaveActions: function () {
+        var reviewSheetAttCount = $("table[id='idAttachmentsTable']").find("tr").length;
+
+        var transType = $('input[id*=TransmittalType_]').val();
+        if (transType != "") {
+            var pos = transType.indexOf("|");
+            transType = transType.substring(0, pos);
+        }
+        var isConsultantAdvice = transType == "Consultant Advice";
+
+        if (!isConsultantAdvice && reviewSheetAttCount > 0) {
+            alert("You can only attach review sheets for transmitals of type Consultant Advice.");
+            return false;
+        }
+
+
+
+        $("a[id='Ribbon.ListForm.Edit.Commit.Publish-Large']").bind('click', function (e) {
+            e.preventDefault();
+        })
+        return true;
+    }
+};
+
+function prependErrorMessage(trycount, len) {
+    if (trycount == 0)
+        return;
+    if (len == 0)
+        $('.prepended').remove();
+    var toFldValidation = $('span[id=Error_WPQ2ClientFormPlaceholder]');
+    var parentDiv = $('#WebPartWPQ2');
+    if (toFldValidation.length == 0) {
+        setTimeout(function () { prependErrorMessage(trycount--, $('span[id=Error_WPQ2ClientFormPlaceholder]').length); }, 50);
+        return;
+    }
+    toFldValidation.addClass('prepended')
+    parentDiv.prepend(toFldValidation);
+    return true;
+}
+
+function SharePointUserOnMouseover(displayName, internalName) {
+    //override the .sp-peoplepicker-topLevel:hover class
+    var div = $('div.sp-peoplepicker-topLevel[title=' + displayName + ']')[0];
+    $(div).css("color", "#1c4269");
+    $(div).css("border-top-color", "#d8dfe0");
+    $(div).css("border-right-color", "#d8dfe0");
+    $(div).css("border-bottom-color", "#d8dfe0");
+    $(div).css("border-left-color", "#d8dfe0");
+
+    var link = $('[id^=' + internalName + ']');
+    $(link).css("color", "#99a8ad"); //the link inside the control
+}
+
+function GetQueryString(sParam) {
+    var sPageURL = window.location.search.substring(1);
+    var sURLVariables = sPageURL.split('&');
+    for (var i = 0; i < sURLVariables.length; i++) {
+        var sParameterName = sURLVariables[i].split('=');
+        if (sParameterName[0] == sParam) {
+            return sParameterName[1];
+        }
+    }
+}
+
+function CalendarPosition() {
+    var calImg = $("img[id^='DueDate1']");
+    var calAnchor = calImg.parent();
+    calAnchor.append("<div id='tempdiv' style='height:0.4px'><span id='hidden' style='display:none'></span></div>");
+    calAnchor.click(function () {
+        var element = $("iframe[id^='DueDate1']");
+        $('#tempdiv').append(element);
+        element.attr("style", "");
+        element.removeClass("calIframe");
+        element.addClass("calIframe");
+        if ($("#hidden").text() == "") {
+            $("iframe[id^='DueDate1']").css("display", "block");
+            $("#hidden").text("1");
+        }
+        else {
+            $("iframe[id^='DueDate1']").css("display", "none");
+            $("#hidden").text("");
+        }
+    });
+}
+
+$(function () {
+    transmittalsForm.InitSaveButton();
+    transmittalsForm.InitRemoveClick();
+    transmittalsForm.InitDocsAttached();
+    transmittalsForm.HideFormElements();
+    transmittalsForm.InitDocListPanel();
+    transmittalsForm.InitAttachReviewSheet();
+
+    var transmittalId = crlCommon.getParameterByName('TransmittalId');
+    var parentTxId = crlCommon.getParameterByName('ParentTransmittal');
+    if (transmittalId != null && transmittalId != "" && transmittalId != '') {
+        //Reply all or Forward
+        transmittalListActions.getParentTransmittal(transmittalId, parentTxId, function () {
+            transmittalsForm.SetReplyAllConfidentialRules();
+            transmittalsForm.InitDisplayReviewSheet();
+            transmittalsForm.InitBIMURL();
+        });
+    }
+    else {
+        transmittalsForm.InitBIMURL();
+    }
+    transmittalsForm.SetConfidentialRules();
+
+    $("[id$='SaveItem']").click(function () {
+        var saveButton = $("[id$='SaveItem']");
+        $(saveButton).attr('disabled', 'disabled');
+        transmittalsForm.RelocateErrorMsg();
+        disableSaveButton(saveButton, 7);
+    });
+
+    $("#Ribbon.ListForm.Edit.Commit.Publish-Large").click(function () {
+        var saveButton = $("#Ribbon.ListForm.Edit.Commit.Publish-Large");
+        $(saveButton).attr('disabled', 'disabled');
+        transmittalsForm.RelocateErrorMsg();
+        disableSaveButton(saveButton, 7);
+    });
+    //  CalendarPosition();
+    transmittalsForm.TranmitDraftDocsCondition();
+
+    //if creating a new transmittal by selecting documents within library and hitting Start New Transmittal, 
+    //the dialog options will contain docids to attach 
+    if (window.frameElement != null && window.frameElement.dialogArgs != null) {
+        var args = window.frameElement.dialogArgs;
+        if (args.docIds != null)
+            window.transmittalsForm.AttachDocuments("1", args.docIds);
+    }
+});
+
+function disableSaveButton(elem, trycount) {
+    if (trycount == 0) {
+        $(elem).removeAttr('disabled');
+        return;
+    }
+    setTimeout(function () {
+        if ($("[role$='alert']").length == 0) {
+            disableSaveButton(trycount - 1);
+        }
+        else {
+            $(elem).removeAttr('disabled');
+        }
+    }, 1000);
+
+    return;
+}
+
+function PreSaveAction() {
+    return transmittalsForm.PreSaveActions();
+}nLæÚ•              <Té       c:http://atprojects.leapthought.co.nz/sites/CID/Style%20Library/CRL/scripts/ManageTransmittalDocs.js request-method GET response-head HTTP/1.1 200 OK
+Expires: Tue, 29 Dec 2015 08:23:40 GMT
+Date: Wed, 13 Jan 2016 08:23:40 GMT
+Content-Type: application/javascript
+Etag: "{66253FEC-F47B-406D-890A-CDF774079925},1"
+Server: Microsoft-IIS/8.0
+Cache-Control: private,max-age=0
+Last-Modified: Mon, 13 Jul 2015 21:53:36 GMT
+X-SharePointHealthScore: 0
+ResourceTag: rt:66253FEC-F47B-406D-890A-CDF774079925@00000000001
+Content-Disposition: attachment; filename="ManageTransmittalDocs.js"
+X-Download-Options: noopen
+Public-Extension: http://schemas.microsoft.com/repl-2
+SPRequestGuid: 22c4549d-b258-209c-f465-3ec9dc222990
+request-id: 22c4549d-b258-209c-f465-3ec9dc222990
+x-frame-options: SAMEORIGIN
+SPRequestDuration: 17
+SPIisLatency: 1
+X-Powered-By: ASP.NET
+MicrosoftSharePointTeamServices: 15.0.0.4535
+x-content-type-options: nosniff
+X-MS-InvokeApp: 1; RequireReadOnly
+ uncompressed-len 0   b×

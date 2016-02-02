@@ -1,0 +1,129 @@
+<project name="OnTrack TestNG" default="baseBuild" basedir=".">  
+	<property file="${basedir}/src/com/proj/config/config.properties" />
+	<!-- ========== Initialize Properties =================================== -->
+	<property environment="env"/>    
+	<property name="libraries" value="${basedir}/lib"/>
+	<property name="test.dest" value="${basedir}/build"/>
+	<property name="test.src" value="${basedir}/src"/>
+	<property name="ng.result" value="${basedir}/test-output"/>
+
+	<!-- ****************  **************** -->
+	<target name="baseBuild" depends="run,junit-report" />
+
+	<target name="setClassPath" unless="test.classpath">
+		<path id="classpath_jars">
+			<fileset dir="${libraries}" includes="**/*.jar"/>
+		</path>
+		<pathconvert pathsep=":" 
+            property="test.classpath" 
+            refid="classpath_jars"/>
+	</target>
+
+	<!-- **************** Init **************** -->
+	<target name="init" depends="setClassPath">
+		<tstamp>
+			<format property="start.time" pattern="MM/dd/yyyy hh:mm aa" />
+		</tstamp>
+		<taskdef name="testng" classpath="${test.classpath}" classname="org.testng.TestNGAntTask" />
+
+		<delete includeemptydirs="true" quiet="true">
+			<fileset dir="${test.dest}" includes="**/*"/>
+		</delete>
+
+		<delete includeemptydirs="true" quiet="true">
+			<fileset dir="${basedir}\Results" includes="**/*"/>
+		</delete>
+
+
+		<echo message="Creating  directory..."/>
+		<mkdir dir="${test.dest}"/>
+
+	</target>
+
+
+	<!-- **************** Compile  **************** -->
+	<target name="compile" depends="init" > 
+		<!-- <echo message="classpath : ${test.classpath}"/> -->
+		<echo message="compiling..."/>
+		<javac 
+	            debug="true" 
+	            destdir="${test.dest}" 
+	            srcdir="${test.src}" 
+	            target="1.7" 
+	            classpath="${test.classpath}"
+	        >
+		</javac>
+		<copy todir="${test.dest}">
+			<fileset dir="${test.src}" excludes="**/*.java"/>
+		</copy>
+	</target>
+	
+	<!-- **************** Selenium Create Suite XML  **************** -->
+		<target name="createxmls"  depends="compile" >
+			
+			<testng classpath="${test.classpath}:${test.dest}" suitename="Runner Suite">	
+				<xmlfileset dir="${basedir}/conf/TestNG/runnerXml" includes="runner.xml"/>
+			</testng>
+		</target>
+	
+    <!-- **************** Selenium Tests Execute  **************** -->
+    <target name="run" depends="createxmls">
+       		<testng classpath="${test.classpath}:${test.dest}" suitename="Automation Suite-MAT 1.0">	
+    				<xmlfileset dir="${basedir}/conf/TestNG/suites" includes="testNG.xml"/>
+    		</testng>
+    </target>
+    
+             
+
+
+	<!--
+	<target name="email" >
+		<java classname="com.nuview.util.SendMail" classpath="${test.dest}" classpathref="test.c" />
+	</target>   -->
+
+	<!-- **************** XSLT Report Generate  **************** -->
+	<target name="makexsltreports">
+		<path id="test.c">
+			<fileset dir="${libraries}" includes="**/*.jar"/>
+		</path>
+		<delete dir="${basedir}/XSLT_Reports/output" />
+		<mkdir dir="${basedir}/XSLT_Reports/output"/>
+
+		<xslt in="${ng.result}/testng-results.xml" style="src/com/proj/xslt/testng-results.xsl"
+	              out="${basedir}/XSLT_Reports/output/index.html" classpathref="test.c" processor="SaxonLiaison">
+			<param name="testNgXslt.outputDir" expression="${basedir}/XSLT_Reports/output/"/>
+			<param name="testNgXslt.showRuntimeTotals" expression="true"/>
+			<param expression="FAIL,SKIP,PASS,CONF,BY_CLASS" name="testNgXslt.testDetailsFilter" />
+		</xslt>
+	</target>
+
+
+
+	<!-- ****************** target zip   ****************** -->
+
+	<target name="zip">
+		<zip destfile="${basedir}/Email_XSLT_Reports.zip"
+                  basedir="${basedir}/XSLT_Reports" />
+		<!-- includes="${db.rb.name}.bak"/>  -->
+	</target>
+
+	
+
+	<property name="junit-xml-dir" value="${basedir}/test-output/junitreports"/>
+  <property name="report-dir" value="${basedir}/Junit-report" />
+
+	<target name="junit-report">
+
+		<delete dir="${report-dir}"/>
+		<mkdir dir="${report-dir}" />
+		<mkdir dir="${report-dir}/" />
+
+		<junitreport todir="${report-dir}">
+			<fileset dir="${junit-xml-dir}">
+				<include name="**/*.xml" />
+			</fileset>
+			<report todir="${report-dir}" />
+		</junitreport>
+	</target>
+
+</project>

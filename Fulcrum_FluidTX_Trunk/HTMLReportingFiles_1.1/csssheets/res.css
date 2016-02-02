@@ -1,0 +1,374 @@
+
+#topheader
+{
+   /* background-image:url(../images/bg_01.jpg);
+	background :#8A2BE2;*/
+	background :darkblue;
+	text-align: center;
+	font-size: 2em;
+    background-repeat:repeat-x; height:50px; width:100%;
+    margin:1 auto;
+	
+  /* margin-bottom:1px; */
+}
+
+#topheader_suite
+{
+	background :#8A2BE2;
+   /* background-image:url(../images/bg_03.png);*/
+    background-repeat:repeat-x; height:50px; width:100%;
+   /* margin:0 auto; */
+   margin-bottom:5px;
+}
+
+#imgsuccess
+{
+	background-image: url(../images/success.png);
+	background-repeat: no-repeat;
+	background-position: left top;
+	padding-top:30px;
+	margin-bottom:1px;
+	
+    /* background-repeat:repeat-x; height:55px; width:100%;
+   margin:0 auto; 
+   margin-bottom:5px;*/
+}
+#imgfailure
+{
+	background-image: url(../images/fail.png);
+	background-repeat: no-repeat;
+	background-position: left top;
+	padding-top:30px;
+	margin-bottom:5px;
+}
+
+#imgfail
+{
+    width: 25px;
+    height: 25px;
+	background-image:url(../images/fail.png);
+	center no-repeat;
+    background-size:cover;
+}
+.tableheader
+{
+    background-image:url(../images/bg_02.jpg);
+    background-repeat:repeat-x; height:60px; width:80%;
+    margin:0 auto;
+}
+
+#grad_tb{
+  background: -webkit-linear-gradient(white, 99FF00); /* For Safari 5.1 to 6.0 */
+  background: -o-linear-gradient(white, 99FF00); /* For Opera 11.1 to 12.0 */
+  background: -moz-linear-gradient(blue ,white ); /* For Firefox 3.6 to 15 */
+  background: linear-gradient(blue  ,white ); /* Standard syntax */
+}
+.grad1 {
+    height: 45px;
+    background: -webkit-linear-gradient(left, rgba(30,0,0,0), rgba(255,0,0,1)); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(right, rgba(30,0,0,0), rgba(255,0,0,1)); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(right, rgba(30,0,0,0) , rgba(255,0,0,1)); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(to right, rgba(30,0,0,0) , green); /* Standard syntax (must be last) */    
+}
+
+.grad2 {
+    
+    background: -webkit-linear-gradient(left, rgba(30,0,0,0), rgba(100,0,0,1)); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(right, rgba(30,0,0,0), rgba(100,0,0,1)); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(right, rgba(30,0,0,0) 80%, rgba(100,0,0,1)); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(to right, rgba(30,0,0,0) 80%, rgba(100,0,0,1)); /* Standard syntax (must be last) */    
+}
+
+#grad {
+    
+    background: -webkit-linear-gradient(left, rgba(30,0,0,0), rgba(100,0,0,1)); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(right, rgba(30,0,0,0), rgba(100,0,0,1)); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(right, rgba(30,0,0,0), rgba(100,0,0,1)); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(to right, rgba(30,0,0,0), rgba(100,0,0,1)); /* Standard syntax (must be last) */    
+}
+.pie{
+		position:absolute;
+		width:300px;
+		height:300px;
+		overflow:hidden;
+		left:100px;
+		-moz-transform-origin:left center;
+		-ms-transform-origin:left center;
+		-o-transform-origin:left center;
+		-webkit-transform-origin:left center;
+		transform-origin:left center;
+	}
+
+.menudiv {
+/*
+    	background-color: #8A2BE2;					
+		display=block;
+*/
+}
+body {
+    background-color: #FFFFFF;
+    background-repeat: repeat-x;
+	
+}
+
+h1 {
+    	
+		text-align: center;
+		box-shadow: 15px 15px 15px #888888;
+		text-shadow: 5px 5px 5px #000000;
+		color: white  ;
+		
+}
+
+p {
+    background-color: #e0ffff;
+}
+
+
+ul {
+    list-style-type: none;
+	font-size: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+	margin-bottom:5px;
+	
+}
+
+li {
+   	float: left;
+	font-size: 14px;
+    display: inline-block;
+	
+	
+}
+
+.menudiv a:link, a:visited {
+	display: block;
+    width: 100%;
+    font-weight: bold;
+	text-align: left;
+    padding: 8px;
+    text-decoration: none;
+    text-transform: uppercase;
+	color	:white;
+	/*color: #F0FFFF;
+	
+    background-color: #8A2BE2;
+    
+	*/
+}
+
+
+a:hover, a:active {
+    background-color: #7A991A;
+}
+
+
+#testresultsummary {
+    /*font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    width: 20%;
+	height: 20%;
+	*/
+	font-family: Garamond;
+    border-collapse: collapse;
+	
+}
+
+#testresultsummary td, #testresultsummary th {
+    font-style:normal;
+	font-size: 1.5 em;
+	text-wrap:normal;	
+	border: 1px solid #98bf21;
+    padding: 3px 7px 2px 7px;
+	
+}
+
+#testresultsummary th {
+	text-align: left; 
+	font-size: 1em;
+	/*background-image:url(../images/bg_03.png);*/
+	background :blue;
+    background-repeat:repeat-x; height:80px; width:10%;
+	color: #F0F0F0;
+	
+	
+}
+
+#testresultsummary tr.alt td {
+    color: #00000;
+    background-color: #FA8072;
+	color: rgb(0,0,255);
+	font-style=italic;
+	font-weight=100;
+}
+
+#testsummary {
+   /* font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+   width:auto;*/
+   font -family:Garamond;
+    border-collapse: collapse;
+}
+
+#testsummary td, #testsummary th {
+    font-style:normal;
+	font-size: 0.80em;
+	color: rgb(0,0,255);	
+	border: 1px solid #98bf21;
+    padding: 3px 7px 2px 7px;
+	/*width:auto;*/
+}
+#bluetext {
+	color: rgb(0,0,255);
+}
+#testsummary th {
+	
+   /* font-size: 0.90em;
+    text-align: left;
+    padding-top: 5px;
+    padding-bottom: 4px;
+    background-color: Cyan;
+    color: #000000;*/
+	background :darkSlateBlue ;
+	font-size: 1em;
+	/*background-image:url(../images/bg_02.png);*/
+    background-repeat:repeat-x; height:60px; width:10%;
+	color: #F0F0F0;
+}
+
+#testsummary tr.alt td {
+	background-image:url(../images/fail.jpg);
+    color: #000000;
+    background-color: #FA8072;
+	font-size: 0.80em;
+	font-style=italic;
+	font-weight=100;
+	/*white-space: wrap;*/
+}
+
+#rcorners2 {
+    border-radius: 15px;
+    border: 7px solid  green;
+	/*background: gray;*/
+    padding: 25px; 
+    width: 280px;
+    height: 8px; 
+}
+/* ----------- New Menu classes ------*/
+.navOpen {
+  overflow: hidden;
+}
+.wrapper {
+  transition-duration: 0.5s;
+  transition-timing-function: swing;
+  background-color: white;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  padding: 5px 5px;
+}
+.wrapper.open {
+  transform: translateX(250px) translateY(50px);
+  -webkit-transform: translateX(250px) translateY(50px);
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.2);
+}
+.wrapper section {
+  max-width:  80%;  
+  margin: 0 auto;
+}
+
+.openNav {
+  transition-duration: 0.5s;
+  transition-timing-function: swing;
+  width: 50px;
+  height: 50px;
+  background-color: #14B9FF;
+  position: fixed;
+  top: 40px;
+  left: 40px;
+  z-index: 9;
+  
+}
+.openNav:hover {
+  cursor: pointer;
+}
+.openNav .icon {
+  transition-duration: 0.2s;
+  position: absolute;
+  width: 30px;
+  height: 2px;
+  background-color: white;
+  top: 24px;
+  left: 10px;
+}
+.openNav .icon:before,
+.openNav .icon:after {
+  transition-duration: 0.5s;
+  background-color: white;
+  position: absolute;
+  content: "";
+  width: 30px;
+  height: 2px;
+  left: 0px;
+}
+.openNav .icon:before {
+  top: -7px;
+}
+.openNav .icon:after {
+  top: 7px;
+}
+.openNav.open {
+  transform: translateX(250px) translateY(50px);
+  -webkit-transform: translateX(250px) translateY(50px);
+}
+.openNav.open .icon {
+  background-color: transparent;
+}
+.openNav.open .icon:before,
+.openNav.open .icon:after {
+  top: 0;
+}
+.openNav.open .icon:before {
+  transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
+}
+.openNav.open .icon:after {
+  transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
+}
+nav {
+  background-color: #14B9FF;
+  width: 100%;
+  height: 70%;
+  position: fixed;
+  left: 10;
+  top: 10;
+}
+nav ul {
+  width: 250px;
+  margin-top: 25px;
+}
+nav ul:hover li {
+  color: rgba(255, 255, 255, 0.5);
+}
+nav ul li {
+  transition-duration: 0.25s;
+  display: block;
+  padding: 5px 40px;
+  color: white;
+  letter-spacing: 0.02em;
+  text-align: right;
+}
+nav ul li:hover {
+  cursor: pointer;
+  color: white;
+}
+#panel {
+        display: none;
+}
+#panel, #flip {
+    padding: 5px;
+    text-align: center;
+	font-weight:bold;
+   
+}

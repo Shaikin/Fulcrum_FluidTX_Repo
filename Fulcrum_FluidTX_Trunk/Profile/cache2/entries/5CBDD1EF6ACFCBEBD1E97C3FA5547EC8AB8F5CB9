@@ -1,0 +1,230 @@
+ï»¿window.ChecklistCore = window.ChecklistCore || {};
+
+//All the checklist components are fully aware of the ChecklistCore
+window.ChecklistCore.EPP = {
+    HandleTriggerWithInputFromName: function (stepName, sectionIdentifier, triggerName, triggerNameSystem, inputName) {
+        var index = triggerName.indexOf(triggerNameSystem + "_");
+        if (index == -1) return false;
+        var triggerPart = triggerName.substring(triggerName.indexOf('_') + 1);
+        var inputArray = [];
+        var triggerState = new TriggerState();
+        triggerState.InputName = inputName;
+        triggerState.InputValue = triggerPart;
+        inputArray.push(triggerState);
+        window.ChecklistCore.HandleTriggerClick(stepName, sectionIdentifier, triggerNameSystem, inputArray);
+        return true;
+    },
+
+    HandleTriggerClick: function (stepName, sectionIdentifier, triggerName) {
+
+        var stepTriggerBtn = $(':focus');
+        if (stepTriggerBtn != null) {
+            stepTriggerBtn.blur(); //otherwise hitting enter onmce popup opens will trigger the action again
+        }
+
+        // section enablement and processing group are treated a bit differently
+        if (window.ChecklistCore.EPP.HandleTriggerWithInputFromName(stepName, sectionIdentifier, triggerName, "btnProceedToSection", "Section")) return;
+        if (window.ChecklistCore.EPP.HandleTriggerWithInputFromName(stepName, sectionIdentifier, triggerName, "btnRepeatProcessingGroup", "ProcessingGroup")) return;
+
+        switch (triggerName) {
+            case "btnApprovalGateway":
+            case "btnLinkFile":
+            case "btnA3ProjectProposal":
+            case "btnA3BusinessCase":
+            case "btnBusinessRequirements":
+            case "btnProcurementPlan":
+            case "btnRFPRROI":
+            case "btnA3ProjectPlan":
+            case "btnProjectPlan":
+            case "btnCommunicationsPlan":
+            case "btnVendorSelection":
+            case "btnA3StatusReport":
+            case "btnDesignDevelopmentReqs":
+            case "btnTestPlan":
+            case "btnSupportProcess":
+            case "btnProjectClosure":
+            case "btnUpdateProjectPhaseMetaData":
+                window.ChecklistCore.ShowTriggerInputPopup(stepName, sectionIdentifier, triggerName);
+                break;
+            case "btnFilePicker":
+                window.ChecklistCore.EPP.ShowFilePicker(stepName, sectionIdentifier, triggerName);
+                break;
+            case "btnProjectMgmtMailMergeAndCompleteStep":
+                window.ChecklistCore.EPP.MailMerge(stepName, sectionIdentifier, triggerName, true);
+                break;
+            case "btnProjectMgmtMailMerge":
+                window.ChecklistCore.EPP.MailMerge(stepName, sectionIdentifier, triggerName, false);
+                break;
+            case "btnUpdateStatus":
+            case "btnUpdateStatusAndUnlockAllSections":
+                var dialogUpdateStatus = new ConfirmDialogContent();
+                dialogUpdateStatus.Title = "Confirmation";
+                dialogUpdateStatus.Message = "Have you completed the step?";
+                dialogUpdateStatus.Buttons = [];
+                var btnCompleted = new Button();
+                btnCompleted.Name = "btnCompleted";
+                btnCompleted.Text = "Yes";
+                var btnCancel = new Button();
+                btnCancel.Name = "btnCancel";
+                btnCancel.Text = "No";
+                btnCompleted.ClickHandler = function () {
+                    var inputArray = [];
+                    var triggerState = new TriggerState();
+                    triggerState.InputName = "Status";
+                    triggerState.InputValue = "Completed";
+                    inputArray.push(triggerState);
+                    window.ChecklistCore.HandleTriggerClick(stepName, sectionIdentifier, triggerName, inputArray);
+                };
+                dialogUpdateStatus.Buttons.push(btnCompleted)
+                dialogUpdateStatus.Buttons.push(btnCancel);
+                window.ChecklistCore.ShowConfirmDialog(dialogUpdateStatus);
+                break;
+            case "btnEditProjectDetails":
+                var id = projectInfo.currentProjectDetailId;
+                SP.UI.ModalDialog.showModalDialog({ title: "Project Details", showMaximized: true, url: _spPageContextInfo.webAbsoluteUrl + "/Lists/Project%20Details/EditForm.aspx?ID=" + id + "&IsDlg=1" });
+                break;
+            case "btnShowProjectRiskRegister":
+                var projectShortName = projectInfo.projectShortName;
+                SP.UI.ModalDialog.showModalDialog({
+                    title: projectShortName + " Risks", showMaximized: true,
+                    url: _spPageContextInfo.webAbsoluteUrl + "/Lists/Risk%20Register/AllItems.aspx?FilterField1%3DProjectShortName&FilterValue1%3D" + projectShortName
+                });
+                break;
+            case "btnShowProjectIssues":
+                var projectShortName = projectInfo.projectShortName;
+                SP.UI.ModalDialog.showModalDialog({
+                    title: projectShortName + " Issues", showMaximized: true,
+                    url: _spPageContextInfo.webAbsoluteUrl + "/Lists/Issues/AllItems.aspx?FilterField1%3DProjectShortName&FilterValue1%3D" + projectShortName
+                });
+                break;
+            default:
+                window.ChecklistCore.HandleTriggerClick(stepName, sectionIdentifier, triggerName);
+                break;
+        }
+    },
+
+
+    MailMerge: function (stepName, sectionIdentifier, triggerName, completeStep) {
+
+        var dialogProjectMailMerge = new ConfirmDialogContent();
+        dialogProjectMailMerge.Title = "Confirmation";
+        dialogProjectMailMerge.Message = "Would you like to create a new document from template?";
+        dialogProjectMailMerge.Buttons = [];
+        var btnYesfirstad = new Button();
+        btnYesfirstad.Name = "btnYes";
+        btnYesfirstad.Text = "Yes";
+        btnYesfirstad.ClickHandler = function () {
+            if (typeof (projectInfo) == "undefined") {
+                alert("projectInfo JScript library has not been initialized.");
+                return;
+            }
+            var inputArray = [];
+            //ProjectMgmt filter
+            var triggerState = new TriggerState();
+            triggerState.InputName = "ProjectShortNameWssId";
+            triggerState.InputValue = projectInfo.selectedProjectShortnameTermId;
+            inputArray.push(triggerState);
+
+            if (completeStep == true) {
+                var status = new TriggerState();
+                status.InputName = "Status";
+                status.InputValue = "Completed";
+                inputArray.push(status);
+                triggerName = "btnProjectMgmtMailMerge";
+            }
+
+            window.ChecklistCore.HandleTriggerClick(stepName, sectionIdentifier, triggerName, inputArray);
+        };
+        var btnNofirstad = new Button();
+        btnNofirstad.Name = "btnNo";
+        btnNofirstad.Text = "No";
+        dialogProjectMailMerge.Buttons.push(btnYesfirstad);
+        dialogProjectMailMerge.Buttons.push(btnNofirstad);
+        window.ChecklistCore.ShowConfirmDialog(dialogProjectMailMerge);
+    },
+
+    ShowFilePicker: function (stepName, sectionIdentifier, triggerName) {
+        var curStep = null;
+        for (var i = 0; i < window.ChecklistCore.Checklist.Sections.length; i++) {
+            var section = window.ChecklistCore.Checklist.Sections[i];
+            if (section.Identifier == sectionIdentifier) {
+                for (var j = 0; j < section.Steps.length; j++) {
+                    var step = section.Steps[j];
+                    if (step.StepIdentifier == stepName) {
+                        curStep = step;
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+
+        var options = {
+            url: crlCommon.getSiteRelativeUrl() + '_layouts/AT.SharePoint.DMS.WebTemplate/AttachDocuments.aspx?skipDocRegister=1',
+            autoSize: true,
+            showMaximized: true,
+            dialogReturnValueCallback: function (result, selectedFiles) {
+                var idList = "";
+                var inputArray = [];
+
+                if (selectedFiles && selectedFiles.length > 0) {
+                    for (var i = 0; i < selectedFiles.length; i++) {
+                        var triggerState = new TriggerState();
+                        triggerState.InputName = "LinkedResources";
+                        triggerState.InputValue = selectedFiles[i].URL;
+                        inputArray.push(triggerState);
+                    }
+                }
+                else {
+                    alert("Please select the documents to link");
+                    return;
+                }
+
+                window.ChecklistCore.HandleTriggerClick(stepName, sectionIdentifier, triggerName, inputArray);
+            }
+        };
+        SP.UI.ModalDialog.showModalDialog(options);
+    },
+
+    ShowFileLinkPicker: function (completed) {
+
+        var options = {
+            url: crlCommon.getSiteRelativeUrl() + '_layouts/AT.SharePoint.DMS.WebTemplate/AttachDocuments.aspx?skipDocRegister=1',
+            autoSize: true,
+            showMaximized: true,
+            dialogReturnValueCallback: function (result, selectedFiles) {
+                if (completed != null) {
+                    completed(selectedFiles);
+                }
+            }
+        };
+        SP.UI.ModalDialog.showModalDialog(options);
+    }
+
+
+
+
+};
+WTtÄf              <à¦       Z:http://atprojects.leapthought.co.nz/sites/cid/style%20library/EPP/Checklist/Styles/EPP.js request-method GET response-head HTTP/1.1 200 OK
+Expires: Tue, 29 Dec 2015 09:04:34 GMT
+Date: Wed, 13 Jan 2016 09:04:33 GMT
+Content-Type: application/javascript
+Etag: "{59589E97-144C-4A21-B165-9D98AFA26497},1"
+Server: Microsoft-IIS/8.0
+Cache-Control: private,max-age=0
+Last-Modified: Mon, 13 Jul 2015 23:41:52 GMT
+X-SharePointHealthScore: 0
+ResourceTag: rt:59589E97-144C-4A21-B165-9D98AFA26497@00000000001
+Content-Disposition: attachment; filename="EPP.js"
+X-Download-Options: noopen
+Public-Extension: http://schemas.microsoft.com/repl-2
+SPRequestGuid: 79c6549d-d253-209c-f465-3742d93b8f47
+request-id: 79c6549d-d253-209c-f465-3742d93b8f47
+x-frame-options: SAMEORIGIN
+SPRequestDuration: 17
+SPIisLatency: 0
+X-Powered-By: ASP.NET
+MicrosoftSharePointTeamServices: 15.0.0.4535
+x-content-type-options: nosniff
+X-MS-InvokeApp: 1; RequireReadOnly
+ uncompressed-len 0   %ø

@@ -1,0 +1,3941 @@
+/*
+    Version EDMS P2 R1 (Phase2 Release1)
+*/
+var projectPhaseMenuReady = 0;
+
+function assetLinkSelected(newAssetUrl, newAssetText, configObject, returnValue) {
+    /*If newAssetUrl is an internal SP URL, it will not contain the server path (i.e.
+    the http://hostName:81 part). In this case we will need to append the server path to it
+    for it to pass validation.
+ 
+    If the newAssetUrl is an external URL, it will have the full absolute path and we won't have to touch it.
+    */
+    var serverPath = "";
+    var httpIndex = newAssetUrl.toLowerCase().indexOf("http://");
+    var httpsIndex = newAssetUrl.toLowerCase().indexOf("https://");
+
+    if (httpIndex == -1 && httpsIndex == -1) {
+        //We want to get the http://hostName:81 part of the current location. window.location.origin
+        //would give us this, but apparently it doesn't work on all browsers. To be sure we will just
+        //construct the path from various parts of the current location.
+
+        var currentLocation = window.location;
+
+        serverPath = currentLocation.protocol + "//";
+        serverPath += currentLocation.hostname;
+        if (currentLocation.port != "" && currentLocation.port != null) {
+            serverPath += ":" + currentLocation.port;
+        }
+    }
+    var absoluteAssetUrl = serverPath + newAssetUrl;
+
+    $("#attachments").append("<li>" + absoluteAssetUrl + "</li>");
+
+}
+
+$(function () {
+    $("a[href='TransmittalFakeUrl']").closest('div').siblings().append('<span class="searchLoadingTransmittal">Loading...</span>');
+    $("a[href='ActionFakeUrl']").closest('div').siblings().append('<span class="searchLoadingAction">Loading...</span>');
+    $("a[href='DocumentsFakeUrl']").closest('div').siblings().append('<span class="searchLoadingDocuments">Loading...</span>');
+
+    $("a[href='TransmittalFakeUrl']").children().unwrap();
+    $("a[href='ActionFakeUrl']").children().unwrap();
+    $("a[href='DocumentsFakeUrl']").children().unwrap();
+
+    crlCommon.LeftNavToggle();
+    spViewListFix.init();
+
+    //crlCommon.showRibbon();
+    crlCommon.highlightUnread();
+    crlCommon.highlightHomeLink();
+    crlCommon.CustomiseLHNHome();
+    crlCommon.hideSPDocIdColumn();
+    crlCommon.InitCollaborationLink();
+    crlCommon.InitCollaborationLinkForExternal();
+    crlCommon.InitToolTips();
+    crlCommon.fixBreadCrumbSize();
+    crlCommon.fieldDividers();
+    inplaceSearchHelper.doInPlaceSearch();
+
+    metadataNav.init();
+    if ($("#transmittalOpenMenuItem").length > 0) {
+        SP.SOD.executeFunc('sp.js', 'SP.ClientContext', edmsLeftNav.getTransmittalsLeftNavItems);
+    }
+
+    $("th div.ms-vh-div > span").addClass('ms-headerSortTitleLink');
+
+    $(".ms-listviewtable .ms-vhltr th.ms-vh2 div[displayname='Subject']").parent().css('min-width', '200px');
+    $(".ms-listviewtable .ms-vhltr th.ms-vh2 div[displayname='Name']").parent().css('min-width', '200px');
+    $(".ms-listviewtable .ms-vhltr th.ms-vh2 div[displayname='Title']").parent().css('min-width', '250px');
+
+    hideMultipleMagnifyingGlass(50);
+    updatePolicyLink();
+
+    SP.SOD.loadMultiple(['sp.taxonomy.js'], InsertSearchByProjectPhaseIntoLeftNav);
+    //CalendarPickerPosition();
+    riskForm.SetColourRules();
+    //Start generation of contextual help on a given page.
+    help.GenerateContextualHelp();
+
+    SP.SOD.executeFunc('sp.js', 'SP.ClientContext', crlCommon.retrieveListDescriptionItems);
+
+
+});
+
+var crlCommon = window.crlCommon || {};
+crlCommon = {
+    retrieveListDescriptionItems: function () {
+        var listId = _spPageContextInfo.pageListId;
+        if (!listId) return;
+        var ctx = SP.ClientContext.get_current();
+        var currentList = ctx.get_web().get_lists().getById(listId);
+        ctx.load(currentList);
+        ctx.executeQueryAsync(function () {
+            if (currentList == null) return;
+
+            var list = ctx.get_web().get_lists().getByTitle('List Description');
+            ctx.load(list);
+            ctx.executeQueryAsync(function () {
+                if (list == null) return;
+                var listname = currentList.get_title();
+                var camlQuery = new SP.CamlQuery();
+                camlQuery.set_viewXml("<View><ViewFields><FieldRef Name=\'Title\' /><FieldRef Name=\'Description\' /></ViewFields><Query><Where><Eq><FieldRef Name=\'Title\'/><Value Type=\'Text\'>" + listname + "</Value></Eq></Where></Query><RowLimit>1</RowLimit></View>");
+                var result = list.getItems(camlQuery);
+
+                ctx.load(result);
+                ctx.executeQueryAsync(function (sender, args) {
+                    var itemId;
+                    var listItemEnumerator = result.getEnumerator();
+
+                    if (listItemEnumerator.moveNext()) {
+                        var oListItem = listItemEnumerator.get_current();
+                        var desc = oListItem.get_fieldValues()["Description"];
+                        var descObj = $(desc);
+                        descObj.insertAfter("h1");
+                    }
+
+                }, function (sender, args) {
+                    console.log(args.get_message());
+
+                });
+            }, function (sender, args) {
+                console.log(args.get_message());
+
+            });
+
+        }, function (sender, args) {
+            console.log(args.get_message());
+        });
+    },
+
+
+    InitToolTips: function () {
+        var commSensitiveTickBox = $("input[id^='CommerciallySensitive']");
+        var commSensitiveTickBoxOnViewProperties = $('a[name$=CommerciallySensitive]').closest("td");
+        var helpIcon = '&nbsp;&nbsp;<a style="" class=" js-callout-launchPoint" id="edms_CommSensitiveHelp" href="javascript:;"><span class="infoToolTip">&nbsp;</span></a>';
+        var toolTipMsg = "<span class='ms-metadata' style='color:#000000'>Information which - when revealed to third parties - would put Auckland Transport into a position whereby a third party with knowledge of that information could gain commercial advantage or could influence others to act in a way and/or manner that could prejudice the conduct of outcome of negotiations for Auckland Transport and/or Auckland Council.<br/>(i.e. (substantial) inflation of to be negotiated outcomes)</span>";
+
+        if (commSensitiveTickBox.length > 0) {
+            commSensitiveTickBox.after(helpIcon);
+            var _link = $("#edms_CommSensitiveHelp")[0];
+            crlCommon.AddToolTip(_link, toolTipMsg);
+        }
+        if (commSensitiveTickBoxOnViewProperties.length > 0) {
+            commSensitiveTickBoxOnViewProperties.closest("td").next().append(helpIcon);
+            var _linkViewProp = $("#edms_CommSensitiveHelp")[0];
+            crlCommon.AddToolTip(_linkViewProp, toolTipMsg);
+        }
+
+
+        var projGovernanceTickBox = $("input[id^='DMSProjectGovernance']");
+        var projGovernanceTickBoxOnViewProperties = $('a[name$=DMSProjectGovernance]').closest("td");
+        var helpIcon = '&nbsp;&nbsp;<a style="" class=" js-callout-launchPoint" id="edms_DMSProjectGovernanceHelp" href="javascript:;"><span class="infoToolTip">&nbsp;</span></a>';
+        var projGovToolTipMsg = "<span class='ms-metadata' style='color:#000000'>By checking this box, it indicates that this document is a key governance document that will most likely be used for gateway approval.</span>";
+
+        if (projGovernanceTickBox.length > 0) {
+            projGovernanceTickBox.after(helpIcon);
+            var _link = $("#edms_DMSProjectGovernanceHelp")[0];
+            crlCommon.AddToolTip(_link, projGovToolTipMsg);
+        }
+        if (projGovernanceTickBoxOnViewProperties.length > 0) {
+            projGovernanceTickBoxOnViewProperties.closest("td").next().append(helpIcon);
+            var _linkViewProp = $("#edms_DMSProjectGovernanceHelp")[0];
+            crlCommon.AddToolTip(_linkViewProp, projGovToolTipMsg);
+        }
+
+        var toolTipActionRequire = "Transmittals with open actions<p>&nbsp;</p>";
+        var toolTipActionOverdue = "Transmittals with overdue actions<p>&nbsp;</p>";
+        var toolTipTransmittedDocs = "This is a Document Register where you can see all Transmitted documents sent to/from your organisation<br/>";
+
+
+        var _link = $(".transmittal-item #transmittalOpenMenuItem")[0];
+        if (_link != null)
+            crlCommon.AddToolTip(_link, toolTipActionRequire, "topBottom", false);
+        _link = $(".transmittal-item #transmittalOverdueMenuItem")[0];
+        if (_link != null)
+            crlCommon.AddToolTip(_link, toolTipActionOverdue, "topBottom", false);
+        _link = $(".transmittal-item #transmittedDocsMenu")[0];
+        if (_link != null)
+            crlCommon.AddToolTip(_link, toolTipTransmittedDocs, "topBottom", false);
+
+        var toolTipRelatedTx = "Related Transmittals<br/>Returns all transmittals filtered by Parent Transmittal<p>&nbsp;</p>";
+        $(".relatedTx-link").each(function () {
+            _link = $(this)[0];
+            if (_link != null)
+                crlCommon.AddToolTip(_link, toolTipRelatedTx, "topBottom", false);
+        });
+    },
+
+    //Sets home icon url if EDMS_SiteIconUrl property bag setting has been set at the site level (SPWeb).
+    CustomiseLHNHome: function () {
+        var context = SP.ClientContext.get_current();
+        var properties = context.get_web().get_allProperties();
+        context.load(properties);
+        context.executeQueryAsync(function () {
+            var allProps = properties.get_fieldValues();
+            if (properties.get_fieldValues().EDMS_LHNSiteIconUrl != undefined) {
+                var url = properties.get_fieldValues().EDMS_LHNSiteIconUrl;
+                console.log(url);
+                $('a[id*=_SPSimpleSiteLink]').attr('href', url);
+            }
+            /*if (properties.get_fieldValues().EDMS_LHNHomeTitle != undefined) {
+                var EDMS_LHNHomeTitle = properties.get_fieldValues().EDMS_LHNHomeTitle;
+                console.log(url);
+                $("#homeLeftNavLink span").text(EDMS_LHNHomeTitle);
+            }  */
+        }, function (sender, args) { });
+    },
+
+    AddToolTip: function (_link, message, orietation, closeButton) {
+        orientation = typeof orientation !== 'undefined' ? orientation : "leftRight";
+        closeButton = typeof closeButton !== 'undefined' ? closeButton : true;
+
+        SP.SOD.executeFunc("callout.js", "Callout", function () {
+            var toolTipCallout = CalloutManager.createNew({ //Create New CalloutManager
+                launchPoint: _link,
+                ID: "CallOut ID",
+                content: "<div class=\"ms-soften\" style=\"margin-top:2px;color:#000000; \">" + message + "</div>",
+                //content:  message,
+                beakOrientation: orietation,
+                openOptions: { event: "hover", showCloseButton: closeButton },
+            });
+            //toolTipCallout.set({ openOptions: { event: "hover", showCloseButton: true } });
+        });
+    },
+
+    AdvancedSearchButtonClick: function () {
+        ResetPageHashCode();
+        var resultUrl = "allresults.aspx";
+
+        switch ($("select[title='Result Type']").val()) {
+            case "transmittals":
+                resultUrl = "transmittals.aspx";
+                break;
+            case "documents":
+                resultUrl = "documents.aspx";
+                break;
+            default:
+                resultUrl = "allresults.aspx";
+        }
+        var advancedSearchTableID = $("table[id$='_ASB_OT']").attr("id");
+        crlCommon.DoAdvancedSearchWithWebIdSource('k', resultUrl, advancedSearchTableID, 'ASB_TQS_AndQ_tb', 'ASB_TQS_PhraseQ_tb', 'ASB_TQS_OrQ_tb', 'ASB_TQS_NotQ_tb', 'ASB_SS_scb_', 'ASB_SS_lcb_', 'ASB_SS_rtlb', 'ASB_PS_plb_', 'ASB_PS_olb_', 'ASB_PS_pvtb_', 'ASB_PS_lolb_');
+    },
+    fieldDividers: function () {
+        //Doc reigster item
+        if (window.location.pathname.indexOf("Lists/DocumentRegister/DispForm.aspx") > 0) {
+            $("a[name$='ExternalRef']").closest("tr").addClass("hrLine");
+            $("a[name$='KeyDocumentRef']").closest("tr").addClass("hrLine");
+            $("a[name$='DMSZone1']").closest("tr").addClass("hrLine");
+
+        }
+    },
+
+    DoAdvancedSearchWithWebIdSource: function (queryParameterName, resultsPage,
+	idOuterTable, idAndQueryTextBox, idPhraseQueryTextBox,
+	idOrQueryTextBox, idNotQueryTextBox, idPrefixScopeCheckBox,
+	idPrefixLangsCheckBox, idResultTypeList,
+	idPrefixPropNameSelect, idPrefixPropOperatorSelect,
+	idPrefixPropValueTextBox, idPrefixPropAndOrSelect) {
+        if (ValidateForm()) {
+            var elements = findElements(idOuterTable, idAndQueryTextBox,
+			idPhraseQueryTextBox, idOrQueryTextBox,
+			idNotQueryTextBox, idPrefixScopeCheckBox,
+			idPrefixLangsCheckBox, idResultTypeList,
+			idPrefixPropNameSelect, idPrefixPropOperatorSelect,
+			idPrefixPropValueTextBox, idPrefixPropAndOrSelect);
+            var query = ComposeQuery(elements);
+            if (query != '') {
+                var url = crlCommon.getSiteRelativeUrl() + "pages/" + resultsPage + '?' + queryParameterName + '=' + query;
+                url = url + '&webid=' + crlCommon.getParameterByName("webid") + '&source=' + crlCommon.getParameterByName("source") + '&sitetitle=' + crlCommon.getParameterByName("sitetitle");
+                if (crlCommon.getParameterByName("IsDlg") == "1") {
+                    //alert("isDLG");
+                    parent.STSNavigate(url);
+                }
+                else {
+                    STSNavigate(url);
+                }
+            }
+            else {
+                alert(emptyQueryMessage);
+            }
+        }
+    },
+
+    UpdateAdvancedSearchLink: function () {
+
+        $(".advancedSearchResultPage #AdvancedLink").attr("href", "/pages/advanced.aspx?webid=" + crlCommon.getParameterByName("webid") + '&source=' + crlCommon.getParameterByName("source") + '&sitetitle=' + crlCommon.getParameterByName("sitetitle"));
+
+        $(".ms-advsrchbutton").find("input[title='Search']").hide();
+        $(".ms-advsrchbutton").find("input[title='Search']").remove();
+        $(".ms-advsrchbutton").append("<input type='submit' title='AdvancedSearch' value='Search'/>");
+        $(".ms-advsrchbutton input[title='AdvancedSearch']").click(function (e) {
+            var jQueryEvent = jQuery.Event(e);
+            jQueryEvent.preventDefault();
+            jQueryEvent.stopPropagation();
+            crlCommon.AdvancedSearchButtonClick();
+        });
+
+
+        $("a.ms-siteicon-a[title='Search']").click(function (e) {
+            e.preventDefault();
+            var url = window.location.protocol + "//" + window.location.host + _spPageContextInfo.siteServerRelativeUrl;
+            window.location = url + "/_layouts/15/AT.SharePoint.DMS.WebTemplate/Redirect.aspx";
+            return false;
+        });
+        crlCommon.InitShowInDialogBoxSearch();
+    },
+
+    InitShowInDialogBoxSearch: function () {
+        $("a.ShowInDialogBoxSearch").each(function () {
+            $(this).click(function (e) {
+                e.preventDefault();
+                var source = GetQueryStringValue("source");
+                var currentWeb = GetQueryStringValue("webid");
+                var advancedSearchCenterUrl = "";
+                if ((source != "") && (currentWeb != "")) {
+                    advancedSearchCenterUrl = _spPageContextInfo.webAbsoluteUrl + '/pages/advanced.aspx?webid=' + currentWeb + '&source=' + source + '&sitetitle=' + crlCommon.getParameterByName("sitetitle");
+                    $("span.advancedSearch #AdvancedLink").attr("href", advancedSearchCenterUrl);
+                    var options = { url: advancedSearchCenterUrl, width: 900 };
+                    SP.UI.ModalDialog.showModalDialog(options);
+                }
+                else {
+                    var context = new SP.ClientContext.get_current();
+                    var web = context.get_web();
+                    context.load(web);
+                    context.executeQueryAsync(function () {
+                        var url = $("#searchCenterUrl").text();
+                        var siteTitle = web.get_title();
+                        advancedSearchCenterUrl = url + '/pages/advanced.aspx?webid=' + web.get_id() + '&source=' + _spPageContextInfo.webAbsoluteUrl + '&sitetitle=' + siteTitle;
+                        $("span.advancedSearch #AdvancedLink").attr("href", advancedSearchCenterUrl);
+                        //var options = { url: advancedSearchCenterUrl, width: 900 };
+                        //SP.UI.ModalDialog.showModalDialog(options);
+                        window.location = advancedSearchCenterUrl;
+                    }, function () { alert('Failed to load current web'); });
+                }
+
+            });
+        });
+    },
+
+    CannedSearchDialogBox: function (listId, source) {
+        var options = {
+            url: SP.Utilities.Utility.getLayoutsPageUrl('AT.SharePoint.DMS.WebTemplate/CannedSearchRedirect.aspx?ListId=' + listId + '&Source=' + source),
+            tite: 'Document Registers',
+            allowMaximize: false,
+            showClose: true
+        };
+        SP.UI.ModalDialog.showModalDialog(options);
+    },
+
+    printPageListItems: function () {
+        var keepAttr = ["class", "id", "style", "on"];
+        var headElements = $("input#addElements").is(":checked") ? '<meta charset="utf-8" />,<meta http-equiv="X-UA-Compatible" content="IE=edge"/>' : '';
+        var options = { mode: 'iframe', popClose: false, extraCss: "", retainAttr: keepAttr, extraHead: headElements };
+
+        //expand list of recipients for printing
+        var printContainer = $("<div></div>");
+        $(".ms-listviewtable").clone().appendTo(printContainer);
+        var rows = $(printContainer).find(".showMoreContent");
+        for (i = 0; i < rows.length; i++) {
+            $(rows[i]).parent().parent().append($(rows[i]).children());
+        }
+        $(printContainer).find("div.showMore").hide();
+
+        printContainer.printArea(options);
+    },
+
+    InitActionEditForm: function () {
+        //Triggered after customizeActionEditForm completion
+        crlCommon.InitCollaborationLink();
+        crlCommon.InitCollaborationLinkForExternal();
+    },
+
+    InitCollaborationLink: function () {
+        $("a.collabDocLink").click(function (event) {
+            event.preventDefault();
+            var url = $(this).attr("href");
+            editDocumentWithProgID2(url, '', 'SharePoint.OpenDocuments', '0', _spPageContextInfo.siteAbsoluteUrl, '0');
+            return false;
+        });
+    },
+
+    InitCollaborationLinkForExternal: function () {
+        SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function () {
+            var isRootWeb = _spPageContextInfo.webAbsoluteUrl == _spPageContextInfo.siteAbsoluteUrl;
+            if (!isRootWeb) {
+                $("a.collabDocLink").click(function (event) {
+                    event.preventDefault();
+                    var url = $(this).attr("href");
+                    editDocumentWithProgID2(url, '', 'SharePoint.OpenDocuments', '0', _spPageContextInfo.siteAbsoluteUrl, '0');
+                    return false;
+                });
+            }
+        });
+    },
+
+    highlightHomeLink: function () {
+        var homeLink = _spPageContextInfo.webServerRelativeUrl;
+        $('#homeLeftNavLink').attr('href', homeLink);
+        var currentPath = _spPageContextInfo.serverRequestPath;
+        if (currentPath.toLowerCase().indexOf('/home.aspx') > -1)
+            $('#homeLeftNavLink').addClass('selected');
+    },
+
+    insertHomepageAlert: function (requiredCount, overdueCount) {
+
+        if (requiredCount != 0 || overdueCount != 0) {
+            var currentPath = _spPageContextInfo.serverRequestPath;
+            if (currentPath.toLowerCase().indexOf('/home.aspx') > -1) {
+                var requiredLink = _spPageContextInfo.webAbsoluteUrl + '/Lists/Transmittals/Action%20Required.aspx';
+                var overdueLink = _spPageContextInfo.webAbsoluteUrl + '/Lists/Transmittals/Actions%20Overdue.aspx';
+                var $newdiv1 = $("<div class='transmittalAlert'><img class='notifyIcon' src='/_layouts/images/info16by16.gif'/><span><a href=" + requiredLink + ">" + "You have " + requiredCount + " Actions Required. <a href= " + overdueLink + ">" + overdueCount + " Actions Overdue." + "</a></span></div>");
+                $($(".ms-csrlistview-controldiv")[0]).append($newdiv1); //relies on first web part being my transmittal
+            }
+        }
+    },
+
+    insertMyTransmittalsTooltip: function () {
+        var currentPath = _spPageContextInfo.serverRequestPath;
+        if (currentPath.toLowerCase().indexOf('/home.aspx') > -1) {
+
+            var titleTextElement = $($("span:contains('My Transmittals')")[0]).children()[0];//$(".ms-webpart-titleText")[1];
+            var helpIcon = '&nbsp;&nbsp;<a style="" class=" js-callout-launchPoint" id="edms_HomePageTitleHelp" href="javascript:;"><span class="infoToolTip">&nbsp;</span></a>';
+            $(titleTextElement).append(helpIcon);
+
+            $(titleTextElement).parent().attr("title", ""); //otherwise there will be 2 tool tips, default one and custom
+
+            var _link = $("#edms_HomePageTitleHelp")[0];
+            crlCommon.AddToolTip(_link, "Click on My Transmittals to open the Transmittals - My InBox Page");
+        }
+    },
+
+    highlightUnread: function (delay) {
+        var transmittalListItem = $('#DeltaPlaceHolderMain span.transmittal-unread').closest('tr');
+        if (transmittalListItem) {
+            transmittalListItem.css('font-weight', 'bold');
+            setTimeout(function () { crlCommon.highlightUnread(delay); }, delay);
+        }
+    },
+
+    hideSPDocIdColumn: function () {
+        $("a[name='SPBookmark__dlc_DocIdUrl']").parent().parent().parent().hide();
+    },
+
+    openHistoryDialog: function (transmittalId) {
+        var historyUrl = crlCommon.getSiteRelativeUrl() + '_layouts/AT.SharePoint.DMS.WebTemplate/ViewWFHistory.aspx?ID=' + transmittalId;
+        var options = { url: historyUrl, width: 1000, height: 600 };
+        SP.UI.ModalDialog.showModalDialog(options);
+    },
+
+    getStyleLibFolderUrl: function () {
+        var relativeUrl = _spPageContextInfo.siteServerRelativeUrl;
+        relativeUrl = relativeUrl.substring(relativeUrl.length - 1) != '/' ? (relativeUrl += '/') : relativeUrl;
+        return relativeUrl + 'Style Library/CRL/';
+    },
+
+    getParameterByName: function (name) {
+        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+            results = regex.exec(location.search);
+        return results == null ? null : decodeURIComponent(results[1].replace(/\+/g, " "));
+    },
+
+    getSiteRelativeUrl: function () {
+        var relativeUrl = _spPageContextInfo.webServerRelativeUrl;
+        relativeUrl = relativeUrl.substring(relativeUrl.length - 1) != '/' ? (relativeUrl += '/') : relativeUrl;
+        return relativeUrl;
+    },
+
+    enableControls: function () {
+        var ctx = SP.ClientContext.get_current();
+        return (SP.ListOperation.Selection.getSelectedItems(ctx).length > 0);
+    },
+
+    enableNewTransmittalControl: function () {
+        if (transmittalListActions.enableTransmittalButton == null) {
+            if (_spPageContextInfo != undefined && _spPageContextInfo.pageListId != null) {
+                var currentListId = _spPageContextInfo.pageListId.replace("{", "").replace("}", "").toUpperCase();
+                var ctx = new SP.ClientContext.get_current();
+                var web = ctx.get_web();
+                props = web.get_allProperties();
+
+                ctx.load(web);
+                ctx.load(props); //need to load the properties explicitly
+                ctx.executeQueryAsync(function () {
+                    var myPropBag = props;
+                    if (myPropBag != null) {
+                        var securedList = myPropBag.get_fieldValues()["SecuredLibraryList"]; //returns the value of the key allowdesigner
+                        if (securedList != undefined && securedList != null) {
+                            var securedItemsArray = securedList.toUpperCase().split(",");
+                            if (securedItemsArray.indexOf(currentListId) != -1) {
+                                transmittalListActions.enableTransmittalButton = false;
+                                transmittalListActions.isSecuredLib = true;
+                            }
+                            else {
+                                transmittalListActions.enableTransmittalButton = SP.ListOperation.Selection.getSelectedItems(ctx).length > 0;
+                                transmittalListActions.isSecuredLib = false;
+                            }
+                        }
+                        else {
+                            transmittalListActions.enableTransmittalButton = true;
+                            transmittalListActions.isSecuredLib = false;
+                        }
+
+                    }
+                    else {
+                        transmittalListActions.enableTransmittalButton = true;
+                        transmittalListActions.isSecuredLib = false;
+                    }
+                    RefreshCommandUI();
+                }, function () { alert("failed to load web resource"); });
+            }
+        }
+        else if ((transmittalListActions.enableTransmittalButton && !transmittalListActions.isSecuredLib) || (!transmittalListActions.enableTransmittalButton && !transmittalListActions.isSecuredLib))
+            return SP.ListOperation.Selection.getSelectedItems(ctx).length > 0;
+        else
+            false;
+    },
+
+    enableSingleSelection: function () {
+        var ctx = SP.ClientContext.get_current();
+        return (SP.ListOperation.Selection.getSelectedItems(ctx).length == 1);
+    },
+
+    showRibbon: function () {
+        $(".ms-listviewtable > tbody > tr, .ms-listviewtable th.ms-headerCellStyleIcon, .ms-listviewtable td.ms-cellStyleNonEditable, .ms-listviewtable td.ms-cellStyleNonEditable > div")
+            .click(function () {
+                crlCommon.expandRibbonTab();
+            });
+    },
+
+    cancel: function () {
+        SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.Cancel);
+    },
+
+    expandRibbonTab: function () {
+        var documentFilesRibbon = $("#Ribbon\\.Document");
+        var listItemsRibbon = $("#Ribbon\\.ListItem");
+        var documentContextualGroup = $("#Ribbon\\.LibraryContextualGroup");
+        var listContextualGroup = $("#Ribbon\\.ListContextualGroup");
+
+        if (listContextualGroup.length > 0) {
+            if (listItemsRibbon.length < 1)
+                SelectRibbonTab("Ribbon.ListItem", true);
+        }
+
+        if (documentContextualGroup.length > 0) {
+            if (documentFilesRibbon.length < 1)
+                SelectRibbonTab("Ribbon.Document", true);
+        }
+        else {
+            //todo: check if this is not document picker and runt the following code. this code previously cause some issue for selecting document.
+            //var webParts = $('.ms-webpartzone-cell');
+            //WpClick({ target: webParts[1], srcElement: webParts[1] }); //List View Webpart
+            //if (documentFilesRibbon.length < 1)
+            //    SelectRibbonTab("Ribbon.Document", true);
+        }
+    },
+
+    handleSearchBoxKeyPress: function (e, textBoxId) {
+        var keycode = e.keyCode || e.which || e.charCode;
+        // We're only interested in the enter key
+        if (keycode !== 13)
+            return;
+        var jQueryEvent = jQuery.Event(e);
+        jQueryEvent.preventDefault();
+        jQueryEvent.stopPropagation();
+        crlCommon.submitSearchQuery(textBoxId);
+    },
+
+    submitSearchQuery: function (textBoxId) {
+
+        var textBox = $('#' + textBoxId);
+        if (textBox.val() == '' || textBox.val().toLowerCase().trim() == 'search this site') {
+            alert('Please enter a search term');
+            return;
+        }
+        window.location = _spPageContextInfo.webAbsoluteUrl + "/sitepages/Search%20Results.aspx?k=" + encodeURIComponent(textBox.val());
+    },
+
+    GetDocumentDialogBox: function (listId, siteUrl, source) {
+        var options = {
+            url: SP.Utilities.Utility.getLayoutsPageUrl('AT.SharePoint.DMS.WebTemplate/DocumentTemplate.aspx?ListId=' + listId + '&SiteUrl=' + siteUrl + '&source=' + source),
+            tite: 'Document Templates',
+            allowMaximize: false,
+            showClose: true,
+            width: 800,
+            height: 600
+        };
+        SP.UI.ModalDialog.showModalDialog(options);
+    },
+
+    LeftNavToggle: function () {
+        //Docs by workstream hide by default if Workstream is not selected
+        $("div[id$='PlaceHolderLeftNavBar_QuickLaunchNavigationManager'] li.static a.static").each(function () {
+            var menuItemText = $(this).find('span.additional-background span.menu-item-text')
+            //if (menuItemText.html() == 'Docs by Workstream' || menuItemText.html() == 'Projects') {
+            var parent = menuItemText.parent().parent().parent();
+            if (parent.find("ul").length > 0) {
+                var parentLink = menuItemText.parent().parent();
+                var menuText = menuItemText.html();
+                if (parent.find("li.selected").length <= 0) {
+                    parent.find("ul.static").css('display', 'none');
+                    menuItemText.html("+ " + menuText);
+                    parentLink.addClass("navExpanedable");
+                }
+                else {
+                    menuItemText.html("- " + menuText);
+                    parentLink.addClass("navCollapsable");
+                }
+                $(this).click(function (event) {
+                    event.preventDefault();
+                    parent.find("ul.static").toggle();
+
+                    if (parentLink.hasClass("navExpanedable")) {
+                        menuItemText.html("- " + menuText);
+                    }
+                    else {
+                        menuItemText.html("+ " + menuText);
+                    }
+                    parentLink.toggleClass("navExpanedable");
+                    parentLink.toggleClass("navCollapsable");
+                });
+            }
+        });
+        $('div[id$="PlaceHolderLeftNavBar_QuickLaunchNavigationManager"]').show();
+    },
+
+    HandelDocsByProjectPhase: function () {
+        var docsbyphasemenuItem = $('#docs-by-projectphase');
+        if (docsbyphasemenuItem.length == 0) {
+            return;
+        }
+        var parent = docsbyphasemenuItem.parent().parent().parent();
+        var parentLink = docsbyphasemenuItem.parent().parent();
+        var menuText = docsbyphasemenuItem.html().substring(2);
+        if (parent.find("li.selected").length <= 0) {
+            parent.find("ul.static-projectPhase").css('display', 'none');
+            docsbyphasemenuItem.html("+ " + menuText);
+            parentLink.addClass("navExpanedable");
+        }
+        else {
+            docsbyphasemenuItem.html("- " + menuText);
+            parentLink.addClass("navCollapsable");
+        }
+        var checkTerm = decodeURIComponent(GetQueryStringValue("term"));
+        if (checkTerm != "undefined") {
+            $('[id^="term-li-"] [id^="term-link-"]').each(function () {
+                var li = $(this);
+                if (checkTerm == li.text()) {
+                    li.addClass("static selected menu-item ms-core-listMenu-item ms-displayInline ms-core-listMenu-selected ms-navedit-linkNode");
+                    li.parent().addClass("selected");
+                    docsbyphasemenuItem.html("- " + menuText);
+                    parent.find("ul.static-projectPhase").toggle();
+                    parentLink.addClass("navCollapsable");
+                }
+            });
+        }
+
+        parentLink.click(function (event) {
+            event.preventDefault();
+            parent.find("ul.static-projectPhase").toggle();
+
+            if (docsbyphasemenuItem.html().indexOf("-") == 0) {
+                docsbyphasemenuItem.html("+ " + menuText);
+
+            }
+            else {
+                docsbyphasemenuItem.html("- " + menuText);
+
+            }
+            parentLink.toggleClass("navExpanedable");
+            parentLink.toggleClass("navCollapsable");
+        });
+    },
+
+    IsConfidentialForwardRule: function () {
+        var ctx = SP.ClientContext.get_current();
+        var list;
+        var result = true;
+        var listId = SP.ListOperation.Selection.getSelectedList();
+        list = ctx.get_web().get_lists().getById(listId);
+        if (SP.ListOperation.Selection.getSelectedItems(ctx).length == 1) {
+            var selectedItems = SP.ListOperation.Selection.getSelectedItems(ctx);
+            $("table.ms-listviewtable tbody > tr.ms-itmhover").each(function (i) {
+                if ($(this).attr("iid").split(",")[1] == selectedItems[0].id) {
+                    if ((this.id != "") && (this.children[4].children[0].className == "is-confidential")) {
+                        result = false;
+                    }
+                }
+            });
+
+        }
+        else {
+            result = false;
+        }
+        return result;
+    },
+
+    ConversationViewDialogBox: function () {
+        transmittalListActions.ctx = SP.ClientContext.get_current();
+        var item = SP.ListOperation.Selection.getSelectedItems(transmittalListActions.ctx);
+        var itemId = null;
+        if (item == null || item.length <= 0) {
+            itemId = crlCommon.getParameterByName("ID");
+            if (itemId == null)
+                return;
+        }
+        else {
+            itemId = item[0].id;
+        }
+        var web = transmittalListActions.ctx.get_web();
+        var tx = web.get_lists().getByTitle('Transmittals').getItemById(itemId)
+        transmittalListActions.ctx.load(tx);
+        transmittalListActions.ctx.executeQueryAsync(function () {
+            var url = crlCommon.getSiteRelativeUrl() + "Lists/Transmittals/RelatedTransmittalView.aspx?FilterField1=InitialTxId&FilterValue1=" + tx.get_fieldValues().InitialTxId + '&RelatedTxId=' + tx.get_fieldValues().TransmittalId;
+            //var win = window.open(url, "_blank", "width=1950,height=1100,toolbar=1, location=1,directories=1,status=1,menubar=1,scrollbars=1,copyhistory=1, resizable=1,fullscreen=1");// 'status=yes,toolbar=yes,menubar=yes,location=yes,resizable=yes,scrollbars=yes');//window.open(url, '_blank');
+            //win.focus();
+            var options = {
+                title: 'Related Transmittals for ' + tx.get_fieldValues().Title,
+                url: url,
+                width: 1200,
+                height: 1000
+            };
+            SP.UI.ModalDialog.showModalDialog(options);
+
+        }, transmittalListActions.error);
+    },
+
+    enableDocumentTemplatesButton: function () {
+        var siteUrl = _spPageContextInfo.siteServerRelativeUrl;
+        var webUrl = _spPageContextInfo.webServerRelativeUrl;
+        var isRootWeb = siteUrl == webUrl;
+        return isRootWeb;
+    },
+
+    createBreadcrumb: function () {
+        var breadcrumb = '<div id="jsBreadcrumb" style="line-height: 15px; width: auto; margin-bottom:10px"></div>';
+
+        var list = "";
+        if (ctx !== null && typeof ctx !== "undefined" && _spPageContextInfo.pageListId !== null && typeof _spPageContextInfo.pageListId !== "undefined") {
+            if (ctx.listName !== null && typeof ctx.listName !== "undefined") {
+                if (_spPageContextInfo.pageListId.toUpperCase() == ctx.listName.toUpperCase()) {
+                    urlParams = edmsHelper.getUrlParam(window.location.href);
+                    urlParamsStr = '';
+                    if (urlParams["View"]) {
+                        urlParamsStr += "&View=" + urlParams["View"];
+                    }
+                    if (urlParams["FolderCTID"]) {
+                        urlParamsStr += "&FolderCTID=" + urlParams["FolderCTID"];
+                    }
+
+                    listUrl = _spPageContextInfo.serverRequestPath;
+                    list = "<a href='" + listUrl + "' title='" + ctx.ListTitle + "' style='color:#349ce0'>" + ctx.ListTitle + "</a>";
+
+                    // Check if you are inside a folder
+                    if (ctx.rootFolder !== "" && typeof ctx.rootFolder !== "undefined") {
+                        var listUrlDir = decodeURIComponent(ctx.listUrlDir);
+                        var rootFolder = decodeURIComponent(ctx.rootFolder);
+                        rootFolder = rootFolder.replace(listUrl, "");
+
+                        var folders = rootFolder.replace(listUrlDir, '').split("/");
+                        var folderUrl = "";
+                        var subFolderUrl = "";
+                        for (var i = 0; i < folders.length; i++) {
+
+                            if (folders[i] !== "" && typeof folders[i] !== "undefined") {
+                                if (i == 1)
+                                    folderUrl = listUrl + "?RootFolder=" + listUrlDir + '/' + folders[i];
+                                else {
+                                    folderUrl += '/' + folders[i];
+                                }
+                                list += " > <a href='" + folderUrl + urlParamsStr + "' title='" + folders[i] + "' style='color:#349ce0'>" + folders[i] + "</a>";
+                            }
+                        }
+                        breadcrumb = $(breadcrumb).html(list);
+                    }
+                    else {
+                        breadcrumb = $(breadcrumb).hide();
+                    }
+                }
+            }
+        }
+        return breadcrumb;
+    },
+
+    fixBreadCrumbSize: function () {
+
+        //check if the current context exists and if it's is a list or document library
+        try {
+            if (typeof (GetCurrentCtx) != "function") {
+                $('#pageTitle').show();
+                return;
+            }
+            var currentCtx = GetCurrentCtx();
+            if (currentCtx != null && currentCtx.ListTemplateType != null) {
+                var breadcrumbs = $('#pageTitle #DeltaPlaceHolderPageTitleInTitleArea > span > span');
+                var breadcrumbsOuterSpan = $('#pageTitle #DeltaPlaceHolderPageTitleInTitleArea > span');
+                var pageDesc = $('#pageTitle #DeltaPlaceHolderPageDescription');
+                if (breadcrumbs.length > 1) {
+                    breadcrumbsOuterSpan.hide();
+                    var listTitle = $(breadcrumbs[0]).html();
+                    listTitle = $(listTitle).attr('id', 'staticListTitle');
+                    listTitle = $(listTitle).css('margin-right', '5px');
+                    listTitle = $(listTitle).css('margin-right', '5px');
+                    listTitle = $(listTitle).text(ctx.ListTitle);
+                    listTitle = $(listTitle).attr('href', $(listTitle).attr('href').split('?')[0]);
+                    $('#pageTitle').prepend(pageDesc);
+                    $('#pageTitle').prepend(listTitle);
+                    $('#pageTitle').append(crlCommon.createBreadcrumb);
+                    $('.ms-core-pageTitle #jsBreadcrumb').css(
+                        {
+                            "font-size": "13px",
+                            "font-family": "'Open Sans', Arial, Helvetica, sans-serif",
+                            "font-weight": "600",
+                            "color": "#213B51"
+                        });
+                    $('.ms-core-pageTitle #jsBreadcrumb a').css(
+                    {
+                        "font-size": "13px",
+                        "font-weight": "600",
+                        "font-family": "'Open Sans', Arial, Helvetica, sans-serif",
+                        "padding-left": "5px",
+                        "color": "#349ce0"
+                    });
+                }
+            }
+        }
+        catch (err) {
+            console.log(err);
+        }
+
+        $('#pageTitle').show();
+    },
+
+    enableOpenFileLocation: function () {
+        var ctx = SP.ClientContext.get_current();
+        return (SP.ListOperation.Selection.getSelectedItems(ctx).length == 1 && SP.ListOperation.Selection.getSelectedItems(ctx)[0].fsObjType == 0);
+    },
+
+    openFileLocation: function () {
+        var ctx = SP.ClientContext.get_current();
+        var selectedItems = SP.ListOperation.Selection.getSelectedItems(ctx);
+        var web = ctx.get_web();
+        var listId = SP.ListOperation.Selection.getSelectedList();
+        var list = web.get_lists().getById(listId);
+        var popup = window.open("about:blank");
+        var selectedItem = list.getItemById(selectedItems[0].id);
+        ctx.load(selectedItem);
+
+        ctx.executeQueryAsync(function (sender, args) {
+            var folderUrl = selectedItem.get_fieldValues().FileDirRef;
+            //window.open(decodeURIComponent(folderUrl), "_blank");
+            popup.location = folderUrl;
+        }, function (sender, args) {
+            console.log(args.get_message());
+        });
+    },
+
+    openTransmittal: function (txID) {
+        var ctx = SP.ClientContext.get_current();
+        var web = ctx.get_web();
+        var list = web.get_lists().getByTitle("Transmittals");
+        var query = new SP.CamlQuery();
+        query.set_viewXml("<View><Query><Where><Eq><FieldRef Name='TransmittalId' /><Value Type='Text'>" + txID + "</Value></Eq></Where></Query></View>");
+        var result = list.getItems(query);
+        ctx.load(result);
+        ctx.load(list, 'DefaultDisplayFormUrl');
+        ctx.executeQueryAsync(function (sender, args) {
+
+            var itemId;
+            var dispUrl = list.get_defaultDisplayFormUrl();
+            var listItemEnumerator = result.getEnumerator();
+
+            if (listItemEnumerator.moveNext()) {
+                var oListItem = listItemEnumerator.get_current();
+                if (oListItem.get_id() != null)
+                    itemId = oListItem.get_id();
+            }
+
+            if (itemId != null && dispUrl != null) {
+                //open display form
+                transmittalListActions.showDispDialog(dispUrl, itemId);
+            }
+        }, function (sender, args) {
+            alert(args.get_message());
+        });
+    },
+
+    generateBIMUrl: function (docId, version) {
+        var webUrl = _spPageContextInfo.webServerRelativeUrl;
+        if (webUrl == "/")
+            webUrl = "";
+        return webUrl + '/_layouts/15/AT.SharePoint.DMS.BIM/browser.aspx?isDlg=1&docID=' + docId + '&version=' + version;
+    },
+
+    isIFCFile: function (filename) {
+        var regExIfcFile = /.+\.ifc$|.+\.ifc\.aspx$/i;
+        var match = regExIfcFile.exec(filename);
+        if (match) {
+            return true;
+        }
+        return false;
+    },
+
+
+    addBIMCallout: function (calloutPageElement, title, fileUrl, BIMUrl) {
+        SP.SOD.executeFunc("callout.js", "Callout", function () {
+            var callout = CalloutManager.getFromLaunchPointIfExists(calloutPageElement);
+            if (callout == null) {
+                callout = CalloutManager.createNew({
+                    ID: "BIM Callout" + Date.now().toString(),
+                    launchPoint: calloutPageElement,
+                    title: title,
+                    openOptions: { event: "click", showCloseButton: true }
+                });
+
+
+                var downloadAction = new CalloutAction({
+                    text: "Download",
+                    onClickCallback: function () {
+                        window.open(fileUrl);
+                    }
+                });
+                var viewBIMAction = new CalloutAction({
+                    text: "Open in BIM viewer",
+                    onClickCallback: function () {
+                        window.open(BIMUrl);
+                    }
+                });
+                callout.addAction(viewBIMAction);
+                callout.addAction(downloadAction);
+            }
+        });
+
+    },
+
+    addBIMCalloutListItem: function (calloutPageElement, title, fileUrl, listId, itemId) {
+        SP.SOD.executeFunc("callout.js", "Callout", function () {
+            var callout = CalloutManager.getFromLaunchPointIfExists(calloutPageElement);
+            if (callout == null) {
+                callout = CalloutManager.createNew({
+                    ID: "BIM Callout" + Date.now().toString(),
+                    launchPoint: calloutPageElement,
+                    title: title,
+                    openOptions: { event: "click", showCloseButton: true }
+                });
+
+
+                var downloadAction = new CalloutAction({
+                    text: "Download",
+                    onClickCallback: function () {
+                        window.open(fileUrl);
+                    }
+                });
+                var viewBIMAction = new CalloutAction({
+                    text: "Open in BIM viewer",
+                    onClickCallback: function () {
+                        crlCommon.openBIMFromListItem(listId, itemId);
+                    }
+                });
+                callout.addAction(viewBIMAction);
+                callout.addAction(downloadAction);
+            }
+        });
+
+    },
+
+    openBIMFromListItem: function (listId, itemId) {
+        var ctx = SP.ClientContext.get_current();
+        var web = ctx.get_web();
+        var list = web.get_lists().getById(listId);
+        var item = list.getItemById(itemId);
+        var file = item.get_file();
+        var url = '';
+        ctx.load(list, 'BaseTemplate');
+        ctx.load(item);
+        ctx.load(file);
+        ctx.executeQueryAsync(function (args, sender) {
+            var templateId = list.get_baseTemplate();
+            switch (templateId) {
+                case 10010:
+                    url = crlCommon.generateBIMUrl(item.get_fieldValues()["_dlc_DocId"], file.get_uiVersionLabel());
+                    window.open(url);
+                    break;
+                case 10005:
+                    url = crlCommon.generateBIMUrl(item.get_item("InternalDocumentID"), item.get_item("_Version"));
+                    window.open(url);
+                    break;
+                default:
+                    alert("List template:" + templateId + " is unsupported!");
+                    break;
+            }
+        }, function (args, sender) {
+            alert(args.get_message());
+        });
+    },
+
+    fixAspxFileName: function (fileName) {
+        var regEx = /([^\\]*)\.aspx$/i;
+        var regExMatch = fileName.match(regEx);
+        if (regExMatch != null) {
+            var result = crlCommon.getFilenameExtension(regExMatch[1]);
+            if (result != null) {
+                return result[0] + "." + result[1];
+            }
+        }
+        return fileName;
+    },
+
+    getFilenameExtension: function (fileName) {
+        //Retain the file extension if it's included in the filename
+        if (fileName != null && fileName != "") {
+            var regex = /^([0-9a-zA-Z\^\&\'\@\{\}\[\]\,\$\=\!\-\#\(\)\.\%\+\~\_ ]+)\.([\w]{2,4})$/i;
+            var match = regex.exec(fileName);
+            if (match != null) {
+                return [match[1], match[2]];
+            }
+        }
+        return null;
+    }
+};
+
+var contextualHelp = window.contextualHelp || {};
+contextualHelp = {
+    ctx: null,
+};
+
+var transmittalListActions = window.transmittalListActions || {};
+transmittalListActions = {
+
+    selectedListItemsArray: [],
+    transmittalList: null,
+    ctx: null,
+    currentItem: null,
+    currentUser: null,
+    parentTransmittal: null,
+    initialTransmittal: null,
+    isForward: false,
+    enableCloseTxButton: null,
+    enableForwardTxButton: null,
+    enableTransmittalButton: null,
+    enableTransmittalFilesDownloadBtn: null,
+    enableSupportingFilesDownloadBtn: null,
+
+    loadSelectedItems: function () {
+        transmittalListActions.selectedListItemsArray = []
+        transmittalListActions.ctx = SP.ClientContext.get_current();
+        var selectedItems = SP.ListOperation.Selection.getSelectedItems(transmittalListActions.ctx);
+        var web = transmittalListActions.ctx.get_web();
+        transmittalListActions.currentUser = web.get_currentUser();
+        transmittalListActions.ctx.load(transmittalListActions.currentUser);
+        var listId = SP.ListOperation.Selection.getSelectedList();
+        transmittalListActions.transmittalList = web.get_lists().getById(listId);
+
+        for (var i = 0; i < selectedItems.length; i++) {
+            if (selectedItems[i].fsObjType == 0) {
+                var selectedItem = transmittalListActions.transmittalList.getItemById(selectedItems[i].id);
+                transmittalListActions.selectedListItemsArray.push(selectedItem);
+                transmittalListActions.ctx.load(selectedItem);
+            }
+        }
+    },
+
+    openCancellationDialog: function () {
+        transmittalListActions.ctx = SP.ClientContext.get_current();
+        var items = SP.ListOperation.Selection.getSelectedItems(transmittalListActions.ctx);
+        var selectedItemId = items[0].id;
+        var options = {
+            url: crlCommon.getSiteRelativeUrl() + '_layouts/AT.SharePoint.DMS.WebTemplate/ConfirmCancellation.aspx?ID=' + selectedItemId,
+            autoSize: true,
+            height: 100,
+            width: 400,
+            dialogReturnValueCallback: transmittalListActions.closeDialog
+        };
+        SP.UI.ModalDialog.showModalDialog(options);
+    },
+
+    openCancellationDialogInDispForm: function () {
+        var selectedItemId = crlCommon.getParameterByName('ID');
+        var options = {
+            url: crlCommon.getSiteRelativeUrl() + '_layouts/AT.SharePoint.DMS.WebTemplate/ConfirmCancellation.aspx?ID=' + selectedItemId,
+            autoSize: true,
+            height: 100,
+            width: 400,
+            dialogReturnValueCallback: transmittalListActions.closeDialog
+        };
+        SP.UI.ModalDialog.showModalDialog(options);
+    },
+
+    cancelTransmittal: function () {
+        transmittalListActions.selectedListItemsArray = []
+        var itemId = crlCommon.getParameterByName('ID');
+        transmittalListActions.ctx = SP.ClientContext.get_current();
+        var web = transmittalListActions.ctx.get_web();
+        transmittalListActions.currentUser = web.get_currentUser();
+        transmittalListActions.ctx.load(transmittalListActions.currentUser);
+        transmittalListActions.transmittalList = web.get_lists().getByTitle('Transmittals');
+        var selectedItem = transmittalListActions.transmittalList.getItemById(itemId);
+        transmittalListActions.ctx.load(selectedItem);
+        transmittalListActions.selectedListItemsArray.push(selectedItem);
+        transmittalListActions.ctx.executeQueryAsync(transmittalListActions.cancelTransmittalSuccess, transmittalListActions.error);
+    },
+
+    cancelTransmittalSuccess: function (sender, args) {
+        var selectedTransmittals = transmittalListActions.selectedListItemsArray;
+        if (selectedTransmittals.length != 1)
+            return false;
+        var selectedItem = selectedTransmittals[0];
+        var author = selectedItem.get_fieldValues().Author.get_lookupValue();
+        var currentUser = transmittalListActions.currentUser.get_title();
+        if (author != currentUser) {
+            alert("Sorry, only the sender of the transmittal can cancel it");
+            return;
+        }
+        var listItem = transmittalListActions.transmittalList.getItemById(selectedItem.get_id());
+        listItem.set_item("TransmittalStatus", "Cancelling from Initiator");
+        listItem.update();
+        transmittalListActions.ctx.load(listItem);
+
+        transmittalListActions.ctx.executeQueryAsync(transmittalListActions.onCancellationCompleted, transmittalListActions.error);
+    },
+
+    onCancellationCompleted: function (sender, args) {
+        SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.OK, 'Cancellation Successful');
+    },
+
+    enableCompleteActions: function () {
+        transmittalListActions.ctx = SP.ClientContext.get_current();
+        var web = transmittalListActions.ctx.get_web();
+        //transmittalListActions.currentUser = web.get_currentUser();//transmittalListActions.currentUser.get_title()
+        var LoggedInUser = $("#zz5_Menu").text().split($("#zz5_Menu").children().text())[0];//$("#welcomeMenuBox").text().trim().split('Use')[0];
+        var assignedToObj = $("span[id$='_lblAssignedto']");
+        var returnValue = false;
+        assignedToObj.each(function (index) {
+            if (returnValue == false) {
+                var assignedTo = $(this).text();
+                var actionStatus = $(this).parent().next().text().trim();
+                if ((assignedTo == LoggedInUser) && (actionStatus != "Completed")) {
+                    returnValue = true
+                }
+            }
+        });
+        return returnValue;
+    },
+
+    completeMyActioninDispForm: function () {
+        var assignedToObj = $("span[id$='_lblAssignedto']");
+        var web = transmittalListActions.ctx.get_web();
+        transmittalListActions.currentUser = web.get_currentUser();
+        var actionId = null;
+        var actionUrl = null;
+        assignedToObj.each(function (index) {
+            var assignedTo = $(this).text();
+            if (assignedTo == transmittalListActions.currentUser.get_title()) {
+                actionId = $(this).parent().attr("actionid");
+                var wfUrl = $(this).parent().attr("itemUrl");
+                actionUrl = wfUrl.split("Lists");
+            }
+        });
+        var options = {
+            url: actionUrl[0] + '/Lists/Actions/EditForm.aspx?ID=' + actionId + '&IsDlg=1',
+            width: 950,
+            height: 1100,
+            allowMaximize: true,
+            dialogReturnValueCallback: transmittalListActions.closeDialogFullRefresh
+        };
+        SP.UI.ModalDialog.showModalDialog(options);
+    },
+
+    closeTransmittalDialogInDispForm: function () {
+        var selectedItemId = crlCommon.getParameterByName('ID');
+        var options = {
+            url: crlCommon.getSiteRelativeUrl() + '_layouts/AT.SharePoint.DMS.WebTemplate/CloseTransmittal.aspx?ID=' + selectedItemId,
+            autoSize: true,
+            height: 160,
+            width: 500,
+            dialogReturnValueCallback: transmittalListActions.closeDialog
+        };
+        SP.UI.ModalDialog.showModalDialog(options);
+    },
+
+    closeTransmittal: function () {
+        transmittalListActions.selectedListItemsArray = []
+        var itemId = crlCommon.getParameterByName('ID');
+        transmittalListActions.ctx = SP.ClientContext.get_current();
+        var web = transmittalListActions.ctx.get_web();
+        //  transmittalListActions.currentUser = web.get_currentUser();
+        // transmittalListActions.ctx.load(transmittalListActions.currentUser);
+        transmittalListActions.transmittalList = web.get_lists().getByTitle('Transmittals');
+        var selectedItem = transmittalListActions.transmittalList.getItemById(itemId);
+        transmittalListActions.ctx.load(selectedItem);
+        transmittalListActions.selectedListItemsArray.push(selectedItem);
+        transmittalListActions.ctx.executeQueryAsync(transmittalListActions.closeTransmittalSuccess, transmittalListActions.error);
+    },
+
+    closeTransmittalSuccess: function (sender, args) {
+        var selectedTransmittals = transmittalListActions.selectedListItemsArray;
+        if (selectedTransmittals.length != 1)
+            return false;
+        var selectedItem = selectedTransmittals[0];
+        //var author = selectedItem.get_fieldValues().Author.get_lookupValue();
+        //var currentUser = transmittalListActions.currentUser.get_title();
+        //if (author != currentUser) {
+        //    alert("Sorry, only the sender of the transmittal can close it");
+        //    return;
+        //}
+        var listItem = transmittalListActions.transmittalList.getItemById(selectedItem.get_id());
+        listItem.set_item("TransmittalStatus", "Closing from Initiator");
+        listItem.update();
+        transmittalListActions.ctx.load(listItem);
+
+        transmittalListActions.ctx.executeQueryAsync(transmittalListActions.onCancellationCompleted, transmittalListActions.error);
+    },
+
+    //Enable close transmittal button within the ribbon
+    enableCloseTransmittal: function () {
+        if (transmittalListActions.enableCloseTxButton == null) {
+            var currentPath = _spPageContextInfo.serverRequestPath;
+            var txStatus = '';
+            var txType = '';
+            if (currentPath.toLowerCase().indexOf('/txdetails.aspx') > -1) {
+                if (txDetails.model != null && txDetails.model != undefined) {
+                    txStatus = txDetails.model.TransmittalStatus;
+                    txType = txDetails.model.transmittalType;
+                    return transmittalListActions.checkCloseTransmittalConditions(txStatus, txType);
+                }
+                else {
+                    transmittalListActions.getCurrentTransmittal(function (currentTransmittal) {
+                        var values = currentTransmittal.get_fieldValues();
+                        txType = values.TransmittalType == null ? null : values.TransmittalType.get_label();
+                        txStatus = values.TransmittalStatus;
+                        return transmittalListActions.checkCloseTransmittalConditions(txStatus, txType);
+                    });
+                }
+            }
+            else {
+                txStatus = $('a[name$=_TransmittalStatus]').closest("td").next().text().trim();
+                txType = $('a[name$=_TransmittalType]').closest("td").next().text().trim();
+                return transmittalListActions.checkCloseTransmittalConditions(txStatus, txType);
+            }
+        }
+        else
+            return transmittalListActions.enableCloseTxButton;
+    },
+
+    getCurrentTransmittal: function (callBack) {
+        var itemId = crlCommon.getParameterByName('ID');
+        var ctx = SP.ClientContext.get_current();
+        var web = ctx.get_web();
+        var transmittalList = web.get_lists().getByTitle('Transmittals');
+        var selectedItem = transmittalList.getItemById(itemId);
+        ctx.load(selectedItem);
+        ctx.executeQueryAsync(function (sender, args) {
+            callBack(selectedItem);
+        }, transmittalListActions.error);
+    },
+
+    //Determines whether close button is enabled based on user rights and transmittal type\status                   
+    checkCloseTransmittalConditions: function (txStatus, txType) {
+        transmittalListActions.selectedListItemsArray = []
+        var itemId = crlCommon.getParameterByName('ID');
+        transmittalListActions.ctx = SP.ClientContext.get_current();
+        var web = transmittalListActions.ctx.get_web();
+        transmittalListActions.currentUser = web.get_currentUser();
+        transmittalListActions.ctx.load(transmittalListActions.currentUser);
+        transmittalListActions.transmittalList = web.get_lists().getByTitle('Transmittals');
+        var selectedItem = transmittalListActions.transmittalList.getItemById(itemId);
+        var ob = new SP.BasePermissions();
+        ob.set(SP.PermissionKind.manageLists);
+        var per = web.doesUserHavePermissions(ob);
+        transmittalListActions.ctx.load(selectedItem);
+        transmittalListActions.selectedListItemsArray.push(selectedItem);
+        transmittalListActions.ctx.executeQueryAsync(function (sender, args) {
+            var returnvalue = null;
+            var selectedTransmittals = transmittalListActions.selectedListItemsArray;
+            if (selectedTransmittals.length != 1)
+                returnvalue = false;
+            var selectedItem = selectedTransmittals[0];
+            var author = selectedItem.get_fieldValues().Author.get_lookupValue();
+            var currentUser = transmittalListActions.currentUser.get_title();
+
+            var canCloseTransmittal = (txType == "Request for Information" || txType == "Consultant Advice") && txStatus != "Completed"
+
+            if (author == currentUser) {
+                returnvalue = canCloseTransmittal;
+            }
+            else {
+                var userisDesigner = per.get_value();
+                if (userisDesigner) {
+                    returnvalue = canCloseTransmittal
+                }
+                else
+                    returnvalue = false;
+            }
+            transmittalListActions.enableCloseTxButton = returnvalue;
+            RefreshCommandUI();
+        }, transmittalListActions.error);
+    },
+
+    enableAttachReviewSheet: function () {
+
+        var transType = $('input[id*=TransmittalType_]').val();
+        if (transType != "") {
+            var pos = transType.indexOf("|");
+            transType = transType.substring(0, pos);
+        }
+        if (transType == "Consultant Advice")
+            return true;
+        else
+            return false;
+    },
+
+    printTransmittal: function () {
+        var keepAttr = ["class", "id", "style", "on"];
+        var headElements = $("input#addElements").is(":checked") ? '<meta charset="utf-8" />,<meta http-equiv="X-UA-Compatible" content="IE=edge"/>' : '';
+        var options = { mode: 'iframe', popClose: false, extraCss: "", retainAttr: keepAttr, extraHead: headElements };
+
+        var $printContainer = $("<div></div>");
+        parent.$("div.ms-dlgTitle").last().clone().appendTo($printContainer);
+        $("#txDetailsForm").clone().appendTo($printContainer);
+        if ($('.confidential-alert').length > 0) {
+            $printContainer.find('.tx-disp-form').prepend($('.confidential-alert').clone());
+            $printContainer.find('.confidential-alert').css('border', '2px solid rgb(250, 186, 184)');
+        }
+        $printContainer.find('.tx-disp-form .attached-files table').show();
+        $printContainer.find("#txActionListTbl").show();
+        $printContainer.find('.attached-files .toggle-button').css("background", "url('" + crlCommon.getStyleLibFolderUrl() + "img/button-up.png') no-repeat right");
+        $printContainer.find('#txActionListToggle').css("background", "url('" + crlCommon.getStyleLibFolderUrl() + "img/button-up.png') no-repeat right");
+        $printContainer.find('script').remove();
+        //$(".ms-formtable").clone().appendTo($printContainer);
+        //$(".txActionList").clone().appendTo($printContainer);
+        //$(".artis-tasktable").clone().appendTo($printContainer);
+        //$printContainer.find('#dlgTitleBtns').hide();
+        //$printContainer.find('#dlgTitleBtns').hide();
+        $printContainer.printArea(options);
+    },
+
+    respond: function (forward) {
+        transmittalListActions.isForward = forward;
+        transmittalListActions.loadSelectedItems();
+        transmittalListActions.ctx.executeQueryAsync(transmittalListActions.respondSuccess, transmittalListActions.error);
+    },
+
+    respondInDisplayForm: function (forward) {
+        transmittalListActions.isForward = forward;
+        transmittalListActions.selectedListItemsArray = []
+        var itemId = crlCommon.getParameterByName('ID');
+        transmittalListActions.ctx = SP.ClientContext.get_current();
+        var web = transmittalListActions.ctx.get_web();
+        var selectedItem = web.get_lists().getByTitle('Transmittals').getItemById(itemId);
+        transmittalListActions.ctx.load(selectedItem);
+        transmittalListActions.selectedListItemsArray.push(selectedItem);
+        transmittalListActions.ctx.executeQueryAsync(transmittalListActions.respondSuccess, transmittalListActions.error);
+    },
+
+    respondSuccess: function () {
+        var selectedTransmittals = transmittalListActions.selectedListItemsArray;
+        if (selectedTransmittals.length != 1)
+            return false;
+
+        var selectedItem = selectedTransmittals[0];
+        var transmittalId = selectedItem.get_id();
+
+        var transmittalType = transmittalListActions.isForward ? 'Forwarded' : 'Replied To';
+        var parentTx = null;
+
+        transmittalListActions.ctx = SP.ClientContext.get_current();
+        var web = transmittalListActions.ctx.get_web();
+        var oList = web.get_lists().getByTitle('Transmittals');
+        var initialTxId = selectedItem.get_item("InitialTxId");
+        var camlQuery = new SP.CamlQuery();
+        camlQuery.set_viewXml("<View><Query><Where><Eq><FieldRef Name='TransmittalId' /><Value Type='Text'>" + initialTxId + "</Value></Eq></Where></Query></View>");
+        var collListItem = oList.getItems(camlQuery);
+        transmittalListActions.ctx.load(collListItem);
+        transmittalListActions.ctx.executeQueryAsync(function (sender, args) {
+            var listItemInfo = '';
+            var listItemEnumerator = collListItem.getEnumerator();
+            var newArgs;
+
+            if (initialTxId != null) {
+                while (listItemEnumerator.moveNext()) {
+                    var oListItem = listItemEnumerator.get_current();
+                    if (oListItem.get_id() != null)
+                        parentTx = oListItem.get_id();
+                }
+            }
+            if (parentTx == null)
+                parentTx = transmittalId;
+
+            //BIM URL injections if BIM Viewer is accessible
+            if (typeof window.parent.viewer != "undefined") {
+                var newBIMUrl = window.parent.viewer.getBIMUrl();
+                newArgs = { BIMURL: newBIMUrl };//call BIM copy link method
+            }
+
+            var options = {
+                url: crlCommon.getSiteRelativeUrl() + 'Lists/Transmittals/NewForm.aspx?TransmittalId=' + transmittalId + '&TransmittalType=' + transmittalType + '&ParentTransmittal=' + parentTx,
+                dialogReturnValueCallback: transmittalListActions.closeDialog,
+                args: newArgs
+            };
+            SP.UI.ModalDialog.showModalDialog(options);
+
+        }, transmittalListActions.error);
+    },
+
+    getParentTransmittal: function (transmittalId, parentTxId, callBack) {
+        transmittalListActions.ctx = SP.ClientContext.get_current();
+        var web = transmittalListActions.ctx.get_web();
+        transmittalListActions.currentUser = web.get_currentUser();
+        transmittalListActions.parentTransmittal = web.get_lists().getByTitle('Transmittals').getItemById(transmittalId);
+        transmittalListActions.initialTransmittal = web.get_lists().getByTitle('Transmittals').getItemById(parentTxId);
+        transmittalListActions.ctx.load(transmittalListActions.currentUser);
+        transmittalListActions.ctx.load(transmittalListActions.parentTransmittal);
+        transmittalListActions.ctx.load(transmittalListActions.initialTransmittal);
+        transmittalListActions.ctx.executeQueryAsync(function () {
+            transmittalListActions.getParentTransmittalSuccess(callBack);
+        }, transmittalListActions.error);
+    },
+
+    getParentTransmittalSuccess: function (callBack) {
+        var parent = transmittalListActions.parentTransmittal;
+        var subjectField = 'Title';
+        //var issueReasonField = 'IssueReason';
+        var dueDateField = 'DueDate1';
+        var toField = 'To';
+        var ccField = 'CC';
+        var messageField = 'TransmittalMessage';
+        var parentTransmittalIdField = 'ParentTransmittal';
+        var parentTransmittalRelField = 'ParentTransmittalRelationship';
+        var attachedDocIdsField = 'AttachedDocIds';
+        var SupportingDocIdsField = 'SupportingDocIds';
+        var TransmittalTypeField = 'Transmittal Type';
+        var isConfidentialField = 'IsConfidential';
+        var InitialTxIdField = "InitialTxId";
+        var CollaborationFilesField = "CollaborationFiles";
+
+        var id = parent.get_id();
+        var subject = parent.get_fieldValues().Title;
+        //var issueReason = 'Issued for Information'; //parent.get_fieldValues().IssueReason;
+        var parentTransmittal = parent.get_fieldValues().TransmittalId;
+        var parenttransmittalRelationship = parent.get_fieldValues().ParentTransmittalRelationship;
+        var attachedDocIds = parent.get_fieldValues().AttachedDocIds;
+        var supportingDocIds = parent.get_fieldValues().SupportingDocIds;
+        var reviewSheetLinks = parent.get_fieldValues().CollaborationFiles;
+        var message = parent.get_fieldValues().TransmittalMessage;
+        var sender = parent.get_fieldValues().Author.get_lookupValue();
+        var created = parent.get_fieldValues().Created.toString();
+        var transmittalType = parent.get_fieldValues().TransmittalType.get_label();
+        var isConfidential = parent.get_fieldValues().IsConfidential;
+        var InitialTxId = null;
+        if (transmittalListActions.initialTransmittal.get_fieldValues().InitialTxId != null)
+            InitialTxId = transmittalListActions.initialTransmittal.get_fieldValues().InitialTxId;
+        else
+            InitialTxId = parent.get_fieldValues().TransmittalId;
+        //var date = parent.get_fieldValues().DueDate1;
+        //var dueDate = new Object();
+        //if (date != null) {
+        //    var formattedDate = date.format('dd/MM/yyyy');
+        //    var hours = parent.get_fieldValues().DueDate1.getHours();
+        //    var minutes = parent.get_fieldValues().DueDate1.getMinutes();
+        //    minutes = minutes < 10 ? '0' + minutes : minutes;
+        //    dueDate = { Date: formattedDate, Hours: hours, Minutes: minutes };
+        //}
+
+        var transmittalToLookupArray = [];
+        var transmittalCCLookupArray = [];
+        var transmittalToLookupMessageArray = [];
+        var transmittalCCLookupMessageArray = [];
+        var toArray = parent.get_fieldValues().TransmittalTo;
+        var ccArray = parent.get_fieldValues().TransmittalCC;
+        transmittalToLookupArray.push(sender);
+
+        if (toArray != null) {
+            $.each(toArray, function () {
+                if (transmittalListActions.currentUser.get_title() != this.get_lookupValue() && sender != this.get_lookupValue()) {
+                    transmittalToLookupArray.push(this.get_lookupValue());
+                    transmittalToLookupMessageArray.push(this.get_lookupValue());
+                }
+                else
+                    transmittalToLookupMessageArray.push(this.get_lookupValue());
+            });
+        }
+        if (ccArray != null) {
+            $.each(ccArray, function () {
+                if (transmittalListActions.currentUser.get_title() != this.get_lookupValue() && sender != this.get_lookupValue()) {
+                    transmittalCCLookupArray.push(this.get_lookupValue());
+                    transmittalCCLookupMessageArray.push(this.get_lookupValue());
+                }
+                else
+                    transmittalCCLookupMessageArray.push(this.get_lookupValue());
+            });
+        }
+
+        //if (!$.inArray(sender, transmittalToLookupMessageArray))
+        //    transmittalToLookupMessageArray.push(sender)
+
+        var uniquetransmittalToLookupMessageArray = [];
+        $.each(transmittalToLookupMessageArray, function (i, v) {
+            if ($.inArray(v, uniquetransmittalToLookupMessageArray) == -1) uniquetransmittalToLookupMessageArray.push(v);
+        });
+        //var uniquetransmittalToLookupMessageArray = transmittalToLookupMessageArray.filter(function (elem, pos, self) {
+        //    return self.indexOf(elem) == pos;
+        //});
+        var uniquetransmittalCCLookupMessageArray = [];
+        $.each(transmittalCCLookupMessageArray, function (i, v) {
+            if ($.inArray(v, uniquetransmittalCCLookupMessageArray) == -1) uniquetransmittalCCLookupMessageArray.push(v);
+        });
+        //var uniquetransmittalCCLookupMessageArray = transmittalCCLookupMessageArray.filter(function (elem, pos, self) {
+        //    return self.indexOf(elem) == pos;
+        //});
+        var transmittalCC = transmittalCCLookupArray.length > 0 ? '<strong>Cc: </strong>' + transmittalCCLookupArray.join(', ') + '<br/>' : '';
+        var transmittalCCMessgae = transmittalCCLookupMessageArray.length > 0 ? '<strong>Cc: </strong>' + transmittalCCLookupMessageArray.join(', ') + '<br/>' : '';
+        var prependToMessage = '<br/><br/><div style="border-top:1px solid #C0C0C0"><p>' +
+                                    '<strong>Transmittal ID: </strong>' + parentTransmittal + '<br/>' +
+                                    '<strong>From: </strong>' + sender + '<br/>' +
+                                    '<strong>Sent: </strong>' + created + '<br/>' +
+                                    '<strong>To: </strong>' + uniquetransmittalToLookupMessageArray.join(', ') + '<br/>' + transmittalCCMessgae +
+                                    '<strong>Subject: </strong>' + subject + '<br/>' +
+                               '</p></div>';
+        message = prependToMessage + message;
+
+        if (crlCommon.getParameterByName('TransmittalType') == 'Forwarded') {
+            parenttransmittalRelationship = 'Forwarded';
+            subject = 'FW: ' + subject;
+            transmittalListActions.populateFormField(attachedDocIdsField, 'textarea', attachedDocIds);
+            transmittalListActions.populateFormField(SupportingDocIdsField, 'textarea', supportingDocIds);
+        }
+        else if (crlCommon.getParameterByName('TransmittalType') == 'Replied To') {
+            parenttransmittalRelationship = 'Replied To';
+            subject = 'RE: ' + subject;
+
+        }
+
+
+        transmittalListActions.populateFormField(CollaborationFilesField, 'richTextArea', reviewSheetLinks);
+
+        transmittalListActions.populateFormField(subjectField, 'textbox', subject);
+        transmittalListActions.populateFormField(parentTransmittalIdField, 'textbox', parentTransmittal);
+        //transmittalListActions.populateFormField(issueReasonField, 'dropdown', issueReason);
+        transmittalListActions.populateFormField(parentTransmittalRelField, 'dropdown', parenttransmittalRelationship);
+        transmittalListActions.populateFormField(dueDateField, 'textbox', "");
+        transmittalListActions.populateFormField(isConfidentialField, 'checkbox', isConfidential);
+        //if (date != null)
+        //    transmittalListActions.populateFormField(dueDateField, 'datetime', dueDate);
+        if (parenttransmittalRelationship == 'Replied To') {
+            transmittalListActions.populateFormField(toField, 'peoplepicker', transmittalToLookupArray);
+            transmittalListActions.populateFormField(ccField, 'peoplepicker', transmittalCCLookupArray);
+        }
+        transmittalListActions.populateFormField(messageField, 'richTextArea', message);
+        transmittalListActions.populateFormField(TransmittalTypeField, 'taxonomy', transmittalType);
+        transmittalListActions.populateFormField(InitialTxIdField, 'textbox', InitialTxId);
+
+        if (callBack != undefined && typeof (callBack) == "function") {
+            callBack();
+        }
+    },
+
+    populateFormField: function (fieldId, fieldType, value) {
+        if (fieldType == 'textbox') {
+            var obj = $('input[id^=' + fieldId + ']');
+            obj.val(value);
+            return;
+        }
+
+        if (fieldType == 'textarea') {
+            var obj = $('textarea[id^=' + fieldId + ']');
+            obj.val(value);
+            return;
+        }
+
+        if (fieldType == 'richTextArea') {
+            var obj = $('div[id^=' + fieldId + '] > p');
+            obj.html(value);
+            return;
+        }
+
+        if (fieldType == 'dropdown') {
+            var obj = $('select[id^=' + fieldId + ']');
+            obj.val(value);
+            return;
+        }
+        if (fieldType == 'checkbox') {
+            var obj = $('input[id^=' + fieldId + ']');
+            obj.prop('checked', value);
+            return;
+        }
+
+        if (fieldType == 'datetime') {
+            var dateObj = $('input[id^=' + fieldId + ']');
+            dateObj.val(value.Date);
+            var hoursObj = dateObj.parent().parent().find('td.ms-dttimeinput').find('select:first');
+            hoursObj.val(value.Hours);
+            var minutesObj = dateObj.parent().parent().find('td.ms-dttimeinput').find('select:last');
+            minutesObj.val(value.Minutes);
+            return;
+        }
+
+        if (fieldType == 'peoplepicker') {
+            if (value.length <= 0)
+                return;
+            var controlName = fieldId;
+            var peoplePickerDiv = $("[id$='ClientPeoplePicker'][title='" + controlName + "']");
+            var peoplePickerEditor = peoplePickerDiv.find("[title='" + controlName + "']");
+            var spPeoplePicker = SPClientPeoplePicker.SPClientPeoplePickerDict[peoplePickerDiv[0].id];
+            $.each(value, function () {
+                peoplePickerEditor.val(this);
+                spPeoplePicker.AddUnresolvedUserFromEditor(true);
+            });
+            spPeoplePicker.ResolveAllUsers();
+            return;
+        }
+
+        if (fieldType == 'taxonomy') {
+            var inputControl = $(".ms-taxonomy-fieldeditor[title^='" + fieldId + "']");
+            var editableRegion = inputControl.find('div[id$="editableRegion"]');
+            if (editableRegion.length > 0) {
+                editableRegion.html(value);
+                var taxonomyParent = editableRegion.parent().parent().parent();
+                if (taxonomyParent.length > 0) {
+                    var taxonomyObject = new Microsoft.SharePoint.Taxonomy.ControlObject(taxonomyParent.get(0));
+                    taxonomyObject.validateAll();
+                }
+            }
+            return;
+        }
+    },
+
+    closeDialog: function (result, returnValue) {
+        if (result == SP.UI.DialogResult.OK) {
+            //SP.UI.ModalDialog.RefreshPage(SP.UI.DialogResult.OK);
+            var evtAjax = {
+                currentCtx: ctx,
+                csrAjaxRefresh: true
+            };
+            AJAXRefreshView(evtAjax, SP.UI.DialogResult.OK);
+        }
+    },
+
+    closeDialogFullRefresh: function (result, returnValue) {
+        if (result == SP.UI.DialogResult.OK) {
+            SP.UI.ModalDialog.RefreshPage(SP.UI.DialogResult.OK);
+        }
+    },
+
+    markItemsAsRead: function () {
+        transmittalListActions.loadSelectedItems();
+        transmittalListActions.ctx.executeQueryAsync(transmittalListActions.markAsReadSuccess, transmittalListActions.error);
+    },
+
+    markAsReadSuccess: function (sender, args) {
+        var selectedTransmittals = transmittalListActions.selectedListItemsArray;
+        var recipients = new Array();
+        if (selectedTransmittals.length > 0) {
+
+            $.each(selectedTransmittals, function () {
+                var currentItem = this;
+                var listItem = transmittalListActions.transmittalList.getItemById(currentItem.get_id());
+                var transmittalStatus = currentItem.get_fieldValues().TransmittalLifecycle;
+                //prevents a save conflict issue if the Tx has not been completely process
+                if (transmittalStatus != "Sending...") {
+                    var currentUser = transmittalListActions.currentUser.get_title();
+                    var unreadHistoryUserList = currentItem.get_fieldValues().ReadHistoryUserList;
+                    if (unreadHistoryUserList != null && unreadHistoryUserList.length > 0) {
+                        unreadHistoryUserList = jQuery.grep(unreadHistoryUserList, function (a) {
+                            return transmittalListActions.currentUser.get_id().toString().indexOf(a.get_lookupId()) < 0;
+                        });
+                    }
+                    if (unreadHistoryUserList != null) {
+                        listItem.set_item('ReadHistoryUserList', unreadHistoryUserList);
+                        listItem.update();
+                        transmittalListActions.ctx.load(listItem);
+                    }
+                }
+            });
+        }
+        transmittalListActions.ctx.executeQueryAsync(transmittalListActions.onItemsUpdated, transmittalListActions.error);
+    },
+
+
+    markItemsAsUnread: function (sender, args) {
+        transmittalListActions.loadSelectedItems();
+        transmittalListActions.ctx.executeQueryAsync(transmittalListActions.markAsUnreadSuccess, transmittalListActions.error);
+    },
+
+    markAsUnreadSuccess: function (sender, args) {
+        var selectedTransmittals = transmittalListActions.selectedListItemsArray;
+        var recipients = new Array();
+        if (selectedTransmittals.length > 0) {
+
+            $.each(selectedTransmittals, function () {
+                var currentItem = this;
+                var listItem = transmittalListActions.transmittalList.getItemById(currentItem.get_id());
+                var transmittalStatus = currentItem.get_fieldValues().TransmittalLifecycle;
+                //prevents a save conflict issue if the Tx has not been completely process
+                if (transmittalStatus != "Sending...") {
+                    var currentUser = transmittalListActions.currentUser.get_title();
+                    var unreadHistoryUserList = currentItem.get_fieldValues().ReadHistoryUserList;
+                    if (unreadHistoryUserList == null) {
+                        unreadHistoryUserList = new Array();
+                    }
+                    var user = new SP.FieldUserValue();
+                    user.set_lookupId(transmittalListActions.currentUser.get_id());
+                    unreadHistoryUserList.push(user);
+                    listItem.set_item('ReadHistoryUserList', unreadHistoryUserList);
+                    listItem.update();
+                    transmittalListActions.ctx.load(listItem);
+                }
+            });
+        }
+        transmittalListActions.ctx.executeQueryAsync(transmittalListActions.onItemsUpdated, transmittalListActions.error);
+    },
+
+    onItemsUpdated: function (sender, args) {
+        //SP.UI.ModalDialog.RefreshPage(SP.UI.DialogResult.OK);
+        var evtAjax = {
+            currentCtx: ctx,
+            csrAjaxRefresh: true
+        };
+        AJAXRefreshView(evtAjax, SP.UI.DialogResult.OK);
+    },
+
+    openHistoryDialogInDisplayForm: function (itemId) {
+        transmittalListActions.selectedListItemsArray = []
+        transmittalListActions.ctx = SP.ClientContext.get_current();
+        var web = transmittalListActions.ctx.get_web();
+        var selectedItem = web.get_lists().getByTitle('Transmittals').getItemById(itemId);
+        transmittalListActions.ctx.load(selectedItem);
+        transmittalListActions.selectedListItemsArray.push(selectedItem);
+        transmittalListActions.ctx.executeQueryAsync(transmittalListActions.respondSuccessDisplayHistory, transmittalListActions.error);
+    },
+
+    respondSuccessDisplayHistory: function () {
+        var selectedTransmittals = transmittalListActions.selectedListItemsArray;
+        if (selectedTransmittals.length != 1)
+            return false;
+
+        var selectedItem = selectedTransmittals[0];
+        var transmittalId = selectedItem.get_fieldValues().TransmittalId;
+        crlCommon.openHistoryDialog(transmittalId);
+    },
+
+    IsConfidentialForwardRuleDisplayForm: function () {
+        if (transmittalListActions.enableForwardTxButton == null) {
+            var currentPath = _spPageContextInfo.serverRequestPath;
+            if (currentPath.toLowerCase().indexOf('/txdetails.aspx') > -1) {
+                if (txDetails.model != null && txDetails.model != undefined) {
+                    if (txDetails.model.isConfidential)
+                        transmittalListActions.enableForwardTxButton = false;
+                    else
+                        transmittalListActions.enableForwardTxButton = true;
+
+                    return transmittalListActions.enableForwardTxButton;
+                }
+                else {
+                    transmittalListActions.getCurrentTransmittal(function (currentTransmittal) {
+                        var values = currentTransmittal.get_fieldValues();
+                        isConfidential = values.IsConfidential;
+                        transmittalListActions.enableForwardTxButton = !isConfidential;
+                        RefreshCommandUI();
+                    });
+                }
+            }
+            else {
+                var IsConfidentialFld = $('a[name$=IsConfidential]').closest("td");
+                var IsConfidentialValue = IsConfidentialFld.closest("td").next().text();
+                if (IsConfidentialValue.trim() == "Yes") {
+                    transmittalListActions.enableForwardTxButton = false;
+                }
+                else
+                    transmittalListActions.enableForwardTxButton = true;
+                return transmittalListActions.enableForwardTxButton;
+            }
+        }
+        else
+            return transmittalListActions.enableForwardTxButton;
+    },
+
+    showTransmittalDispDialog: function () {
+        var dispFormUrl = ctx.displayFormUrl
+        var currentCtx = SP.ClientContext.get_current();
+        var selectedItems = SP.ListOperation.Selection.getSelectedItems(currentCtx);
+        transmittalListActions.showDispDialog(dispFormUrl, selectedItems[0].id);
+    },
+
+    showDispDialog: function (dispFormUrl, id) {
+        var url = dispFormUrl + "?ID=" + id;
+        var options = {
+            url: url, width: 1200, height: 1000, showMaximized: false, allowMaximize: true
+        };
+        SP.UI.ModalDialog.showModalDialog(options);
+    },
+
+    showTransmittalDispDialogCallBack: function (result, returnValue) {
+        var evtAjax = {
+            currentCtx: ctx,
+            csrAjaxRefresh: true
+        };
+        AJAXRefreshView(evtAjax, SP.UI.DialogResult.OK);
+    },
+
+    enableTransmittalFilesDownload: function () {
+        if (transmittalListActions.enableTransmittalFilesDownloadBtn == null) {
+            transmittalListActions.getCurrentTransmittal(function (currentTransmittal) {
+                var values = currentTransmittal.get_fieldValues();
+                var docIds = values.AttachedDocIds;
+                if (docIds == null || docIds == '')
+                    transmittalListActions.enableTransmittalFilesDownloadBtn = false;
+                else
+                    transmittalListActions.enableTransmittalFilesDownloadBtn = true;
+
+                RefreshCommandUI();
+            });
+        }
+        else
+            return transmittalListActions.enableTransmittalFilesDownloadBtn;
+    },
+
+    enableSupportingFilesDownload: function () {
+        if (transmittalListActions.enableSupportingFilesDownloadBtn == null) {
+            transmittalListActions.getCurrentTransmittal(function (currentTransmittal) {
+                var values = currentTransmittal.get_fieldValues();
+                var docIds = values.SupportingDocIds;
+                if (docIds == null || docIds == '')
+                    transmittalListActions.enableSupportingFilesDownloadBtn = false;
+                else
+                    transmittalListActions.enableSupportingFilesDownloadBtn = true;
+
+                RefreshCommandUI();
+            });
+        }
+        else
+            return transmittalListActions.enableSupportingFilesDownloadBtn;
+    },
+
+    downloadFiles: function (mode) {
+        var siteUrl = crlCommon.getSiteRelativeUrl();
+        var txId = crlCommon.getParameterByName('ID');
+        var url = siteUrl + '_layouts/15/AT.SharePoint.DMS.WebTemplate/DownloadDocuments.aspx?TransmittalId=' + txId + '&Mode=' + mode;
+        window.open(url);
+    }
+};
+
+var startTransmittal = window.startTransmittal || {};
+startTransmittal = {
+    selectedListItemsArray: [],
+    docLib: null,
+    ctx: null,
+    currentItem: null,
+    currentUser: null,
+    statusId: '',
+
+    startNewTransmittal: function () {
+        startTransmittal.selectedListItemsArray = [];
+        startTransmittal.ctx = SP.ClientContext.get_current();
+        var selectedItems = SP.ListOperation.Selection.getSelectedItems(startTransmittal.ctx);
+        var web = startTransmittal.ctx.get_web();
+        //startTransmittal.currentUser = web.get_currentUser();
+        // startTransmittal.ctx.load(startTransmittal.currentUser);
+        var docLibId = SP.ListOperation.Selection.getSelectedList();
+        startTransmittal.docLib = web.get_lists().getById(docLibId);
+
+        for (var i = 0; i < selectedItems.length; i++) {
+            if (selectedItems[i].fsObjType == 0) {
+                var selectedItem = startTransmittal.docLib.getItemById(selectedItems[i].id);
+                //var file = selectedItem.get_file();
+                startTransmittal.selectedListItemsArray.push(selectedItem);
+                startTransmittal.ctx.load(selectedItem, '_dlc_DocId', 'File', 'FileLeafRef', 'CheckoutUser');
+            }
+        }
+
+        startTransmittal.ctx.executeQueryAsync(startTransmittal.startTransmittalSuccess, startTransmittal.error);
+    },
+
+    startTransmittalSuccess: function (sender, args) {
+        var selectedDocs = startTransmittal.selectedListItemsArray;
+        var unpublishedFilesArray = [];
+        var docIdArray = [];
+        if (selectedDocs.length > 0) {
+            $.each(selectedDocs, function () {
+                var currentItem = this;
+                var docId = currentItem.get_fieldValues()._dlc_DocId;
+                var versionLabel = currentItem.get_file().get_uiVersionLabel();
+                var checkoutUser = currentItem.get_fieldValues().CheckoutUser;
+                var filename = currentItem.get_file().get_name();
+                //docIdArray.push(docId + '|' + versionLabel + '|' + filename);
+                docIdArray.push({ DocId: docId, FileName: filename, Version: versionLabel });
+
+                // If the document is not published
+                //if (currentItem.get_file().get_level() != 1) {
+                //    unpublishedFilesArray.push(currentItem.get_file().get_name());
+                //}
+                if (currentItem.get_file().get_level() == 255 || checkoutUser != null) {
+                    unpublishedFilesArray.push(currentItem.get_file().get_name());
+                }
+            });
+        }
+
+
+        if (unpublishedFilesArray.length > 0) {
+            var unpublishedFiles = unpublishedFilesArray.join(', ');
+            var closeBtnUrl = crlCommon.getStyleLibFolderUrl() + 'img/close-button-grey-24.png';
+            var img = '<img alt="Close notification" src="' + closeBtnUrl + '"/>';
+            var message = '<a style="float:right" href="#" title="close notification" onclick="javascript:startTransmittal.closeStatusBar(startTransmittal.statusId);return false;">'
+                + img + '</a><span>The file(s) <span class="unpublished-files" style="font-weight:bold">' + unpublishedFiles + '</span> are not published. Please make sure that these file(s) are checked in and published.</span>';
+            startTransmittal.notifyUser(message);
+        }
+        else {
+            //var docIds = docIdArray.join(',');
+            var newArgs = { docIds: docIdArray };
+            startTransmittal.openNewForm(newArgs);
+        }
+    },
+
+
+    startNewTransmittalInDocRegister: function () {
+        startTransmittal.selectedListItemsArray = [];
+        startTransmittal.ctx = SP.ClientContext.get_current();
+        var selectedItems = SP.ListOperation.Selection.getSelectedItems(startTransmittal.ctx);
+        var web = startTransmittal.ctx.get_web();
+        var docLibId = SP.ListOperation.Selection.getSelectedList();
+        startTransmittal.docLib = web.get_lists().getById(docLibId);
+
+        for (var i = 0; i < selectedItems.length; i++) {
+            if (selectedItems[i].fsObjType == 0) {
+                var selectedItem = startTransmittal.docLib.getItemById(selectedItems[i].id);
+                startTransmittal.selectedListItemsArray.push(selectedItem);
+                startTransmittal.ctx.load(selectedItem, 'InternalDocumentID', 'DocumentAccessUrl', '_Version', 'Title', 'DocumentAccessUrl');
+            }
+        }
+
+        startTransmittal.ctx.executeQueryAsync(startTransmittal.startTransmittalInDocRegisterSuccess, startTransmittal.error);
+    },
+
+    startTransmittalInDocRegisterSuccess: function (sender, args) {
+        var selectedDocs = startTransmittal.selectedListItemsArray;
+        var unpublishedFilesArray = [];
+        var docIdArray = [];
+        var siteUrl = _spPageContextInfo.siteServerRelativeUrl;
+        var webUrl = _spPageContextInfo.webServerRelativeUrl;
+        var isRootWeb = siteUrl == webUrl;
+        var openNewFormFlag = true;
+        if (selectedDocs.length > 0) {
+            $.each(selectedDocs, function () {
+                var currentItem = this;
+                var docId = currentItem.get_fieldValues().InternalDocumentID;
+                var versionLabel = currentItem.get_fieldValues()._Version;
+                var name = currentItem.get_fieldValues().DocumentAccessUrl.get_description();
+                var minorVersion = parseInt(versionLabel.split(".")[1], 10);
+                if (minorVersion >= 1)
+                    unpublishedFilesArray.push(currentItem.get_fieldValues().Title);
+                //docIdArray.push(docId + '|' + versionLabel + "|" + name);
+                docIdArray.push({ DocId: docId, FileName: name, Version: versionLabel });
+
+            });
+        }
+        if (unpublishedFilesArray.length > 0) {
+            if (!isRootWeb) {
+                var unpublishedFiles = unpublishedFilesArray.join(', ');
+                var closeBtnUrl = crlCommon.getStyleLibFolderUrl() + 'img/close-button-grey-24.png';
+                var img = '<img alt="Close notification" src="' + closeBtnUrl + '"/>';
+                var message = '<a style="float:right" href="#" title="close notification" onclick="javascript:startTransmittal.closeStatusBar(startTransmittal.statusId);return false;">'
+                    + img + '</a><span>The file(s) <span class="unpublished-files" style="font-weight:bold">' + unpublishedFiles + '</span> has minor versions. Non AT Orgs cannot transmit minor versions of docs from the Doc Register.</span>';
+                startTransmittal.notifyUser(message);
+                openNewFormFlag = false;
+            }
+        }
+        if (openNewFormFlag) {
+            if (docIdArray.length > 0) {
+                //var docIds = docIdArray.join(',');
+                var newArgs = { docIds: docIdArray };
+                startTransmittal.openNewForm(newArgs);
+            }
+        }
+    },
+
+
+    notifyUser: function (message) {
+        SP.UI.Status.removeAllStatus(true);
+        startTransmittal.statusId = SP.UI.Status.addStatus("Alert:", message);
+        SP.UI.Status.setStatusPriColor(startTransmittal.statusId, "yellow");
+    },
+
+    closeStatusBar: function (sid) {
+        SP.UI.Status.removeStatus(sid);
+    },
+
+
+    //Opens a new transmittal form, passing through the selected document Id's
+    openNewForm: function (args) {
+        var options = SP.UI.$create_DialogOptions();
+        options.url = crlCommon.getSiteRelativeUrl() + 'Lists/Transmittals/NewForm.aspx';
+        options.args = args;
+        SP.UI.ModalDialog.showModalDialog(options);
+    },
+
+
+    onItemsUpdated: function (sender, args) {
+        //SP.UI.ModalDialog.RefreshPage(SP.UI.DialogResult.OK);
+        var evtAjax = {
+            currentCtx: ctx,
+            csrAjaxRefresh: true
+        };
+        AJAXRefreshView(evtAjax, SP.UI.DialogResult.OK);
+
+        transmittalListActions.ieAjaxRefreshFix($('#s4-workspace').scrollTop(), $('#s4-workspace').scrollLeft(), 20);
+    },
+
+    ieAjaxRefreshFix: function (top, left, count) {
+        var ws = $('#s4-workspace');
+        var scrollTop = ws.scrollTop();
+        var scrollLeft = ws.scrollLeft();
+
+        console.log('Attempts remain: ' + count);
+
+        if (count == 0) {
+            return;
+        } else if (scrollTop == top && scrollLeft == left) {
+            setTimeout(function () { transmittalListActions.ieAjaxRefreshFix(top, left, count - 1) }, 100);
+        } else {
+            setTimeout(function () {
+                ws.scrollTop(top);
+                ws.scrollLeft(left);
+            }, 10);
+        }
+    },
+
+    error: function (sender, args) {
+
+        console.log('Request failed. ' + args.get_message() + '\n' + args.get_stackTrace());
+        //alert('Could not update items');
+    }
+};
+
+var documentPicker = window.documentPicker || {};
+documentPicker = {
+    selectedListItemsArray: [],
+    ctx: null,
+    docLib: null,
+    listCol: null,
+    web: null,
+    statusId: '',
+    uniqueSelectedDocIds: [],
+    uniqueSelectedDocs: [],
+    uniqueSelectedDocIdVersions: [],
+    docLibList: [],
+    isFolderSelected: false,
+    isResizing: false,
+    props: null,
+    securedLibsArray: [],
+
+    getLists: function () {
+        documentPicker.ctx = SP.ClientContext.get_current();
+        documentPicker.web = documentPicker.ctx.get_web();
+        documentPicker.listCol = documentPicker.web.get_lists();
+        documentPicker.props = documentPicker.web.get_allProperties();
+        documentPicker.ctx.load(documentPicker.listCol);
+        documentPicker.ctx.load(documentPicker.web);
+        documentPicker.ctx.load(documentPicker.props);
+        documentPicker.ctx.executeQueryAsync(documentPicker.onGetListsSucceeded, documentPicker.error);
+    },
+
+    onGetListsSucceeded: function (sender, args) {
+        var baseTemplates = [10010, 10005, 10015];
+        var isSkipDocRegister = GetQueryStringValue("skipDocRegister") == "1";
+        if (isSkipDocRegister) {
+            var index = jQuery.inArray(10005, baseTemplates);
+            if (index != -1) {
+                baseTemplates.splice(index);
+            }
+        }
+        var securedLibsList = documentPicker.props.get_fieldValues()["SecuredLibraryList"];
+        if (securedLibsList != undefined && securedLibsList != null)
+            documentPicker.securedLibsArray = securedLibsList.toUpperCase().split(",");
+        documentPicker.docLibList = [];
+        var listEnumerator = documentPicker.listCol.getEnumerator();
+        var docLibList = [];
+        while (listEnumerator.moveNext()) {
+            var oList = listEnumerator.get_current();
+            if (jQuery.inArray(oList.get_baseTemplate(), baseTemplates) > -1) {
+                documentPicker.ctx.load(oList, 'RootFolder', 'Views', 'BaseTemplate', 'Hidden');
+                documentPicker.docLibList.push(oList);
+            }
+        }
+        documentPicker.ctx.executeQueryAsync(documentPicker.getDocLibs, documentPicker.error);
+    },
+
+    getDocLibs: function (sender, args) {
+        var docLibListArray = [];
+        $.each(documentPicker.docLibList, function () {
+            var isHidden = this.get_hidden();
+            var id = this.get_id().toString().toUpperCase();
+            var isSecured = documentPicker.securedLibsArray.indexOf(id) != -1;
+            if (!isHidden && !isSecured) {
+                var name = this.get_title();
+
+                var templateId = this.get_baseTemplate();
+                var viewEnumerator = this.get_views().getEnumerator();
+                var hasView = false;
+                while (viewEnumerator.moveNext() && hasView == false) {
+                    var oView = viewEnumerator.get_current();
+                    var viewProp = oView.get_objectData().get_properties();
+                    if (viewProp.Title.toLowerCase() == 'document picker') {
+                        viewUrl = viewProp.ServerRelativeUrl + '?IsDlg=1';
+                        docLibListArray.push({ DocLibViewUrl: viewUrl, DocLibName: name, AltText: name, TemplateId: templateId });
+                        hasView = true;
+                    }
+                }
+            }
+        });
+
+
+        if (docLibListArray.length > 0) {
+            docLibListArray = docLibListArray.sort(function (a, b) { return (a.TemplateId - b.TemplateId) });
+            $(".doc-lib-list").append($("#documentPickerTemplate").render(docLibListArray));
+            documentPicker.showDocLibFrame($('.doc-nav-item').first(), docLibListArray[0].DocLibViewUrl);
+        }
+    },
+
+    openDialog: function () {
+        var options = {
+            url: crlCommon.getSiteRelativeUrl() + '_layouts/AT.SharePoint.DMS.WebTemplate/AttachDocuments.aspx',
+            autoSize: true,
+            showMaximized: true,
+            dialogReturnValueCallback: transmittalsForm.AttachDocuments
+        };
+        SP.UI.ModalDialog.showModalDialog(options);
+    },
+
+    openDialogSupportDoc: function () {
+        var options = {
+            url: crlCommon.getSiteRelativeUrl() + '_layouts/AT.SharePoint.DMS.WebTemplate/AttachDocuments.aspx',
+            autoSize: true,
+            showMaximized: true,
+            dialogReturnValueCallback: transmittalsForm.AttachSupportDocuments
+        };
+        SP.UI.ModalDialog.showModalDialog(options);
+    },
+
+    selectAllItems: function () {
+        var row = $('.ms-listviewtable tbody tr');
+        row.each(function () {
+            var url = $(this).find('.ms-vb-title').find('a').attr("href");
+            var name = $(this).find('.ms-vb-title').find('a').text();
+            var docID = $(this).find('.doc-version').attr("dmsdocid");
+            var version = $(this).find('.doc-version').text();
+
+            //Highlight rows in the current view that have already been selected and added to selected documents panel.
+            documentPicker.highlightSelectedDoc(docID, version, $(this));
+
+            if (!$(this).hasClass('doc-selected')) {
+
+                var isCheckedOut = false;
+                var isDocSet = false;
+                var checkifDocCheckedOut = $(this).find('.ms-vb-icon').children().attr("title");
+                if (checkifDocCheckedOut != null) {
+                    if (checkifDocCheckedOut.indexOf("Checked Out To:") > -1)
+                        isCheckedOut = true;
+                }
+                if (!isCheckedOut) {
+                    var typeImgUrl = $(this).find('.ms-vb-icon').find("img").attr("src");
+                    if (typeImgUrl != null) {
+                        if (typeImgUrl.indexOf("icdocset.gif") > -1)
+                            isDocSet = true;
+                    }
+                }
+                documentPicker.getAttachedDocuments(name, version, docID, isCheckedOut, isDocSet, url, $(this));
+            }
+        });
+    },
+
+    showDocLibFrame: function (sender, docLibViewUrl) {
+        $('.doc-nav-item').each(function (i, obj) {
+            if ($(obj).hasClass('selected'))
+                $(obj).removeClass('selected');
+        });
+
+        $(sender).addClass('selected');
+        $('.doc-lib-view-frame').attr('src', docLibViewUrl);
+        $('.document-picker .right-panel').show();
+    },
+
+    updateIFrameHeight: function (height) {
+        $('.doc-lib-view-frame').height(height);
+    },
+
+    passSelectedDocs: function () {
+        if (!(window.self === window.top)) {
+            SP.UI.Status.removeAllStatus(true);
+            documentPicker.isFolderSelected = false;
+            documentPicker.selectedListItemsArray = [];
+            documentPicker.ctx = SP.ClientContext.get_current();
+            var selectedItems = SP.ListOperation.Selection.getSelectedItems(documentPicker.ctx);
+
+            if (selectedItems.length === 0) {
+                alert("Please select a document");
+                return;
+            }
+
+            var web = documentPicker.ctx.get_web();
+            var docLibId = SP.ListOperation.Selection.getSelectedList();
+            documentPicker.docLib = web.get_lists().getById(docLibId);
+
+            for (var i = 0; i < selectedItems.length; i++) {
+                if (selectedItems[i].fsObjType == 0) {
+                    var selectedItem = documentPicker.docLib.getItemById(selectedItems[i].id);
+                    documentPicker.ctx.load(selectedItem, '_dlc_DocId', 'File', 'FileLeafRef');
+                    documentPicker.selectedListItemsArray.push(selectedItem);
+                }
+                else
+                    documentPicker.isFolderSelected = true;
+            }
+
+            documentPicker.ctx.executeQueryAsync(documentPicker.selectedDocsSuccess, documentPicker.error);
+        }
+    },
+
+    selectedDocsSuccess: function (sender, args) {
+        var selectedDocs = documentPicker.selectedListItemsArray;
+        var unpublishedFilesArray = [];
+        var selectedDocsArray = [];
+        var closeBtnUrl = crlCommon.getStyleLibFolderUrl() + 'img/close-button-grey-24.png';
+
+        if (documentPicker.isFolderSelected) {
+            var img = '<img alt="Close notification" src="' + closeBtnUrl + '"/>';
+            var message = '<a style="float:right" href="#" title="close notification" onclick="javascript:documentPicker.closeStatusBar(documentPicker.statusId);return false;">'
+                + img + '</a><span>Folder selection is not supported. Please select the files within the folder and add to selection.</span>';
+            documentPicker.notifyUser(message);
+        }
+
+        if (selectedDocs.length > 0) {
+            $.each(selectedDocs, function () {
+                var currentItem = this;
+                var docId = currentItem.get_fieldValues()._dlc_DocId;
+                var fileName = currentItem.get_file().get_name();
+                var versionLabel = currentItem.get_file().get_uiVersionLabel();
+                selectedDocsArray.push({ DocId: docId, FileName: fileName, Version: versionLabel });
+
+                // If the document is not published
+                if (currentItem.get_file().get_level() == 255) {
+                    unpublishedFilesArray.push(fileName);
+                }
+            });
+
+            if (unpublishedFilesArray.length > 0) {
+                var unpublishedFiles = unpublishedFilesArray.join(', ');
+
+                var img = '<img alt="Close notification" src="' + closeBtnUrl + '"/>';
+                var message = '<a style="float:right" href="#" title="close notification" onclick="javascript:documentPicker.closeStatusBar(documentPicker.statusId);return false;">'
+                    + img + '</a><span>The file(s) <span class="unpublished-files" style="font-weight:bold">' + unpublishedFiles + '</span> are not published. Please make sure that these file(s) are checked in and published.</span>';
+                documentPicker.notifyUser(message);
+            }
+            else {
+                window.parent.documentPicker.addToSelectedDocList(selectedDocsArray, closeBtnUrl);
+            }
+        }
+    },
+
+    passSelectedDocRegisterItems: function () {
+        if (!(window.self === window.top)) {
+            SP.UI.Status.removeAllStatus(true);
+            documentPicker.isFolderSelected = false;
+            documentPicker.selectedListItemsArray = [];
+            documentPicker.ctx = SP.ClientContext.get_current();
+            var selectedItems = SP.ListOperation.Selection.getSelectedItems(documentPicker.ctx);
+
+            if (selectedItems.length === 0) {
+                alert("Please select a document");
+                return;
+            }
+
+            var web = documentPicker.ctx.get_web();
+            var docLibId = SP.ListOperation.Selection.getSelectedList();
+            documentPicker.docLib = web.get_lists().getById(docLibId);
+
+            for (var i = 0; i < selectedItems.length; i++) {
+                if (selectedItems[i].fsObjType == 0) {
+                    var selectedItem = documentPicker.docLib.getItemById(selectedItems[i].id);
+                    documentPicker.ctx.load(selectedItem, 'InternalDocumentID', 'DocumentAccessUrl', '_Version');
+                    documentPicker.selectedListItemsArray.push(selectedItem);
+                }
+                else
+                    documentPicker.isFolderSelected = true;
+            }
+
+            documentPicker.ctx.executeQueryAsync(documentPicker.selectedDocRegisterItemsSuccess, documentPicker.error);
+        }
+    },
+
+    selectedDocRegisterItemsSuccess: function (sender, args) {
+        var selectedDocs = documentPicker.selectedListItemsArray;
+        var unpublishedFilesArray = [];
+        var selectedDocsArray = [];
+
+        var closeBtnUrl = crlCommon.getStyleLibFolderUrl() + 'img/close-button-grey-24.png';
+
+        if (documentPicker.isFolderSelected) {
+            var img = '<img alt="Close notification" src="' + closeBtnUrl + '"/>';
+            var message = '<a style="float:right" href="#" title="close notification" onclick="javascript:documentPicker.closeStatusBar(documentPicker.statusId);return false;">'
+                + img + '</a><span>Folder selection is not supported. Please select the files within the folder and add to selection.</span>';
+            documentPicker.notifyUser(message);
+        }
+
+        if (selectedDocs.length > 0) {
+            $.each(selectedDocs, function () {
+                var currentItem = this;
+                var docId = currentItem.get_fieldValues().InternalDocumentID;
+                var fileName = currentItem.get_fieldValues().DocumentAccessUrl.get_description();
+                var versionLabel = currentItem.get_fieldValues()._Version;
+                selectedDocsArray.push({ DocId: docId, FileName: fileName, Version: versionLabel });
+            });
+
+            if (selectedDocsArray.length > 0) {
+                window.parent.documentPicker.addToSelectedDocList(selectedDocsArray, closeBtnUrl);
+            }
+
+        }
+    },
+
+    getAttachedDocRegisters: function (fileName, version, docId, currRowElement) {
+        var closeBtnUrl = crlCommon.getStyleLibFolderUrl() + 'img/close-button-grey-24.png';
+        var selectedDocsArray = [];
+        var unpublishedFilesArray = [];
+        var siteUrl = _spPageContextInfo.siteServerRelativeUrl;
+        var webUrl = _spPageContextInfo.webServerRelativeUrl;
+        var isRootWeb = siteUrl == webUrl;
+        var flag = true;
+        if (docId == '') {
+            var img = '<img alt="Close notification" src="' + closeBtnUrl + '"/>';
+            var message = '<a style="float:right" href="#" title="close notification" onclick="javascript:documentPicker.closeStatusBar(documentPicker.statusId);return false;">'
+                + img + '</a><span>Folder selection is not supported. Please select the files within the folder and add to selection.</span>';
+            documentPicker.notifyUser(message);
+        }
+        else {
+            var minorVersion = parseInt(version.split(".")[1], 10);
+            if (minorVersion >= 1)
+                unpublishedFilesArray.push(fileName);
+            if (unpublishedFilesArray.length > 0) {
+                if (!isRootWeb) {
+                    var unpublishedFiles = unpublishedFilesArray.join(', ');
+                    var closeBtnUrl = crlCommon.getStyleLibFolderUrl() + 'img/close-button-grey-24.png';
+                    var img = '<img alt="Close notification" src="' + closeBtnUrl + '"/>';
+                    var message = '<a style="float:right" href="#" title="close notification" onclick="javascript:startTransmittal.closeStatusBar(startTransmittal.statusId);return false;">'
+                        + img + '</a><span>The file(s) <span class="unpublished-files" style="font-weight:bold">' + unpublishedFiles + '</span> are not published. Non AT Orgs cannot transmit minor versions of docs from the Doc Register.</span>';
+                    startTransmittal.notifyUser(message);
+                    flag = false;
+                }
+            }
+            if (flag) {
+                selectedDocsArray.push({ DocId: docId, FileName: fileName, Version: version });
+                currRowElement.addClass('doc-selected')
+                documentPicker.addToSelectedDocList(selectedDocsArray, closeBtnUrl);
+                //window.parent.documentPicker.addToSelectedDocList(selectedDocsArray, closeBtnUrl);
+            }
+        }
+
+    },
+
+    getAttachedDocuments: function (fileName, version, docId, isCheckedOut, isDocSet, url, currRowElement) {
+        var closeBtnUrl = crlCommon.getStyleLibFolderUrl() + 'img/close-button-grey-24.png';
+        var selectedDocsArray = [];
+        var img = '<img alt="Close notification" src="' + closeBtnUrl + '"/>';
+        if (docId == '' || isDocSet == true) {
+            var message = '<a style="float:right" href="#" title="close notification" onclick="javascript:documentPicker.closeStatusBar(documentPicker.statusId);return false;">'
+                             + img + '</a><span>Folder selection is not supported. Please select the files within the folder and add to selection.</span>';
+            documentPicker.notifyUser(message);
+        }
+        else {
+            //    var minorVersion = parseInt(version.split('.')[1], 10);
+            if (isCheckedOut == true) {
+                var message = '<a style="float:right" href="#" title="close notification" onclick="javascript:documentPicker.closeStatusBar(documentPicker.statusId);return false;">'
+                                 + img + '</a><span>The file(s) <span class="unpublished-files" style="font-weight:bold">' + fileName + '</span> is not published. Please make sure that these file(s) are checked in and published.</span>';
+                documentPicker.notifyUser(message);
+            }
+            else {
+                selectedDocsArray.push({ DocId: docId, FileName: fileName, Version: version, URL: url });
+                currRowElement.addClass('doc-selected');
+                //window.parent.documentPicker.addToSelectedDocList(selectedDocsArray, closeBtnUrl);
+                documentPicker.addToSelectedDocList(selectedDocsArray, closeBtnUrl);
+            }
+        }
+
+    },
+
+    addToSelectedDocList: function (selectedDocsArray, closeBtnUrl) {
+        var alreadyAddedFiles = [];
+        SP.UI.Status.removeAllStatus(true);
+        $.each(selectedDocsArray, function () {
+            var docIdVersionValue = this.DocId + '|' + this.Version;
+            if ($.inArray(docIdVersionValue, parent.documentPicker.uniqueSelectedDocIdVersions) === -1) {
+                var removeBtn = '<a class="remove-file" id="' + this.DocId + '" data-file-version="' + this.Version + '" onclick="javascript:documentPicker.removeFile(this);"><img alt="Remove File" src="' + closeBtnUrl + '"/></a>';
+                parent.documentPicker.addItemToUniqueSelectedDocs(this, docIdVersionValue);
+                $('.bottom-panel .selected-docs').append('<li>' + this.FileName + '(' + this.Version + ')' + ' ' + removeBtn + '</li>');
+                $('.bottom-panel .selected-docs-count').text('(' + ($('.bottom-panel .selected-docs').find('li').length - 1) + ')');
+            }
+            else
+                alreadyAddedFiles.push(this.FileName);
+        });
+
+        if (alreadyAddedFiles.length > 0) {
+            var duplicateFiles = alreadyAddedFiles.join(', ');
+            var img = '<img alt="Close notification" src="' + closeBtnUrl + '"/>';
+            var message = '<a style="float:right" href="#" title="close notification" onclick="javascript:documentPicker.closeStatusBar(documentPicker.statusId);return false;">'
+                + img + '</a><span>The file(s) <span class="unpublished-files" style="font-weight:bold">' + duplicateFiles + '</span> were already added to the selected documents list.</span>';
+            documentPicker.notifyUser(message);
+        }
+
+        documentPicker.checkIfDocsSelected();
+    },
+
+    notifyUser: function (message) {
+        SP.UI.Status.removeAllStatus(true);
+        documentPicker.statusId = SP.UI.Status.addStatus("Alert:", message);
+        SP.UI.Status.setStatusPriColor(documentPicker.statusId, "yellow");
+    },
+
+    closeStatusBar: function (sid) {
+        SP.UI.Status.removeStatus(sid);
+    },
+
+    removeFile: function (sender, args) {
+        var docIdVersionValue = sender.id + '|' + sender.getAttribute("data-file-version");
+        parent.documentPicker.removeItemsFromUniqueSelectedDocs(docIdVersionValue);
+
+        var selectedRowsArray = $('.ms-listviewtable tr.doc-selected');
+        var matchingRow = $.grep(selectedRowsArray, function (a) {
+            var docID = $(a).find('.doc-version').attr("dmsdocid");
+
+            if (docID !== "" && typeof docID !== "undefined") {
+                // Doc Library
+                var version = $(a).find('.doc-version').text();
+                return (docID + '|' + version == docIdVersionValue);
+            }
+            else {
+                //Doc Register
+                docID = $(a).find('.hide-InternalDocumentID').text();
+                var version = $(a).find('.docRegVersionHistoryLink').text();
+                return (docID + '|' + version == docIdVersionValue);
+            }
+        });
+
+        if (matchingRow.length > 0)
+            $(matchingRow[0]).removeClass('doc-selected');
+
+        $(sender).closest("li").remove();
+        $('.bottom-panel .selected-docs-count').text('(' + ($('.bottom-panel .selected-docs').find('li').length - 1) + ')');
+        documentPicker.checkIfDocsSelected();
+    },
+
+    removeSelectedDocument: function (docID, version) {
+        var docIdVersionValue = docID + '|' + version;
+        parent.documentPicker.removeItemsFromUniqueSelectedDocs(docIdVersionValue);
+
+        var selectedDoc = $('a.remove-file[id="' + docID + '"][data-file-version="' + version + '"]');
+        $(selectedDoc).closest("li").remove();
+        $('.bottom-panel .selected-docs-count').text('(' + ($('.bottom-panel .selected-docs').find('li').length - 1) + ')');
+        documentPicker.checkIfDocsSelected();
+    },
+
+    addItemToUniqueSelectedDocs: function (selectedDoc, docIdVersionValue) {
+        documentPicker.uniqueSelectedDocs.push(selectedDoc);
+        documentPicker.uniqueSelectedDocIdVersions.push(docIdVersionValue);
+    },
+
+    resetUniqueSelectedDocs: function () {
+        documentPicker.uniqueSelectedDocs = [];
+        documentPicker.uniqueSelectedDocIdVersions = [];
+    },
+
+    removeItemsFromUniqueSelectedDocs: function (docIdVersionValue) {
+        documentPicker.uniqueSelectedDocs = $.grep(documentPicker.uniqueSelectedDocs, function (a) { return (a.DocId + '|' + a.Version !== docIdVersionValue); });
+        documentPicker.uniqueSelectedDocIdVersions = $.grep(documentPicker.uniqueSelectedDocIdVersions, function (a) { return (a !== docIdVersionValue); });
+    },
+
+    checkIfDocsSelected: function () {
+        if (parent.documentPicker.uniqueSelectedDocIdVersions.length > 0)
+            $('.no-selected-docs-msg').hide();
+        else
+            $('.no-selected-docs-msg').show();
+    },
+
+    removeAll: function () {
+        if (parent.documentPicker.uniqueSelectedDocIdVersions.length > 0) {
+            $('ul.selected-docs li:not(:first-child)').remove();
+            $('.ms-listviewtable tr.doc-selected').removeClass('doc-selected');
+
+            parent.documentPicker.resetUniqueSelectedDocs();
+            documentPicker.checkIfDocsSelected();
+        }
+        else
+            alert('There are no selected documents');
+    },
+
+    attach: function () {
+        if (parent.documentPicker.uniqueSelectedDocIdVersions.length > 0) {
+            SP.UI.ModalDialog.commonModalDialogClose(SP.UI.DialogResult.OK, parent.documentPicker.uniqueSelectedDocs);
+        }
+        else {
+            alert('There are no selected documents');
+        }
+    },
+
+    highlightSelectedDoc: function (docID, version, currRowElement) {
+        if (parent.documentPicker.uniqueSelectedDocIdVersions.length > 0) {
+            var docIdVersionValue = docID + '|' + version;
+            if ($.inArray(docIdVersionValue, parent.documentPicker.uniqueSelectedDocIdVersions) != -1) {
+                if (!currRowElement.hasClass('doc-selected')) {
+                    currRowElement.addClass('doc-selected');
+                }
+            }
+        }
+    },
+
+    populateSelectedDocs: function () {
+        if (parent.documentPicker.uniqueSelectedDocIdVersions.length > 0) {
+            var closeBtnUrl = crlCommon.getStyleLibFolderUrl() + 'img/close-button-grey-24.png';
+            $('ul.selected-docs li:not(:first-child)').remove();
+            $.each(parent.documentPicker.uniqueSelectedDocs, function () {
+                var removeBtn = '<a class="remove-file" id="' + this.DocId + '" data-file-version="' + this.Version + '" onclick="javascript:documentPicker.removeFile(this);"><img alt="Remove File" src="' + closeBtnUrl + '"/></a>';
+                $('.bottom-panel .selected-docs').append('<li>' + this.FileName + '(' + this.Version + ')' + ' ' + removeBtn + '</li>');
+            });
+            $('.bottom-panel .selected-docs-count').text('(' + ($('.bottom-panel .selected-docs').find('li').length - 1) + ')');
+            documentPicker.checkIfDocsSelected();
+        }
+    },
+
+    error: function (sender, args) {
+        console.log('Request failed. ' + args.get_message() + '\n' + args.get_stackTrace());
+    }
+};
+
+
+var auditHistory = window.auditHistory || {};
+auditHistory = {
+    open: function () {
+        var ctx = SP.ClientContext.get_current();
+        var items = SP.ListOperation.Selection.getSelectedItems(ctx);
+        var myItems = '';
+        var k;
+
+        for (k in items) {
+            myItems = items[k].id;
+        }
+
+        var siteUrl = ctx.get_url();
+        if (siteUrl.substring(siteUrl.length - 1) == '/')
+            siteUrl = siteUrl.substring(0, siteUrl.length - 1);
+        var options = SP.UI.$create_DialogOptions();
+        options.url = siteUrl + '/_layouts/AT.SharePoint.DMS.WebTemplate/ViewAuditHistory.aspx?itemId=' + myItems + '&listId=' + SP.ListOperation.Selection.getSelectedList();
+        options.width = 1050;
+        options.height = 600;
+        SP.UI.ModalDialog.showModalDialog(options);
+    },
+
+    openSingleItem: function (listId, itemId) {
+        var ctx = SP.ClientContext.get_current();
+
+        var siteUrl = ctx.get_url();
+        if (siteUrl.substring(siteUrl.length - 1) == '/')
+            siteUrl = siteUrl.substring(0, siteUrl.length - 1);
+
+        var options = SP.UI.$create_DialogOptions();
+        options.url = siteUrl + '/_layouts/AT.SharePoint.DMS.WebTemplate/ViewAuditHistory.aspx?itemId=' + itemId + '&listId=' + listId;
+        options.width = 1050;
+        options.height = 600;
+        SP.UI.ModalDialog.showModalDialog(options);
+    }
+};
+
+var metadataNav = window.metadataNav || {};
+metadataNav = {
+    init: function () {
+        var pageUrl = document.URL;
+        if (pageUrl.indexOf("Transmittals/conversation") == -1) {
+            var filterObj = document.getElementById('idKeyFiltersContainer');
+            var zone = document.getElementById('MSOZoneCell_WebPartWPQ2');
+            if (filterObj && zone) {
+                var searchTitle = document.createElement("div");
+                searchTitle.setAttribute("id", "SearchTextArea");
+                searchTitle.innerHTML = '<a id="advheader" href="#" class="button-down" title="Click for Advanced Filter" style="display:inline;float:left;">Advanced Filter</a>';
+                zone.parentNode.insertBefore(filterObj, zone);
+                zone.parentNode.insertBefore(searchTitle, filterObj);
+            }
+
+            $('#advheader').click(function () {
+                var filterTitle = $("#idKeyFiltersTitle");
+                filterTitle.html('Advanced Filter');
+                // var searchButton = $('#ctl00_PlaceHolderLeftNavBar_ctl01_ListViewKeyFilters_ctl00_KeyFiltersApplyAllButton');
+                // searchButton.html('Search');
+                var lib = $('#idKeyFiltersContainer');
+                if (lib.is(":visible")) {
+                    lib.hide('200');
+                    $(this).addClass('button-down');
+                    $(this).removeClass('button-up');
+                }
+                else {
+                    lib.show('200');
+                    $(this).addClass('button-up');
+                    $(this).removeClass('button-down');
+                }
+                return false;
+            });
+        }
+    }
+};
+
+
+//Retrieves termset id from Managed Metadata Site column
+//This code will not work for a user who doesn't have access to the RootWeb
+var fieldInv = window.fieldInv || {};
+fieldInv = {
+    ctx: {},
+    fieldCollection: {},
+    oWeb: {},
+    mmField: {},
+    termsetId: {},
+    fieldId: {},
+    callBackFunc: {},
+
+    process: function (fieldId, callBackFunc) {
+        fieldInv.fieldId = fieldId;
+        fieldInv.callBackFunc = callBackFunc;
+        fieldInv.ctx = new SP.ClientContext.get_current();
+        fieldInv.oWeb = fieldInv.ctx.get_site().get_rootWeb();
+        fieldInv.ctx.load(fieldInv.oWeb);
+        fieldInv.ctx.executeQueryAsync(fieldInv.onWebSuccess, fieldInv.error);
+    },
+
+    onWebSuccess: function () {
+        fieldInv.fieldCollection = fieldInv.oWeb.get_fields();
+        fieldInv.mmField = fieldInv.fieldCollection.getById(fieldInv.fieldId);
+        fieldInv.ctx.load(fieldInv.fieldCollection);
+        fieldInv.ctx.load(fieldInv.mmField);
+        fieldInv.ctx.executeQueryAsync(fieldInv.onFieldCollectionSuccess, fieldInv.error);
+    },
+
+    onFieldCollectionSuccess: function () {
+        var xml = $.parseXML(fieldInv.mmField.get_schemaXml());
+        var xmlDoc = $(xml);
+        xmlDoc.find("Property").each(function () {
+            if ($(this).find("Name").text() == "TermSetId") {
+                fieldInv.termsetId = $(this).find("Value").text();
+                $("#test").append("TermSetId: " + fieldInv.termsetId);
+            }
+        });
+
+        fieldInv.callBackFunc.call();
+
+    },
+
+    error: function (sender, args) {
+        console.log(args.get_message());
+    }
+
+};
+
+function hideMultipleMagnifyingGlass(trycount) {
+    if (trycount == 0)
+        return;
+    var srcIcon = $("[id$='_csr_NavButton']");
+    if (srcIcon.length == 0) {
+        setTimeout(function () { hideMultipleMagnifyingGlass(trycount--); }, 50);
+        return;
+    }
+    srcIcon.css('display', 'none');
+}
+
+function getInternetExplorerVersion() {
+    var rv = -1; // Return value assumes failure.
+    if (navigator.appName == 'Microsoft Internet Explorer') {
+        var ua = navigator.userAgent;
+        var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+        if (re.exec(ua) != null)
+            rv = parseFloat(RegExp.$1);
+    }
+    return rv;
+}
+
+function isIE9() {
+    var ver = getInternetExplorerVersion();
+    if (ver > -1) {
+        if (ver > 9.0)
+            return false;
+        else
+            return true;
+    }
+    else
+        return false;
+}
+
+function updatePolicyLink() {
+    var link = $("a:contains(Project Policy and Guidelines)");
+    link.on("click", function (e) {
+        e.preventDefault();
+        var siteUrl = window.location.protocol + "//" + window.location.host + _spPageContextInfo.siteServerRelativeUrl;
+        var options = SP.UI.$create_DialogOptions();
+        options.url = siteUrl + '/Policy/Forms/AllItems.aspx';
+        options.width = 1050;
+        options.height = 600;
+        SP.UI.ModalDialog.showModalDialog(options);
+    });
+
+}
+
+function BindProjectPhaseOnclick() {
+    $('[id^="term-link-"]').each(function () {
+        $(this).click(function (event) {
+            event.preventDefault();
+            var termname = $(this).attr('termname');
+            var webid = $(this).attr('webid');
+            var source = $(this).attr('source');
+            OpenDocByProjectPhase(termname, webid, source);
+        });
+    });
+}
+
+function InsertSearchByProjectPhaseIntoLeftNav() {
+    if ($('#docs-by-projectphase').length == 0) {
+        var menuItem = $("li.static a.static").find("span:contains('Docs by Project')"); //menu item may not exist for some EDMS sites
+
+        if (menuItem.length == 0) {
+            menuItem = $("li.static a.static").find("span:contains('Document & File Storage')");
+        }
+
+        if (menuItem.length == 0) {
+            menuItem = $("li.static a.static").find("span:contains('Document Library')");
+        }
+
+        if (menuItem.length != 0) {
+            $("<li class='static'><a tabindex='0' class='static menu-item ms-core-listMenu-item ms-displayInline ms-navedit-linkNode navExpanedable' href='#'>" +
+              "<span class='additional-background ms-navedit-flyoutArrow'><span class='menu-item-text' id='docs-by-projectphase'>+ Search by Project Phase</span></span></a></li>").insertAfter($(menuItem[0]).parent().parent());
+        }
+    }
+    var projectPhaseTermSetId = "42516884-1b5d-4d45-b744-df9f0dac7cd5";
+    if ($("#ProjectPhaseTermSetId").length > 0)
+        if ($("#ProjectPhaseTermSetId").html().length > 0)
+            projectPhaseTermSetId = $("#ProjectPhaseTermSetId").html();
+
+    SP.SOD.loadMultiple(['sp.js', 'SP.ClientContext', 'sp.taxonomy.js'], GetTaxonomyTermSet(projectPhaseTermSetId));
+}
+
+function OpenDocByProjectPhase(termName, webid, source) {
+    var searchCenterUrl = _spPageContextInfo.siteAbsoluteUrl + '/search/pages/DocsByProjectPhase.aspx?k=';
+    var url = searchCenterUrl + termName + "&webid=" + webid + "&source=" + source;
+    var options = SP.UI.$create_DialogOptions();
+    options.url = url;
+    options.width = 1150;
+    options.height = 700;
+    SP.UI.ModalDialog.showModalDialog(options);
+}
+
+function GetTaxonomyTermSet(termSetId) {
+    var context = SP.ClientContext.get_current();
+    try {
+        var session = SP.Taxonomy.TaxonomySession.getTaxonomySession(context);
+        var termStore = session.getDefaultSiteCollectionTermStore();
+        var termSet = termStore.getTermSet(termSetId);
+        var termsLookup = {};
+        context.load(session);
+        context.load(termStore);
+        context.load(termSet);
+        var currentWeb = context.get_web();
+        var webId = null;
+        context.load(currentWeb);
+        context.executeQueryAsync(function () {
+            webId = currentWeb.get_id();
+            context.executeQueryAsync(function () {
+
+                var terms = termSet.get_terms();
+                context.load(terms);
+                context.executeQueryAsync(function () {
+
+                    var termsEnum = terms.getEnumerator();
+                    var liObj = $('#docs-by-projectphase').parent().parent().parent();
+                    liObj.append("<ul class='static-projectPhase' id='terms-projectPhase'></ul>");
+                    while (termsEnum.moveNext()) {
+                        var currentTerm = termsEnum.get_current();
+                        var termName = currentTerm.get_name();
+                        var termId = currentTerm.get_id();
+                        termsLookup[termId] = termName;
+                        var linkUrl = _spPageContextInfo.webAbsoluteUrl + "/SitePages/DocsbyProjectPhase.aspx?term=" + termName + "&webid=" + webId + "&source=" + _spPageContextInfo.webAbsoluteUrl;
+                        $('#terms-projectPhase').append("<li id='term-li-" + termId + "'  class='static' style='margin-left: 20px;'>" +
+                                                        "<a tabindex='0' id='term-link-" + termName + "' termname='" + termName + "' webid='" + webId + "' source='" + _spPageContextInfo.webAbsoluteUrl + "' href='" + linkUrl + "' class='static menu-item ms-core-listMenu-item ms-displayInline ms-navedit-linkNode'>" +
+                                                        "<span class='additional-background ms-navedit-flyoutArrow'>" +
+                                                        "<span class='menu-item-text'>" + termName + "</span></span></a></li>");
+                    }
+                    crlCommon.HandelDocsByProjectPhase();
+                    projectPhaseMenuReady = 1;
+                    //BindProjectPhaseOnclick();
+                }, function (sender, args) {
+                    console.log(args.get_message());
+                });
+            }, function () {
+                console.log("failed GetTermSet");
+            });
+        }, function () { console.log("Failed to load current web"); });
+    }
+    catch (err) {
+        if ($('#docs-by-projectphase').html() == "Search by Project Phase")
+            $('#docs-by-projectphase').parent().parent().parent().css("display", "none");
+        $.getScript(_spPageContextInfo.siteAbsoluteUrl + "/_layouts/15/SP.Taxonomy.js", function () {
+            InsertSearchByProjectPhaseIntoLeftNav();
+        });
+    }
+
+}
+
+function GetQueryStringValue(sParam) {
+    var sPageURL = window.location.search.substring(1);
+    var sURLVariables = sPageURL.split('&');
+    var returnValue = "";
+    for (var i = 0; i < sURLVariables.length; i++) {
+        var sParameterName = sURLVariables[i].split('=');
+        if (sParameterName[0] == sParam) {
+            returnValue = sParameterName[1];
+        }
+    }
+    return returnValue;
+}
+
+function CalendarPickerPosition() {
+    var calImg = $("img[id$='_$DateTimeFieldDateDatePickerImage']");
+    var calAnchor = calImg.parent();
+    calAnchor.append("<div id='tempdiv' style='height:0.4px'><span id='hidden' style='display:none'></span></div>");
+    calAnchor.click(function () {
+        var element = $("iframe[id$='_$DateTimeFieldDateDatePickerFrame']");
+        $('#tempdiv').append(element);
+        element.attr("style", "");
+        element.removeClass("calIframe");
+        element.addClass("calIframe");
+        if ($("#hidden").text() == "") {
+            $("iframe[id$='_$DateTimeFieldDateDatePickerFrame']").css("display", "block");
+            $("#hidden").text("1");
+        }
+        else {
+            $("iframe[id$='_$DateTimeFieldDateDatePickerFrame']").css("display", "none");
+            $("#hidden").text("");
+        }
+    });
+}
+
+function OpenNewTab(linkURL) {
+    var url = linkURL;
+    var win = window.open(url, "_blank", "width=1950,height=1100,toolbar=1, location=1,directories=1,status=1,menubar=1,scrollbars=1,copyhistory=1, resizable=1,fullscreen=1");// 'status=yes,toolbar=yes,menubar=yes,location=yes,resizable=yes,scrollbars=yes');//window.open(url, '_blank');
+    win.focus();
+}
+
+var riskForm = window.riskForm || {};
+
+riskForm = {
+    Properties: {
+        consequence_x_Likelihood: 'Risk_x0020_Class_x0020__x0028_A_'
+    },
+    SetColourRules: function () {
+        var consequence_x_LikelihoodFld = $('a[name$=' + riskForm.Properties.consequence_x_Likelihood + ']').closest("td");
+        var valueFld = consequence_x_LikelihoodFld.closest("td").next();
+        var consequence_x_LikelihoodFldValue = valueFld.text();
+        switch (consequence_x_LikelihoodFldValue.trim()) {
+            case "Very High":
+                //Dark Red
+                valueFld.css('background-color', 'rgb(255, 0, 0)');
+                break;
+            case "High":
+                //Light Red
+                valueFld.css('background-color', 'rgb(255, 124, 124)');
+                break;
+            case "Medium":
+                //Orange
+                valueFld.css('background-color', 'rgb(255, 87, 0)');
+                break;
+            case "Low":
+                //Yellow
+                valueFld.css('background-color', 'rgb(255, 232, 0)');
+                break;
+            case "Very Low":
+                //No Color
+                // valueFld.css('background-color', 'rgb(255, 255, 255)');
+                break;
+        }
+
+    }
+};
+
+var spViewListFix = window.spViewListFix || {};
+spViewListFix = {
+    ctx: null,
+    views: null,
+    listId: null,
+    list: null,
+    init: function () {
+        if ($("span[id$='_ListTitleViewSelectorMenu_Container']").first().length <= 0 || !_spPageContextInfo.pageListId)
+            return;
+
+        spViewListFix.ctx = SP.ClientContext.get_current();
+        spViewListFix.listId = _spPageContextInfo.pageListId;
+        spViewListFix.list = spViewListFix.ctx.get_web().get_lists().getById(spViewListFix.listId);
+        //spViewListFix .views = spViewListFix .list.get_views();
+
+        spViewListFix.ctx.load(spViewListFix.list, 'Views');
+        spViewListFix.ctx.executeQueryAsync(spViewListFix.onSuccess, spViewListFix.onError);
+    },
+    onSuccess: function () {
+        $("span[id$='_ListTitleViewSelectorMenu_Container']").first().children().remove()
+        var viewListArray = [];
+        var viewOrderList = ["My Inbox", "My Sent", "My Unread", "All Transmittals", "All (Organisation)", "Conversation View", "Action Required", "Actions Overdue", "Action Overdue"];
+
+        var views = spViewListFix.list.get_views();
+        var viewEnum = views.getEnumerator();
+        var viewMenu = "";
+        var sharedView = "";
+        var personalView = "";
+        while (viewEnum.moveNext()) {
+            var currentView = viewEnum.get_current();
+            var viewProp = currentView.get_objectData().get_properties();
+            var guid = viewProp.Id._m_guidString$p$0;
+            //console.log(currentView.get_title() + ':' + viewProp.ServerRelativeUrl);
+            if (!currentView.get_hidden()) {
+                var viewOrderIndex = viewOrderList.indexOf(currentView.get_title());
+                viewOrderIndex = (viewOrderIndex < 0) ? 9999 : viewOrderIndex;
+                viewListArray.push({ relativeUrl: viewProp.ServerRelativeUrl, title: currentView.get_title(), isPersonal: viewProp.PersonalView, guid: guid, sortOrder: viewOrderIndex });
+            }
+        }
+
+        viewListArray = viewListArray.sort(spViewListFix.dynamicSort("sortOrder"));
+        $.each(viewListArray, function (ind, data) {
+            if (data.isPersonal) {
+                personalView += spViewListFix.generateViewLink(data.relativeUrl, data.title, data.isPersonal, data.guid);
+            }
+            else {
+                sharedView += spViewListFix.generateViewLink(data.relativeUrl, data.title, data.isPersonal, data.guid);
+            }
+        });
+        //build View menu      
+        viewMenu = "<ul class='viewMenu'>";
+        viewMenu += "<li class='sharedViews'>" + sharedView + "</li>";
+        if (personalView != "") {
+            viewMenu += "<li class='personalViews'>" + personalView + "</li>";
+        }
+        viewMenu += "</ul>";
+
+        $("span[id$='_ListTitleViewSelectorMenu_Container']").first().prepend(viewMenu);
+        $("span[id$='_ListTitleViewSelectorMenu_Container']").first().fadeIn();
+    },
+    generateViewLink: function (relativeUrl, title, isPersonal, guid) {
+        var selectedText = "";
+        var url = "";
+        //var webRelativeUrl = _spPageContextInfo.webServerRelativeUrl == "/" ? "" : _spPageContextInfo.webServerRelativeUrl;
+
+        if (isPersonal) {
+            url = relativeUrl + '?PageView=Personal\&ShowWebPart={' + guid + '}';
+        }
+        else {
+            url = relativeUrl;
+        }
+        if (decodeURIComponent(document.URL).toLowerCase().indexOf(url.toLowerCase()) >= 0) {
+            selectedText = "-selected";
+        }
+        return '<a alt="' + title + '" onclick="STSNavigate2(event,\'' + url + '\'); return false;" href="#" class="ms-pivotControl-surfacedOpt' + selectedText + '">' + title + '</a>';
+    },
+
+    dynamicSort: function (property) {
+        var sortOrder = 1;
+        if (property[0] === "-") {
+            sortOrder = -1;
+            property = property.substr(1);
+        }
+        return function (a, b) {
+            var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+            return result * sortOrder;
+        }
+    },
+
+    onError: function (sender, arg) {
+
+    }
+};
+
+var edmsHelper = window.edmsHelper || {};
+edmsHelper = {
+    getDateFromSPDate: function (spDateString) {
+        var regExUTCDate = /(\d{1,2})\/(\d{1,2})\/(\d{4})/gi;
+        var match = regExUTCDate.exec(spDateString);
+        var month = parseInt(match[2]);
+        var d = new Date(match[3], month - 1, match[1])
+        return d;
+    },
+    getLocalDateFromSPDateJson: function (val) {
+        if (!val)
+            return null;
+
+        var regExUTCDate = /([\d]{4})-([\d]{2})-([\d]{2})T([\d]{2}):([\d]{2}):([\d]{2}).*Z/gi;
+        var match = regExUTCDate.exec(val);
+
+        var d = Date.UTC(match[1], match[2], match[3], match[4], match[5], match[6]);
+        return d;
+
+    },
+    getUrlParam: function (url) {
+        var vars = {};
+        var parts = url.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
+            vars[key] = value;
+        });
+        return vars;
+    }
+};
+
+var edmsLeftNav = window.edmsLeftNav || {};
+
+edmsLeftNav = {
+    ctx: null,
+    transmittalsList: null,
+    inboxItems: null,
+    openItems: null,
+    views: null,
+    currentUser: null,
+    getTransmittalsLeftNavItems: function () {
+        //$("#transmittalNewItem").attr("src", crlCommon.getStyleLibFolderUrl() + 'img/add-new-item-icon.png');
+        //$("#transmittalInboxIcon").attr("src", crlCommon.getStyleLibFolderUrl() + 'img/inbox_wht_16.png');
+        //$("#transmittalSentIcon").attr("src", crlCommon.getStyleLibFolderUrl() + 'img/sent_wht_16.png');
+        edmsLeftNav.highlightMenuItems();
+        edmsLeftNav.ctx = SP.ClientContext.get_current();
+        var listTitle = 'Transmittals';
+        var web = edmsLeftNav.ctx.get_web();
+        edmsLeftNav.transmittalsList = web.get_lists().getByTitle(listTitle);
+        //edmsLeftNav.views = edmsLeftNav.transmittalsList.get_views();
+        //edmsLeftNav.currentUser = web.get_currentUser();
+        //edmsLeftNav.ctx.load(edmsLeftNav.currentUser);
+        edmsLeftNav.ctx.load(edmsLeftNav.transmittalsList, 'DefaultNewFormUrl', 'ItemCount');
+        edmsLeftNav.ctx.executeQueryAsync(edmsLeftNav.onCurrentUserQuerySucceeded, edmsLeftNav.error);
+    },
+
+    onCurrentUserQuerySucceeded: function (sender, args) {
+        var viewFields = "Include(DueDate1)";
+        var openItemsQuery = new SP.CamlQuery();
+        var openItemsCaml = "<View>" +
+                    "<Query>" +
+                        "<Where>" +
+							"<And>" +
+	                            "<And>" +
+	                            	"<Eq>" +
+							            "<FieldRef Name='TransmittalStatus' />" +
+							            "<Value Type='Text'>Outstanding</Value>" +
+							        "</Eq>" +
+                                    "<Includes>" +
+                                        "<FieldRef Name='TransmittalTo' LookupId='True'/>" +
+                                        "<Value Type='User'>" + _spPageContextInfo.userId + "</Value>" +
+                                    "</Includes>" +
+							    "</And>" +
+					        "<Includes>" +
+					         " <FieldRef Name='IncompleteActionsUserList' LookupId='True'/>" +
+					           	"<Value Type='User'>" + _spPageContextInfo.userId + "</Value>" +
+					        "</Includes>" +
+					      "</And>" +
+                        "</Where>" +
+                    "</Query>" +
+                    "<RowLimit>5000</RowLimit>" +
+                "</View>";
+        openItemsQuery.set_viewXml(openItemsCaml);
+        edmsLeftNav.openItems = edmsLeftNav.transmittalsList.getItems(openItemsQuery);
+        edmsLeftNav.ctx.load(edmsLeftNav.openItems, viewFields);
+
+        edmsLeftNav.ctx.executeQueryAsync(edmsLeftNav.success, edmsLeftNav.error);
+
+        var inboxItemsQuery = new SP.CamlQuery();
+        var inboxItemsCaml = "<View>" +
+                    "<Query>" +
+                        "<Where>" +
+
+	                            "<And>" +
+	                                "<Or>" +
+	                                    "<Includes>" +
+	                                        "<FieldRef Name='TransmittalTo' LookupId='True'/>" +
+	                                        "<Value Type='User'>" + _spPageContextInfo.userId + "</Value>" +
+	                                    "</Includes>" +
+	                                    "<Includes>" +
+	                                        "<FieldRef Name='TransmittalCC' LookupId='True'/>" +
+	                                        "<Value Type='User'>" + _spPageContextInfo.userId + "</Value>" +
+	                                    "</Includes>" +
+	                                "</Or>" +
+	                                "<Includes>" +
+	                                    "<FieldRef Name='ReadHistoryUserList' LookupId='True'/>" +
+	                                        "<Value Type='User'>" + _spPageContextInfo.userId + "</Value>" +
+	                                 "</Includes>" +
+	                            "</And>" +
+
+                        "</Where>" +
+                    "</Query>" +
+                    "<RowLimit>5000</RowLimit>" +
+                "</View>";
+        inboxItemsQuery.set_viewXml(inboxItemsCaml);
+        edmsLeftNav.inboxItems = edmsLeftNav.transmittalsList.getItems(inboxItemsQuery);
+        edmsLeftNav.ctx.load(edmsLeftNav.inboxItems, viewFields);
+        edmsLeftNav.ctx.executeQueryAsync(edmsLeftNav.successInboxCount, edmsLeftNav.error);
+    },
+
+    success: function (sender, args) {
+        var openCounts = edmsLeftNav.openItems.get_count();
+        var myEnum = edmsLeftNav.openItems.getEnumerator();
+        var overDueCount = 0;
+        var now = new Date();
+        now.setHours(0, 0, 0, 0);
+        while (myEnum.moveNext()) {
+            var oListItem = myEnum.get_current();
+            var dueDate = oListItem.get_item("DueDate1");
+            if (dueDate != null) {
+                if (dueDate < now) {
+                    overDueCount++;
+                }
+            }
+        }
+
+        $("#transmittalOpenMenuItem").find("span.no-of-items").html(openCounts);
+        $("#transmittalOverdueMenuItem").find("span.no-of-items").html(overDueCount);
+
+        $("div#sidebar-small").find("span.action-required-number").html(openCounts);
+        $("div#sidebar-small").find("span.action-overdue-number").html(overDueCount);
+
+        crlCommon.insertHomepageAlert(openCounts, overDueCount);
+        crlCommon.insertMyTransmittalsTooltip();
+    },
+
+    successInboxCount: function (sender, args) {
+        var inboxItemsCount = edmsLeftNav.inboxItems.get_count();
+        $("#transmittalInboxMenuItem").find("span.no-of-items").html(inboxItemsCount);
+        $("div#sidebar-small").find("span.trans-doc-number").html(inboxItemsCount);
+    },
+
+    highlightMenuItems: function () {
+        var currentPath = _spPageContextInfo.serverRequestPath;
+        if (currentPath.toLowerCase().indexOf('/lists/transmittals/action required.aspx') > -1)
+            $('#transmittalOpenMenuItem').addClass('selected');
+        if (currentPath.toLowerCase().indexOf('/lists/transmittals/actions overdue.aspx') > -1)
+            $('#transmittalOverdueMenuItem').addClass('selected');
+        if (currentPath.toLowerCase().indexOf('/lists/documentregister/allitems.aspx') > -1)
+            $('#transmittedDocsMenu').addClass('selected');
+    },
+
+    error: function (sender, args) {
+        console.log('Request failed. ' + args.get_message() + '\n' + args.get_stackTrace());
+        //edmsLeftNav.showError();
+    },
+
+    showError: function () {
+        $('.transmittals-items-list p.error').show();
+    },
+
+    openNewForm: function () {
+        var options = { url: edmsLeftNav.transmittalsList.get_defaultNewFormUrl() };
+        SP.UI.ModalDialog.showModalDialog(options);
+    }
+};
+
+var auditHist = window.auditHist || {
+
+    ctx: null,
+    txIds: [],
+    txList: null,
+    items: null,
+
+    init: function () {
+        auditHist.ctx = SP.ClientContext.get_current();
+        auditHist.readTxIds();
+        if (auditHist.txIds.length > 0) {
+            auditHist.insertTxLinks();
+        }
+    },
+
+    //read all transmittal ids from the audit history window
+    readTxIds: function () {
+        var events = $('[id*="lbleventName"]');
+        test = new Object();
+        for (i = 0; i < events.length; i++) {
+            var event = events[i];
+            var text = $(event).text();
+            var start_pos = text.indexOf('(') + 1;
+            var end_pos = text.indexOf(')', start_pos);
+            var txID = text.substring(start_pos, end_pos)
+            auditHist.txIds.push(txID);
+        }
+    },
+
+    //insert links to the transmittal
+    //user may not have permission to confidential transmittals or transmittals within other sites
+    insertTxLinks: function () {
+        var web = auditHist.ctx.get_web();
+        auditHist.txList = web.get_lists().getByTitle('Transmittals');
+        auditHist.ctx.load(auditHist.txList);
+        auditHist.ctx.executeQueryAsync(function () {
+            var values = "";
+            for (i = 0; i < auditHist.txIds.length; i++) {
+                values += "<Value Type='Text'>" + auditHist.txIds[i] + "</Value>";
+            }
+            var camlQuery = new SP.CamlQuery();
+            var query = "<View><Query><Where><In><FieldRef Name='TransmittalId' /><Values>" + values + "</Values></In></Where></Query></View>";
+            //alert(query);
+            camlQuery.set_viewXml(query);
+            auditHist.items = auditHist.txList.getItems(camlQuery);
+            auditHist.ctx.load(auditHist.items);
+            auditHist.ctx.executeQueryAsync(function () {
+                var enumerator = auditHist.items.getEnumerator();
+                var eventColumns = $('[id*="lbleventName"]');
+                while (enumerator.moveNext()) {
+                    var item = enumerator.get_current();
+                    var txId = item.get_item('TransmittalId');
+                    var id = item.get_item('ID');
+                    var subject = item.get_item("Title");
+                    for (i = 0; i < eventColumns.length; i++) {
+                        var eventColumn = eventColumns[i];
+                        var text = $(eventColumn).text();
+                        if (text.indexOf(txId) != -1) {
+                            var txUrl = web.get_url() + "/Lists/Transmittals/TxDetails.aspx?ID=" + id + "&IsDlg=1"
+                            var innerHtml = eventColumn.innerHTML;
+                            innerHtml = innerHtml.replace(txId, "<a href='" + txUrl + "' title='" + subject + "'>" + txId + "</a>");
+                            eventColumn.innerHTML = innerHtml;
+                            //maybe more than 1 match so keep on looping	
+                        }
+                    }
+                }
+                $('a').click(function () {
+                    SP.UI.ModalDialog.showModalDialog({ title: "Transmittals - " + $(this).attr("title"), width: 1200, height: 1000, url: $(this).attr("href") });
+                    return false;
+                });
+            }, function (sender, args) {
+                //alert("items");
+                auditHist.error(sender, args)
+            });
+        }, function (sender, args) {
+            auditHist.error(sender, args)
+        });
+    },
+
+    error: function (sender, args) {
+        console.log('Request failed. ' + args.get_message() + '\n' + args.get_stackTrace());
+    }
+};
+
+var inplaceSearchHelper = window.inplaceSearchHelper || {
+
+    //used to overwrite managedmeta data filter link from parent window to inframe
+    retryMilliSecs: 500,
+    retryTimes: 6,
+
+    doInPlaceSearch: function () {
+        var isSearchPage = GetQueryStringValue("issearchpage");
+        var keywords = decodeURIComponent(GetQueryStringValue("inplacesearch"));
+
+        if (isSearchPage == 1) {
+
+            //hide inplace search and new item 
+            $('#CSRListViewControlDivWPQ1').hide();
+            $('#idHomePageNewItem').hide();
+
+            if (keywords != "") {
+                //hide everything and showing loading dialog
+                $("#s4-workspace").hide();
+                $("#s4-ribbonrow").hide();
+                inplaceSearchHelper.waitForInplaceSearchToLoad(isSearchPage);
+            }
+        }
+        else {
+            if (keywords != "") {
+                inplaceSearchHelper.waitForInplaceSearchToLoad(isSearchPage);
+            }
+        }
+    },
+
+
+    waitForInplaceSearchToLoad: function (isSearchPage) {
+        if (g_listSearchBoxInfo[0].loadInProgress == true) {
+            setTimeout(function () { inplaceSearchHelper.waitForInplaceSearchToLoad(isSearchPage); }, 5);
+        }
+        else {
+            inplaceSearchHelper.setInplaceSearchTerm(isSearchPage);
+        }
+    },
+
+    setInplaceSearchTerm: function (isSearchPage) {
+
+        //write the search value into the inplace search box and force view to refresh          
+        var keywords = GetQueryStringValue("inplacesearch");
+        $('#inplaceSearchDiv_WPQ1_lsinput').val(decodeURIComponent(keywords));
+        var a = g_listSearchBoxInfo[0].elem.control;
+        if (a != null) {
+            a.$z_3();
+            a.$A_3 = a.$6_3 && !Srch.U.e(a.get_$5_3());
+            a.searchCancelOrClear();
+            a.updateVisuals();
+        }
+
+        if (isSearchPage == 1) {
+
+            //overwrite menuitem clicks for managed metadata fields withinthe view as bug in SharePoint overwrites url of parent window            
+            $('.ms-headerSortArrowLink').click(function () { inplaceSearchHelper.fixMetaDataFilter(); });
+            $('.ms-headerSortArrowLink').parent().parent().click(function () { inplaceSearchHelper.fixMetaDataFilter(); });
+            $('.ms-headerSortArrowLink').parent().parent().parent().click(function () { inplaceSearchHelper.fixMetaDataFilter(); });
+
+            setTimeout(function () {
+                //expand ribbon and show list and ribbon again
+
+                $(".ms-cui-tt-a").trigger("click");
+                $("#s4-ribbonrow").show();
+                $("#s4-workspace").show();
+
+                window.parent.search.closeLoadingDialog();
+            }, 750); //allow enough time for the view to filter otherwise user sees refresh TODO: check for searching then show once finished.
+        }
+    },
+
+
+    fixMetaDataFilter: function () {
+
+        for (var retryIndex = 1; retryIndex < inplaceSearchHelper.retryTimes + 1; retryIndex++) {
+            var timeout = retryIndex * inplaceSearchHelper.retryMilliSecs;
+            setTimeout(function () {
+                console.log("Attempting to set list filter menu...");
+                inplaceSearchHelper.replaceMenuItemEventsToHandleInFrame();
+                inplaceSearchHelper.handleExpandParentTerm();
+                inplaceSearchHelper.handleClickMoreTerms();
+            }, timeout);
+        }
+    },
+
+
+    //fix for bug in sharepoint in which filtering of metadata fields is bubbled up to the parent window instead of handling it within the current window
+    replaceMenuItemEventsToHandleInFrame: function () {
+        var menuItems = $('.ms-core-menu-list li');
+        for (var i = 0; i < menuItems.length; i++) {
+            var menuItem = menuItems[i];
+            var f = $(menuItem).attr('onmenuclick');
+            if (f != null && f.indexOf('window.parent') >= 0) {
+                var f2 = f.replace('window.parent.HandleFilter', 'HandleFilter');
+                var f3 = f2.replace("window.parent.event", "event");
+                $(menuItem).attr('onmenuclick', f3);
+            }
+        }
+    },
+
+    //if there are parent terms a + is shown and they are loaded dynamically. handle click of + so can override event
+    handleExpandParentTerm: function () {
+
+        var parentTermSets = $(".hierarchy"); //get list of elements which are parent terms (contain a +)
+        for (var i = 0; i < parentTermSets.length; i++) {
+            var parentTermSet = parentTermSets[i];
+
+            //use an attribute to check if have hooked up our custom click event already.
+            if ($(parentTermSet).attr("handleExpandParentTerm") == null) {
+                $(parentTermSet).attr("handleExpandParentTerm", true);
+
+                $(parentTermSet).click(function () {
+                    for (var retryIndex = 1; retryIndex < inplaceSearchHelper.retryTimes + 1; retryIndex++) {
+                        var timeout = retryIndex * inplaceSearchHelper.retryMilliSecs;
+                        setTimeout(function () {
+                            inplaceSearchHelper.replaceMenuItemEventsToHandleInFrame();
+                            //in the expanded child terms, there maybe another parent term
+                            inplaceSearchHelper.handleExpandParentTerm();
+                        }, timeout);
+                    }
+                });
+            }
+        }
+    },
+
+    handleClickMoreTerms: function () {
+
+        var moreMenuItem = $('.ms-core-menu-list li').last();
+
+        //use an attribute to check if have hooked up our custom click event already.
+        if ($(moreMenuItem).attr("handleClickMoreTerms") == null) {
+            $(moreMenuItem).attr("handleClickMoreTerms", true);
+            $(moreMenuItem).click(function () {
+                console.log("moreClick");
+                for (var retryIndex = 1; retryIndex < inplaceSearchHelper.retryTimes + 1; retryIndex++) {
+                    var timeout = retryIndex * inplaceSearchHelper.retryMilliSecs;
+                    setTimeout(function () {
+                        inplaceSearchHelper.replaceMenuItemEventsToHandleInFrame();
+                        //another more menu item might have been generated, if so need to hook it up to this event.
+                        inplaceSearchHelper.handleClickMoreTerms();
+                    }, timeout);
+                }
+            });
+        }
+    },
+}
+
+var search = window.search || {
+    webUrl: null,
+    encodedWebUrl: null,
+    ctx: null,
+    docLibs: [],
+    web: null,
+    webId: null,
+    loadingDialog: null,
+    transmittalCount: 0,
+    docRegisterCount: 0,
+
+    init: function () {
+
+        $("#DeltaPageStatusBar").hide();
+        $("#searchLinks").hide();
+        $("#docSearchLinks").hide();
+        $("#searchPageMsg span").text("Your search results appear in the following tabs.");
+
+        search.ctx = SP.ClientContext.get_current();
+        search.web = search.ctx.get_web();
+        search.ctx.load(search.web);
+        search.ctx.executeQueryAsync(function () {
+            console.log("loaded");
+            search.encodedWebUrl = encodeURIComponent(search.web.get_url());
+            search.webUrl = search.web.get_url();
+            search.webId = search.web.get_id().toString();
+            search.loadDMSDocLibraries();
+            var searchTerm = GetQueryStringValue("k");
+            if (searchTerm != "") {
+                $("#inputSearchTerm").val(decodeURIComponent(searchTerm));
+                search.doSearch(decodeURIComponent(searchTerm));
+            }
+        }, function (sender, args) {
+            search.error(sender, args)
+        });
+    },
+
+    searchDocumentRegister: function (searchTerm) {
+        var searchStr = "/search/query?querytext='" + searchTerm +
+                             "+ContentTypeId:0x01000DA26782A3BFE14D84B5539060F2462502*+IsLatestOWSBOOL:1+WebID:" + search.webId +
+                             "+Path:" + search.webUrl + "'" +
+                             "&trimduplicates=true&isdocument=true&selectproperties='Id'";
+        console.log("Document Register Search:" + searchStr);
+        search.executeSearch(searchStr).done(function (data) {
+            var count = data.d.query.PrimaryQueryResult.RelevantResults.TotalRows;
+            $("#docRegSearchCount").text("Document Register (" + count + ")");
+            search.docRegisterCount = count;
+        });
+    },
+
+    searchTransmittals: function (searchTerm) {
+        var searchStr = "/search/query?querytext='" + searchTerm +
+                            "+ContentTypeId:0x01000DA26782A3BFE14D84B5539060F2462501*+WebID:" + search.webId +
+                            "+Path:" + search.webUrl + "'" +
+                            "&trimduplicates=true&isdocument=true&selectproperties='Id'";
+        console.log("Transmittal Search:" + searchStr);
+        search.executeSearch(searchStr).done(function (data) {
+            var count = data.d.query.PrimaryQueryResult.RelevantResults.TotalRows;
+            $("#transmittalSearchCount").text("Transmittals (" + count + ")");
+            search.transmittalCount = count;
+        });
+    },
+
+    //searches for AT Document, Document Set content types
+    searchDocs: function (searchTerm) {
+        var searchStr = "/search/query?querytext='" + searchTerm +
+                            "+ContentTypeId:0x0120D52000BFA2F0BC846429469ED885A0BAA72ABF*" +
+                            "+ContentTypeId:0x01010009C2F1917081E1429671F8F6A0BAE368*+WebID:" + search.webId +
+                            "+Path:" + search.webUrl + "'" +
+                            "&trimduplicates=false&selectproperties='Id'";
+        console.log("Documents Search:" + searchStr);
+        search.executeSearch(searchStr).done(function (data) {
+            var count = data.d.query.PrimaryQueryResult.RelevantResults.TotalRows;
+            $("#docsSearchCount").text("Document & File Storage (" + count + ")");
+            //last item to load async so close dialog
+            search.closeLoadingDialog();
+        });
+    },
+
+    //searches for AT Document, Document Set content types.
+    searchDocumentLibrary: function (searchTerm, documentLibrary) {
+        var searchStr = "/search/query?querytext='" + searchTerm +
+        					"+ListID:" + documentLibrary.id +
+                            "+ContentTypeId:0x0120D52000BFA2F0BC846429469ED885A0BAA72ABF*" +
+                            "+ContentTypeId:0x01010009C2F1917081E1429671F8F6A0BAE368*+WebID:" + search.webId +
+                            "+Path:" + search.webUrl + "'" +
+                            "&trimduplicates=false&selectproperties='Id'";
+        console.log("Document Library Search:" + searchStr);
+        search.executeSearch(searchStr).done(function (data) {
+            var count = data.d.query.PrimaryQueryResult.RelevantResults.TotalRows;
+            documentLibrary.count = count;
+            documentLibrary.searched = true;
+            var pending = $.grep(search.docLibs, function (e) { return e.searched == false; });
+            if (pending.length <= 0) {
+                console.log("search finished");
+                search.displayDocumentLibraryIndividualSearchResults();
+            }
+        });
+    },
+
+    displayDocumentLibraryIndividualSearchResults: function () {
+
+        var div = $("#docSearchLinks");
+        div.empty(); //clear previous links from search results
+
+        for (var i = 0; i < search.docLibs.length; i++) {
+
+            if (search.docLibs[i].count > 0) {
+                var html = "<a id='" + search.docLibs[i].id + "' href=\"javascript:search.handleDocLibClick('" +
+    			search.docLibs[i].defaultViewUrl + "', '" + search.docLibs[i].id + "');\">" + search.docLibs[i].title + " (" + search.docLibs[i].count + ")" + "</a>"
+                div.append(html);
+            }
+        }
+
+        div.show();
+
+        //if only 1 library, show its results for the user
+        var lists = $.grep(search.docLibs, function (e) { return e.count > 0; });
+        if (lists.length == 1) {
+            search.handleDocLibClick(lists[0].defaultViewUrl, lists[0].id);
+        }
+    },
+
+    executeSearch: function (searchUrl) {
+        var fullUrl = this.webUrl + "/_api" + searchUrl;
+        var executeOptions = { url: fullUrl, method: "GET", headers: { "Accept": "application/json; odata=verbose" } };
+        //return the promise 
+        return $.ajax(executeOptions);
+    },
+
+    handleSearchClick: function () {
+        search.doSearch();
+    },
+
+    handleSearchKeyPress: function (e) {
+
+        var keycode = e.keyCode || e.which || e.charCode;
+        // We're only interested in the enter key
+        if (keycode !== 13)
+            return;
+        var jQueryEvent = jQuery.Event(e);
+        jQueryEvent.preventDefault();
+        jQueryEvent.stopPropagation();
+
+        search.doSearch();
+    },
+
+    doSearch: function () {
+
+        var searchTerm = search.getSearchTerm();
+        if (searchTerm == '' || searchTerm.toLowerCase().trim() == 'search this site') {
+            alert('Please enter a search term.');
+            return;
+        }
+
+        search.showLoadingDialog(); //will be closed when last search call finishes
+
+        //reset search counts for individual document libraries
+        jQuery.each(search.docLibs, function (i, val) {
+            val.count = 0; val.searched = false;
+        });
+        search.transmittalCount = 0;
+        search.docRegisterCount = 0;
+        //reset search visuals
+        search.showListView(false);
+        search.showDocLibs(false);
+        search.highlightSelection(); //clears selection
+
+        search.searchTransmittals(searchTerm);
+        search.searchDocumentRegister(searchTerm);
+        search.searchDocs(searchTerm);
+
+        $("#searchLinks").show();
+    },
+
+    /* hideResults: function (empty) {
+         var div = $("#docSearchLinks");
+         div.hide();
+ 
+         if (empty) {
+             div.empty();
+         }
+     },*/
+
+    showDocLibs: function (show) {
+        if (show) {
+            $("#docSearchLinks").show();
+        } else {
+            $("#docSearchLinks").hide();
+        }
+    },
+
+    showListView: function (show) {
+        if (show) {
+            $('#inPlaceSearchFrame').show();
+        } else {
+            $('#inPlaceSearchFrame').attr('src', '');
+            $('#inPlaceSearchFrame').hide();
+        }
+    },
+
+    showLoadingDialog: function () {
+        search.loadingDialog = SP.UI.ModalDialog.showWaitScreenWithNoClose(SP.Res.dialogLoading15);
+    },
+
+    closeLoadingDialog: function () {
+        if (search.loadingDialog != null) {
+            search.loadingDialog.close();
+        }
+    },
+
+    handleTransmittalClick: function () {
+        search.showDocLibs(false);
+        search.showListView(false);
+        search.highlightSelection($("#transmittalSearchCount"));
+
+        if (search.transmittalCount > 0) {
+            search.showLoadingDialog();
+            $('#inPlaceSearchFrame').attr('src', search.webUrl + '/Lists/Transmittals/Search.aspx' + '?IsDlg=1&issearchpage=1&inplacesearch=' + search.getSearchTerm());
+            search.showListView(true);
+        }
+    },
+
+    handleDocRegClick: function () {
+        search.showDocLibs(false);
+        search.showListView(false);
+        search.highlightSelection($("#docRegSearchCount"));
+
+        if (search.docRegisterCount > 0) {
+            search.showLoadingDialog();
+            $('#inPlaceSearchFrame').attr('src', search.webUrl + '/Lists/DocumentRegister/Search.aspx' + '?IsDlg=1&issearchpage=1&inplacesearch=' + search.getSearchTerm());
+            search.showListView(true);
+        }
+    },
+
+    handleDocLibsClick: function () {
+
+        search.showListView(false);//hide existing results as no longer relevant
+
+        //do not search again if already have results
+        var pending = $.grep(search.docLibs, function (e) { return e.searched == false; });
+        search.highlightSelection($("#docsSearchCount"));
+
+        if (pending.length > 0) {
+            for (var i = 0; i < search.docLibs.length; i++) {
+                search.searchDocumentLibrary(search.getSearchTerm(), search.docLibs[i]);
+            }
+        } else {
+            search.highlightSelection($("#docsSearchCount"));
+            search.showDocLibs(true);//already have done a search using this term so just show the links again
+        }
+    },
+
+    handleDocLibClick: function (defaultView, id) {
+        search.highlightSelection($("#" + id));
+        $("#docsSearchCount").addClass("selected"); //also highlight parent
+        search.showLoadingDialog();
+        search.showListView(true);
+
+        $('#inPlaceSearchFrame').attr('src', defaultView + '?IsDlg=1&issearchpage=1&inplacesearch=' + search.getSearchTerm());
+
+    },
+
+    getSearchTerm: function () {
+        var textBox = $('#inputSearchTerm');
+        var searchTerm = textBox.val();
+        return encodeURIComponent(searchTerm);
+    },
+
+    highlightSelection: function (selectControl) {
+
+        $("#transmittalSearchCount").removeClass("selected");
+        $("#docRegSearchCount").removeClass("selected");
+        $("#docsSearchCount").removeClass("selected");
+        $("#docSearchLinks").find("a").removeClass("selected");
+
+        if (selectControl != null) {
+            selectControl.addClass("selected")
+        }
+    },
+
+    loadDMSDocLibraries: function () {
+
+        //search.ctx = SP.ClientContext.get_current();
+        //var web = search.ctx.get_web();
+        search.lists = search.web.get_lists();
+        search.ctx.load(search.lists, 'Include(Title, Id, BaseTemplate, DefaultDisplayFormUrl)');
+        search.ctx.executeQueryAsync(function () {
+
+            for (var i = 0; i < search.lists.get_count() ; i++) {
+                var item = search.lists.get_item(i);
+                var template = item.get_baseTemplate();
+
+                if (template == 10010) { //DMS Document Library 
+                    var library = new search.LibraryDetails();
+                    library.id = item.get_id();
+                    library.title = item.get_title();
+                    //include on RootFolder to get list url throws unauthorised access exception due to libraries with unique permissions so get url another way.
+                    var dispFormUrl = item.get_defaultDisplayFormUrl();
+                    dispFormUrl = dispFormUrl.substr(0, dispFormUrl.lastIndexOf('/'));
+                    dispFormUrl = dispFormUrl.substr(0, dispFormUrl.lastIndexOf('/'));
+                    var listNameInUrl = dispFormUrl.substr(dispFormUrl.lastIndexOf('/'), dispFormUrl.length);
+                    library.defaultViewUrl = search.webUrl + listNameInUrl + "/Forms/Search.aspx";
+                    //library.defaultViewUrl = item.get_rootFolder().get_serverRelativeUrl() + "/Forms/Search.aspx";
+                    search.docLibs.push(library);
+                    console.log("Title:" + library.title + ",Id:" + library.id);
+                }
+            }
+        }, function (sender, args) {
+            search.error(sender, args)
+        });
+    },
+
+
+    LibraryDetails: function () {
+        this.id = null;
+        this.title = null;
+        this.defaultViewUrl = null;
+        this.count = null;
+        this.searched = false; //flag to indicate whether search has run on this library for the given term    
+    },
+
+    error: function (sender, args) {
+        console.log('Request failed. ' + args.get_message() + '\n' + args.get_stackTrace());
+    },
+
+    autoResize: function (id) {
+        document.getElementById(id).height = "3000px";
+    },
+
+    doAdvancedSearch: function () {
+        var url = _spPageContextInfo.webAbsoluteUrl + '/_layouts/15/osssearchresults.aspx';
+        var searchTerm = $("#inputSearchTerm").val();
+        if (searchTerm != "") {
+            url += '?u=' + _spPageContextInfo.webAbsoluteUrl + '&k=' + searchTerm;
+        }
+        window.location = url;
+    }
+};
+
+var help = window.help || {
+    enablePageLevelHelpButton: false,
+    helpContentUrl: '',
+    helpContentOpeningMode: '',
+
+    FormSelector: function (myid, idType, myClass, classType) {
+        var outputSelector = "";
+
+        if (myid != undefined) {
+            var escapedId = myid.replace(/(:|\.|\[|\$|\]|,)/g, "\\$1");
+            if (idType != undefined) {
+                outputSelector += "[id" + idType + "='" + escapedId + "']";
+            }
+            else
+                outputSelector += "[id='" + escapedId + "']";
+        }
+        if (myClass != undefined) {
+            var escapedClass = myClass.replace(/(:|\.|\[|\$|\]|,)/g, "\\$1");
+            if (classType != undefined) {
+                outputSelector += "[class" + classType + "='" + escapedClass + "']";
+            }
+            else
+                outputSelector += "[class='" + escapedClass + "']";
+        }
+        //return "$(\""+ outputSelector +"\")";
+        return outputSelector;
+    },
+
+    escapeRegExp: function (str) {
+        return str.replace(/[\-\[\]\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+    },
+
+    AttachModal: function (url) {
+        //        var options = { url: _spPageContextInfo.webAbsoluteUrl +url, autoSize: true };
+        var options = {
+            url: url, showMaximized: true, title: 'Fulcrum Help'
+        };
+        SP.UI.ModalDialog.showModalDialog(options);
+    },
+
+    GenerateContextualHelp: function () {
+        var serverRelativeUrl = _spPageContextInfo.siteServerRelativeUrl;
+        serverRelativeUrl = serverRelativeUrl.substring(serverRelativeUrl.length - 1) != '/' ? (serverRelativeUrl += '/') : serverRelativeUrl;
+        contextualHelp.ctx = new SP.ClientContext(serverRelativeUrl + 'Collaboration');
+
+        var web = contextualHelp.ctx.get_web();
+        var helpList = web.get_lists().getByTitle('Contextual Help Config');
+        var currPagePath = _spPageContextInfo.serverRequestPath.replace(_spPageContextInfo.webServerRelativeUrl, '');
+        currPagePath = currPagePath.charAt(0) == '/' ? currPagePath.replace('/', '') : currPagePath;
+        var query = new SP.CamlQuery();
+        var caml = "<View Scope='Recursive'>" +
+                                     "<Query>" +
+                                         "<Where>" +
+                                         	"<Or>" +
+                                          		"<Contains>" +
+                                               		"<FieldRef Name='TargetPageUrl'/>" +
+                                               		"<Value Type='Text'>" + currPagePath + "</Value>" +
+                                          		"</Contains>" +
+                                          		"<Eq>" +
+                                               		"<FieldRef Name='HelpLevel'/>" +
+                                               		"<Value Type='Text'>Site Level</Value>" +
+                                          		"</Eq>" +
+                                         	"</Or>" +
+                                        	 "</Where>" +
+                                         "</Query>" +
+                                         "<RowLimit>5000</RowLimit>" +
+                                 "</View>";
+
+        query.set_viewXml(caml);
+        var helpListItems = helpList.getItems(query);
+        contextualHelp.ctx.load(helpListItems);
+        contextualHelp.ctx.executeQueryAsync(function () {
+            var helpListEnumerator = helpListItems.getEnumerator();
+            var pageLevelHelpDetected = false;
+            while (helpListEnumerator.moveNext()) {
+                var currItem = helpListEnumerator.get_current();
+                var targetPageUrl = currItem.get_fieldValues().TargetPageUrl;
+                var HelpLevel = currItem.get_fieldValues().HelpLevel;
+
+                if (HelpLevel == "Site Level") {
+                    if (currPagePath.toLowerCase().trim().indexOf(targetPageUrl.toLowerCase().trim()) < 0)
+                        continue;
+                }
+                else if (targetPageUrl.toLowerCase().trim() != currPagePath.toLowerCase().trim())
+                    continue;
+
+                var selectorQuery = currItem.get_fieldValues().SelectorQuery;
+                var HelpText = currItem.get_fieldValues().HelpText;
+                var HelpType = currItem.get_fieldValues().HelpType;
+                var HelpContentUrl = currItem.get_fieldValues().HelpContentUrl;
+                pageLevelHelpDetected = HelpLevel == "Page Level";
+                if (HelpLevel == "Page Level") {
+                    pageLevelHelpDetected = true;
+                    help.helpContentUrl = HelpContentUrl;
+                    help.helpContentOpeningMode = HelpType;
+                }
+
+                switch (HelpType) {
+                    case 'Modal-Dialog':
+                        selectorQuery = selectorQuery.replace("onclick", "onclick=\"help.AttachModal(&apos;" + HelpContentUrl + "&apos;)\"");
+                        break;
+                    case 'New-Window':
+                        selectorQuery = selectorQuery.replace("onclick", "onclick=\"window.open(&apos;" + HelpContentUrl + "&apos;)\"");
+                        break;
+                    case 'Inline-Popup':
+                        break;
+
+
+                }
+                selectorQuery = selectorQuery.replace("data-content", "data-content=\"" + HelpText + "\"");
+                selectorQuery = selectorQuery.replace("data-html", "data-html=\"" + HelpText + "\"");
+                eval(selectorQuery);
+
+                help.enablePageLevelHelpButton = pageLevelHelpDetected;
+                //If Modal, generate modal
+                //Else just extract help info from the list and append to the icon
+            }
+
+            $('i.help-icon').popup({
+                hoverable: 'true'
+            });
+        }, function (a, b) {
+            console.log("something has gone wrong while generating help content for this page.");
+        });
+    },
+
+    enableContextualHelp: function () {
+        return help.enablePageLevelHelpButton;
+    },
+
+    invokeContextualHelp: function () {
+        switch (help.helpContentOpeningMode) {
+            case 'Modal-Dialog':
+                help.AttachModal(help.helpContentUrl);
+                break;
+            case 'New-Window':
+                window.open(help.helpContentUrl);
+                break;
+        }
+    }
+};
+
+
+//Adds click event onto the SignOut button
+//which deletes F5 portal session cookies.
+//This logs the user out.
+//Without this another user can access a 
+//terminal and continue the previous users
+//crl session.
+var portalLogout = window.portalLogout || {
+
+    init: function () {
+
+        if (portalLogout.cookieExists("LastMRH_Session") || portalLogout.cookieExists("MRHSession")) {
+            $('.ms-core-menu-root').click(function () {
+                setTimeout(function () {
+                    $("li[text*='Sign Out']").click(function () { portalLogout.clearF5Cookies(); });
+                }, 150);
+            });
+
+            $($('.ms-menu-althov')[0]).click(function () {
+                setTimeout(function () {
+                    $("li[text*='Sign Out']").click(function () { portalLogout.clearF5Cookies(); });
+                }, 150);
+            });
+
+        }
+    },
+
+    clearF5Cookies: function () {
+        console.log("Clearing f5 portal session cookies...");
+        portalLogout.setCookie("LastMRH_Session", "", -1);
+        portalLogout.setCookie("MRHSession", "", -1);
+        window.location = "https://crl.at.govt.nz"; //will redirect to portal login page.
+    },
+
+    cookieExists: function (cname) {
+        var exists = false;
+        var name = cname + "=";
+        var ca = document.cookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') c = c.substring(1);
+            if (c.indexOf(name) == 0) return true;
+        }
+        return false;
+    },
+
+    setCookie: function (cname, cvalue, exdays) {
+        var d = new Date();
+        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+        var expires = "expires=" + d.toUTCString();
+        document.cookie = cname + "=" + cvalue + "; " + expires;
+    }
+}TW�&              <ށ       X:http://atprojects.leapthought.co.nz/sites/CID/Style%20Library/CRL/scripts/CRL.js?Rev=57 request-method GET response-head HTTP/1.1 200 OK
+Expires: Tue, 29 Dec 2015 09:04:43 GMT
+Date: Wed, 13 Jan 2016 09:04:42 GMT
+Content-Type: application/javascript
+Etag: "{01D6293F-A55B-4C93-A463-128E9DA6ECD6},1"
+Server: Microsoft-IIS/8.0
+Cache-Control: private,max-age=0
+Last-Modified: Mon, 13 Jul 2015 21:37:35 GMT
+X-SharePointHealthScore: 0
+ResourceTag: rt:01D6293F-A55B-4C93-A463-128E9DA6ECD6@00000000001
+Content-Disposition: attachment; filename="CRL.js"
+X-Download-Options: noopen
+Public-Extension: http://schemas.microsoft.com/repl-2
+SPRequestGuid: 7bc6549d-827e-209c-f465-33a5ad1c50f1
+request-id: 7bc6549d-827e-209c-f465-33a5ad1c50f1
+x-frame-options: SAMEORIGIN
+SPRequestDuration: 16
+SPIisLatency: 1
+X-Powered-By: ASP.NET
+MicrosoftSharePointTeamServices: 15.0.0.4535
+x-content-type-options: nosniff
+X-MS-InvokeApp: 1; RequireReadOnly
+Persistent-Auth: true
+ uncompressed-len 0 auth NTLM  ŝ

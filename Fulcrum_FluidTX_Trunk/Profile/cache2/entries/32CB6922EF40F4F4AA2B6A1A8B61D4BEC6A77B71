@@ -1,0 +1,672 @@
+function OpenDialog(url) {
+    var options = SP.UI.$create_DialogOptions();
+    options.url = url;
+    SP.UI.ModalDialog.showModalDialog(options);
+}
+
+
+
+Date.prototype.addHours = function (h) {
+    this.setHours(this.getHours() + h);
+    return this;
+};
+
+//helper functions for jsRender
+$.views.helpers({
+    format: function (val) {
+        if (!val)
+            return "[No date]";
+        var ret;
+
+        //var regExUTCDate = /([\d]{4})-([\d]{2})-([\d]{2})T([\d]{2}):([\d]{2}):([\d]{2})Z/gi;
+        //var match = regExUTCDate.exec(val);
+
+        //var d = Date.UTC(match[1], match[2], match[3], match[4], match[5], match[6]);
+        //var formattedDate = new Date(d);
+
+        var formattedDate = new Date(val);
+        var d = formattedDate.getDate();
+        var m = formattedDate.getMonth() + 1;
+        var y = formattedDate.getFullYear();
+
+        return d + "/" + m + "/" + y;
+    },
+    lowerCase: function (val) {
+        return val.toLowerCase();
+    }
+});
+
+var phaseProgressStatus = window.phaseProgressStatus || {};
+
+phaseProgressStatus = {
+    sapProjectListName: "SAP Project",
+    projectInfoListName: "Project Info",
+    listData: {},
+    projectInfoData: {},
+    groupByProjectShortName: [],
+    ProjectPhasesProgressREST: "",
+    ProjectInfoREST: "",
+    projectShortNamesFilter: "",
+    termsLookup: {},
+
+    getConfigListItems: function () {
+
+        phaseProgressStatus.ProjectPhasesProgressREST = _spPageContextInfo.siteAbsoluteUrl + "/_api/web/lists/getbytitle('" + phaseProgressStatus.sapProjectListName + "')/items?$top=2000";
+        phaseProgressStatus.ProjectInfoREST = _spPageContextInfo.siteAbsoluteUrl + "/_api/web/lists/getbytitle('" + phaseProgressStatus.projectInfoListName + "')/items?$top=2000";
+
+        if (webPartParam_ProjectShortnames !== "") {
+            //add fitlering logic for REST endpoint
+            phaseProgressStatus.projectShortNamesFilter = webPartParam_ProjectShortnames;
+        }
+
+        phaseProgressStatus.refreshData();
+
+        //projectStatus.getListItems(SAPProjectVar);
+    },
+
+    refreshData: function (dialogResult, returnValue) {
+        $("#projectPhasesProgressLoading").show();
+        $("#progressContainer").hide();
+        $("#progressContainer").empty();
+        phaseProgressStatus.listData = [];
+        phaseProgressStatus.projectInfoData = [];
+        phaseProgressStatus.groupByProjectShortName = [];
+
+        phaseProgressStatus.getProjectInfo(phaseProgressStatus.ProjectInfoREST);
+    },
+
+    getProjectPhasesProgress: function (restUrl) {
+        $.ajax({
+            url: restUrl,
+            type: "GET",
+            headers: {
+                "accept": "application/json;odata=verbose",
+            },
+            success: function (data) {
+                var dataResults = data.d.results;
+                if (dataResults.length > 0) {
+                    phaseProgressStatus.listData = phaseProgressStatus.formatTemplateData(data, false);
+                }
+                phaseProgressStatus.getProjectPhaseTermSet();
+            },
+            error: function (error) {
+                //alert(JSON.stringify(error));
+                projectProgressStatus.showError();
+            }
+        });
+    },
+
+    getProjectInfo: function (restUrl) {
+        $.ajax({
+            url: restUrl,
+            type: "GET",
+            headers: {
+                "accept": "application/json;odata=verbose",
+            },
+            success: function (data) {
+                var dataResults = data.d.results;
+                if (dataResults.length > 0) {
+                    phaseProgressStatus.projectInfoData = phaseProgressStatus.formatTemplateData(data, true);
+                }
+                else {
+                    phaseProgressStatus.showError();
+                }
+
+                phaseProgressStatus.getProjectPhasesProgress(phaseProgressStatus.ProjectPhasesProgressREST);
+
+
+            },
+            error: function (error) {
+                //alert(JSON.stringify(error));
+                projectProgressStatus.showError();
+            }
+        });
+    },
+
+    formatTemplateData: function (data, isOverallStatus) {
+
+        var doclibUrl = location.href.substring(0, location.href.indexOf('/Forms'));
+        var listData = new Array();
+        for (var i = 0; i < data.d.results.length; i++) {
+            var item = data.d.results[i];
+            listData[i] = {
+                ProjectPhaseGuid: (item.DMSProjectPhases !== null) ? item.DMSProjectPhases.TermGuid : "",
+                ProjectPhaseName: "",
+                ProjectShortName: (item.ProjectShortName.results.length > 0) ? item.ProjectShortName.results[0].Label : "", //todo: make it multi value capable
+                CompletedPerc: (item.OData__x0025_Complete === null) ? 0 : item.OData__x0025_Complete,
+                StartDate: item.StartDate,
+                EndDate: item.DMSEndDate,
+                Status: item.ProjectStatus,
+                uri: item.__metadata.uri,
+                YTDActual: (item.YTDActual !== null) ? item.YTDActual : 0,
+                YTDPlan: (item.Plan !== null) ? item.YTDPlan : 0,
+                itemUrl: phaseProgressStatus.getItemUrl(item.__metadata.uri),
+                isOverallStatus: isOverallStatus
+            };
+        }
+        return listData;
+    },
+
+    getItemUrl: function (uri) {
+        var regExUri = /https?:\/\/[^(^)]+\(guid'([\d\-\w]+)'\)\/items\(([\d]+)\)/gi;
+        var match = regExUri.exec(uri);
+        return _spPageContextInfo.webAbsoluteUrl + '/_layouts/15/listform.aspx?PageType=4&ListId=' + match[1] + '&ID=' + match[2];
+    },
+
+    newItemUrl: function (listGuid) {
+        return _spPageContextInfo.webAbsoluteUrl + '/_layouts/15/listform.aspx?PageType=8&ListId=' + listGuid;
+    },
+
+
+    getProjectPhaseTermSet: function () {
+        var termSetId = "42516884-1b5d-4d45-b744-df9f0dac7cd5";
+        if ($("#ProjectPhaseTermSetId").length > 0)
+            if ($("#ProjectPhaseTermSetId").html().length > 0)
+                termSetId = $("#ProjectPhaseTermSetId").html();
+
+        var context = SP.ClientContext.get_current();
+        var session = SP.Taxonomy.TaxonomySession.getTaxonomySession(context);
+        var termStore = session.getDefaultSiteCollectionTermStore();
+        var termSet = termStore.getTermSet(termSetId);
+
+        context.load(session);
+        context.load(termStore);
+        context.load(termSet);
+
+        context.executeQueryAsync(function () {
+
+            var terms = termSet.get_terms();
+            context.load(terms);
+            context.executeQueryAsync(function () {
+                var termsEnum = terms.getEnumerator();
+                //phaseProgressStatus.termsLookup = {};
+
+                while (termsEnum.moveNext()) {
+                    var currentTerm = termsEnum.get_current();
+                    var termName = currentTerm.get_name();
+                    var termId = currentTerm.get_id();
+                    phaseProgressStatus.termsLookup[termId] = termName;
+                }
+
+                //Update value
+                $.each(phaseProgressStatus.listData, function (index, data) {
+                    if (data.ProjectPhaseGuid === "")
+                        data.ProjectPhaseName = "[No value]";
+                    else
+                        data.ProjectPhaseName = phaseProgressStatus.termsLookup[data.ProjectPhaseGuid];
+                });
+
+                phaseProgressStatus.renderData();
+
+            }, function (sender, args) {
+                console.log(args.get_message());
+            });
+        }, function () {
+            console.log("failed GetTermSet");
+        });
+    },
+
+    renderData: function () {
+        var statusArray = $.merge(phaseProgressStatus.listData, phaseProgressStatus.projectInfoData);
+        var groupByProject = {};
+        $.each(statusArray, function (index, item) {
+            if (!groupByProject[item.ProjectShortName]) {
+                groupByProject[item.ProjectShortName] = {
+                    ProjectProgress: [],
+                    ProjectShortName: item.ProjectShortName
+                };
+            }
+            groupByProject[item.ProjectShortName].ProjectProgress.push(item);
+        });
+
+        $.each(groupByProject, function (index, item) {
+            //sort data
+            item.ProjectProgress = item.ProjectProgress.sort(phaseProgressStatus.dynamicSort('ProjectPhaseName'));
+            item.ProjectProgress = item.ProjectProgress.sort(phaseProgressStatus.dynamicSort('-isOverallStatus'));
+        });
+
+        var projectShortNamesArray = phaseProgressStatus.projectShortNamesFilter.split(',');
+        $.each(projectShortNamesArray, function (index, data) {
+            projectShortNamesArray[index] = data.trim();
+        });
+
+        var jsRenderData = [];
+        $.each(groupByProject, function (index, data) {
+            //filter out if Project Shortnames were given in Webpart parameter
+            if (phaseProgressStatus.projectShortNamesFilter === "" | $.inArray(data.ProjectShortName, projectShortNamesArray) >= 0) {
+                jsRenderData.push({
+                    ProjectShortName: data.ProjectShortName,
+                    ProjectProgress: data.ProjectProgress
+                });
+            }
+        });
+
+        if (jsRenderData.length <= 0) {
+            phaseProgressStatus.showError();
+            return;
+        }
+
+        $("#progressContainer").append(
+           $("#projectTemplate").render(jsRenderData)
+       );
+        //phaseProgressStatus.rednerAddButton();
+
+        //Update progress graph bar 
+        $('.graph').each(function () {
+            var percentage = $(this).data('progress');
+            if (percentage > 100)
+                percentage = 100;
+            var _width = (percentage / 100) * $(this).width();
+
+            $(this).find('.progress-bg').css({ width: _width, display: 'block' });
+
+            if (percentage > 60) {
+                $(this).find('span').css({ color: '#ffffff' });
+            }
+        });
+
+        //Add new button
+        $("div.addPhaseButtonSection").hover(function () { $(this).find("a").show(); }, function () { $(this).find("a").hide(); });
+        $("a.addPhaseButton").click(function (event) {
+            event.preventDefault();
+            var ctx = SP.ClientContext.get_current();
+            var oList = ctx.get_web().get_lists().getByTitle(phaseProgressStatus.sapProjectListName);
+            ctx.load(oList);
+            ctx.executeQueryAsync(function () {
+                var options = { url: phaseProgressStatus.newItemUrl(oList.get_id()), dialogReturnValueCallback: phaseProgressStatus.refreshData };
+                SP.UI.ModalDialog.showModalDialog(options);
+            }, phaseProgressStatus.error);
+        });
+
+        $(".progressStatus a:not(.addPhaseButton)").click(function (event) {
+            event.preventDefault();
+            var options = { url: $(this).attr('href'), dialogReturnValueCallback: phaseProgressStatus.refreshData };
+            SP.UI.ModalDialog.showModalDialog(options);
+        });
+
+        $("#projectPhasesProgressLoading").hide();
+        $("#progressContainer").show();
+
+
+        //Bar graph
+        var projectPhaseTerms = [];
+        Object.keys(phaseProgressStatus.termsLookup).forEach(function (key) { projectPhaseTerms.push(phaseProgressStatus.termsLookup[key]); });
+        projectPhaseTerms.sort(phaseProgressStatus.dynamicSort('ProjectPhaseName'));
+
+        var budgetArray = prjMgmtGraph.initEmptyArray(projectPhaseTerms.length);
+        var actualArray = prjMgmtGraph.initEmptyArray(projectPhaseTerms.length);
+
+        if (jsRenderData.length > 0) {
+        
+         	//todo: support mutiple projects
+            var progress = jsRenderData[0].ProjectProgress;
+
+        	var totalPlan = 0;
+        	var totalActual = 0;
+        	for(var i=0;i<progress.length;i++) { 
+        		totalPlan += progress[i].YTDPlan;
+        		totalActual +=  progress[i].YTDActual;
+        		 progress[i].YTDPlan = totalPlan;
+        		 progress[i].YTDActual = totalActual;
+        	}
+        
+            $.each(progress, function (index, data) {
+                if (!data.isOverallStatus) {
+                    var arrayIndex = projectPhaseTerms.indexOf(data.ProjectPhaseName);
+                    if (arrayIndex >= 0) {
+                        budgetArray[arrayIndex] = data.YTDPlan;
+                        actualArray[arrayIndex] = data.YTDActual;
+                    }
+                }
+            });
+
+            prjMgmtGraph.setBudget(budgetArray);
+            prjMgmtGraph.setActual(actualArray);
+            prjMgmtGraph.setPhases(projectPhaseTerms);
+            prjMgmtGraph.render();
+        }
+
+    },
+
+
+
+    rednerAddButton: function () {
+        var html = "<div class='progressStatus addPhaseButtonSection'><spa><a href='#' class='addPhaseButton' style='display:none'>+ Add</a></span></div>";
+        $("#progressContainer").append(html);
+    },
+
+    error: function () {
+        //
+    },
+
+    showError: function () {
+        $("#progressContainerWrapper .progressContainerError").show();
+        $("#projectPhasesProgressLoading").hide();
+        $("#progressContainer").hide()
+    },
+
+    dynamicSort: function (property) {
+        var sortOrder = 1;
+        if (property[0] === "-") {
+            sortOrder = -1;
+            property = property.substr(1);
+        }
+        return function (a, b) {
+            var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+            return result * sortOrder;
+        }
+    }
+
+};
+
+var webPartParam_ProjectShortnames = "";
+var prjMgmtGraph = window.prjMgmtGraph || {};
+
+prjMgmtGraph = {
+    budget: [],
+    actual: [],
+    phases: [],
+    setBudget: function (budgetArray) {
+        prjMgmtGraph.budget = ['Budget'];
+        if (budgetArray != null)
+            $.merge(prjMgmtGraph.budget, budgetArray);
+    },
+    setActual: function (actualArray) {
+        prjMgmtGraph.actual = ['Actual'];
+        if (actualArray != null)
+            $.merge(prjMgmtGraph.actual, actualArray);
+    },
+
+    setPhases: function (phasesArray) {
+        prjMgmtGraph.phases = phasesArray;
+    },
+
+    initEmptyArray: function (length) {
+        var array = new Array(length);
+        $.each(array, function (ind, data) {
+            array[ind] = 0;
+        });
+        return array;
+    },
+
+    render: function () {
+        //prjMgmtGraph.budget = ['Budget', 400, 500, 1000 ];
+        //prjMgmtGraph.actual = ['Actual', 500, 200,null,null,null];
+        //prjMgmtGraph.phases = ['01 Start-up', '02 Initiation', '03 Feasibility', '04 Investigation','05 Design', '06 Construction', '07 Closure'];
+        //var phases = ['0', '1', '2', '3'];
+        var chart = c3.generate({
+            bindto: '#graph-container',
+            size: {
+		        width: 800
+		    },
+            data: {
+                columns: [
+                           prjMgmtGraph.budget,
+                           prjMgmtGraph.actual
+
+                    //['data1', 30, 200, 100, 400, 150, 250],
+                    //['data2', 130, 100, 140, 200, 150, 50]
+                ],
+                type: 'bar',
+
+
+                colors: {
+                    Budget: '#3b3b3b',//0d1237',//2b3ab3',//1C2675',
+                    Actual: '#3388ff',//#0F88E1'
+                }
+
+            },
+            bar: {
+                width: {
+                    ratio: 0.55 // this makes bar width 30% of length between ticks
+                }
+                // or
+                //width: 100 // this makes bar width 100px
+            },
+            axis: {
+                x: {
+                    label: {
+                        text: '',
+                        position: 'outer-center'
+                    },
+                    type: 'category',
+                    categories: prjMgmtGraph.phases,
+
+                },
+                y: {
+                    tick: {
+                        fit: true,
+                        format: d3.format("$,")
+                    }
+                }
+            },
+
+
+            legend: {
+                position: 'right'
+            }
+
+        });
+    }
+}
+
+
+var edmsCheckList = window.edmsCheckList || {};
+
+edmsCheckList = {
+    projectShortNameId: "",
+    projectShortName: "",
+    currentProjectInfoId: "",
+    currentProjectDetailId: "",
+    ctx: {},
+
+    init: function () {
+
+        $("#loadingIndicator").show();
+
+        edmsCheckList.ctx = new SP.ClientContext(_spPageContextInfo.siteAbsoluteUrl);
+        $("#progressIndicator").hide();
+        $("#DeltaPageStatusBar").hide();
+
+        $("#btnShowChecklist").click(function () {
+            edmsCheckList.showChecklist();
+        });
+
+        $("#btnProjectInfo").click(function () {
+            var id = edmsCheckList.currentProjectInfoId;
+            SP.UI.ModalDialog.showModalDialog({ title: "Edit", url: _spPageContextInfo.webAbsoluteUrl + "/Lists/ProjectInfo/EditForm.aspx?ID=" + id + "&IsDlg=1" });
+        });
+
+        $("#projectDetailLink").click(function (event) {
+            event.preventDefault();
+            var id = edmsCheckList.currentProjectDetailId;
+            SP.UI.ModalDialog.showModalDialog({ title: "Project Details", showMaximized: true, url: _spPageContextInfo.webAbsoluteUrl + "/Lists/Project%20Details/DispForm.aspx?ID=" + id + "&IsDlg=1" });
+            return false;
+        });
+
+        $("#projectDetailLink").show();
+
+        SP.SOD.loadMultiple(['sp.js', 'sp.core.js'], edmsCheckList.initProjectDropdown);
+    },
+
+    showChecklist: function () {
+        var projectShortNameWssId = $("#txtIdentifier").val();
+        var oList = edmsCheckList.ctx.get_web().get_lists().getByTitle('Project Details');
+        var camlQuery = new SP.CamlQuery();
+        camlQuery.set_viewXml('<View><Query><Where><In><FieldRef LookupId="TRUE" Name="ProjectShortName" /><Values><Value Type="Integer">' + projectShortNameWssId + '</Value></Values></In></Where></Query><RowLimit>1</RowLimit></View>');
+        projectDetailsListItems = oList.getItems(camlQuery);
+        edmsCheckList.ctx.load(projectDetailsListItems);
+        edmsCheckList.ctx.executeQueryAsync(Function.createDelegate(this, edmsCheckList.loadChecklistIfProjectDetailsExists), function () { });
+    },
+
+    loadChecklistIfProjectDetailsExists: function () {
+        var projectInfoExists = false;
+        var listItemEnumerator = projectDetailsListItems.getEnumerator();
+
+        while (listItemEnumerator.moveNext()) {
+            projectInfoExists = true;
+        }
+
+        if (!projectInfoExists) {
+            $("#NoProjectDetails").show();
+        }
+        else if (window.ChecklistCore != null) {
+            $("#NoProjectDetails").hide();
+            var checklistType = "EPP";// $("select[id$=ddlCheckListType]").val();
+            var wssId = $("#txtIdentifier").val();
+
+            webPartParam_ProjectShortnames = $("#txtIdentifier option:selected").text();
+            SP.SOD.executeFunc('sp.js', 'SP.ClientContext', phaseProgressStatus.getConfigListItems());
+
+            edmsCheckList.projectShortName = $("#txtIdentifier option:selected").text();
+            edmsCheckList.projectShortNameId = wssId;
+            edmsCheckList.getProjectItem(wssId);
+            edmsCheckList.getProjectDetails(wssId);
+            $("#dashBoardPanel").show();
+        }
+    },
+
+
+    refreshProjectPhase: function (triggerName) {
+        if (triggerName == "btnUpdateProjectPhaseMetaData") {
+            edmsCheckList.getProjectItem(edmsCheckList.projectShortNameId);
+        }
+    },
+
+    initProjectDropdown: function () {
+        var oList = edmsCheckList.ctx.get_web().get_lists().getByTitle('Project Info');
+        var camlQuery = new SP.CamlQuery();
+        camlQuery.set_viewXml('<View><Query><Where></Where></Query><RowLimit>50</RowLimit></View>');
+        collListItem = oList.getItems(camlQuery);
+        edmsCheckList.ctx.load(collListItem);
+        edmsCheckList.ctx.executeQueryAsync(Function.createDelegate(this, edmsCheckList.initProjectDropdownSucceeded),
+            Function.createDelegate(this, edmsCheckList.initProjectDropdownFailed));
+    },
+
+    initProjectDropdownFailed: function (sender, args) {
+        $("#loadingIndicator").hide();
+        alert("An error has occurred.");
+    },
+
+    initProjectDropdownSucceeded: function (sender, args) {
+        var listItemInfo = '';
+        var listItemEnumerator = collListItem.getEnumerator();
+
+        while (listItemEnumerator.moveNext()) {
+            var oListItem = listItemEnumerator.get_current();
+            var title = oListItem.get_item('ProjectShortName').get_item(0).get_label();
+            var wssId = oListItem.get_item('ProjectShortName').get_item(0).get_wssId();
+            $("#txtIdentifier").append("<option value='" + wssId + "'>" + title + "</option>");
+        }
+
+        $("#loadingIndicator").hide();
+
+        if ($("#txtIdentifier option").length == 1) {
+            $("#txtIdentifier").hide();
+        }
+        else {
+            $("#txtIdentifier").show();
+            $('select').on('change', function (e) { edmsCheckList.showChecklist() });
+        }
+
+        edmsCheckList.showChecklist();
+    },
+
+    getProjectItem: function (projectShortNameWssId) {
+
+        var oList = edmsCheckList.ctx.get_web().get_lists().getByTitle('Project Info');
+        var camlQuery = new SP.CamlQuery();
+        camlQuery.set_viewXml('<View><Query><Where><In><FieldRef LookupId="TRUE" Name="ProjectShortName" /><Values><Value Type="Integer">' + projectShortNameWssId + '</Value></Values></In></Where></Query><RowLimit>1</RowLimit></View>');
+        collListItemInfo = oList.getItems(camlQuery);
+        edmsCheckList.ctx.load(collListItemInfo);
+        edmsCheckList.ctx.executeQueryAsync(Function.createDelegate(this, edmsCheckList.getProjectItemSucceeded), function () { });
+    },
+
+    getProjectDetails: function (projectShortNameWssId) {
+
+        var oList = edmsCheckList.ctx.get_web().get_lists().getByTitle('Project Details');
+        var camlQuery = new SP.CamlQuery();
+        camlQuery.set_viewXml('<View><Query><Where><In><FieldRef LookupId="TRUE" Name="ProjectShortName" /><Values><Value Type="Integer">' + projectShortNameWssId + '</Value></Values></In></Where></Query><RowLimit>1</RowLimit></View>');
+        collListItemDetail = oList.getItems(camlQuery);
+        edmsCheckList.ctx.load(collListItemDetail);
+        edmsCheckList.ctx.executeQueryAsync(Function.createDelegate(this, edmsCheckList.getProjectDetailsSucceeded), function () { });
+    },
+
+    getProjectDetailsSucceeded: function (sender, args) {
+        var listItemInfo = '';
+        var listItemEnumerator = collListItemDetail.getEnumerator();
+        var id = '';
+
+        while (listItemEnumerator.moveNext()) {
+            var oListItem = listItemEnumerator.get_current();
+            edmsCheckList.currentProjectDetailId = oListItem.get_item('ID');
+        }
+    },
+
+    getProjectItemSucceeded: function (sender, args) {
+        var listItemInfo = '';
+        var listItemEnumerator = collListItemInfo.getEnumerator();
+
+        while (listItemEnumerator.moveNext()) {
+            var oListItem = listItemEnumerator.get_current();
+            var title = oListItem.get_item('Title');
+            var phase = oListItem.get_item('DMSProjectPhases');
+            var shortName = oListItem.get_item('ProjectShortName').get_item(0);
+            var mngr = oListItem.get_item('ProjectManager');
+            var sponsor = oListItem.get_item('ProjectSponsor');
+            var status = oListItem.get_item('ProjectStatus');
+            var id = oListItem.get_item('ID');
+            edmsCheckList.currentProjectInfoId = oListItem.get_id();
+            var dep = oListItem.get_item('ol_Department');
+            var endDate = oListItem.get_item('DMSEndDate');
+            var area = oListItem.get_item('DMSArea');
+            var complete = oListItem.get_item('_x0025_Complete');
+            var sapCode = oListItem.get_item('SAPCode');
+
+            $("#projectTitle").text(title);
+            $("#projectPhase").text(phase.get_label());
+            $("#projectPhaseGuid").text(phase.get_termGuid());
+            $("#projectShortName").text(shortName.get_label());
+            $("#projectShortNameGuid").text(shortName.get_termGuid());
+            $("#projectManager").text(mngr);
+            $("#projectSponsor").text(sponsor);
+            $("#projectStatus").text(status);
+            $("#sapCode").text(sapCode);
+            $("#projectArea").text(area);
+            $("#projectPercentComplete").text(complete);
+            $("#projectDepartment").text(dep);
+            //do not show check list on the home page.
+            //window.ChecklistCore.GetChecklist(shortName.get_termGuid(), "EPP");
+            //$("#checklistTable").show();
+        }
+    }
+}
+
+$(function () {
+    SP.SOD.loadMultiple(['sp.js', 'SP.ClientContext', 'sp.taxonomy.js'], edmsCheckList.init());
+});
+
+,¥t¯‹%              <à¦       Q:http://atprojects.leapthought.co.nz/sites/cid/style%20library/cdd/cddhomepage.js request-method GET auth NTLM response-head HTTP/1.1 200 OK
+Expires: Tue, 29 Dec 2015 09:04:33 GMT
+Date: Wed, 13 Jan 2016 09:04:32 GMT
+Content-Type: application/javascript
+Etag: "{844F84DC-5D7F-4244-A422-784CD33CDF21},22"
+Server: Microsoft-IIS/8.0
+Cache-Control: private,max-age=0
+Last-Modified: Wed, 15 Jul 2015 04:24:57 GMT
+X-SharePointHealthScore: 0
+ResourceTag: rt:844F84DC-5D7F-4244-A422-784CD33CDF21@00000000022
+Content-Disposition: attachment; filename="cddhomepage.js"
+X-Download-Options: noopen
+Public-Extension: http://schemas.microsoft.com/repl-2
+SPRequestGuid: 79c6549d-e227-209c-f465-3b8e03f1edf4
+request-id: 79c6549d-e227-209c-f465-3b8e03f1edf4
+x-frame-options: SAMEORIGIN
+SPRequestDuration: 22
+SPIisLatency: 0
+Persistent-Auth: true
+X-Powered-By: ASP.NET
+MicrosoftSharePointTeamServices: 15.0.0.4535
+x-content-type-options: nosniff
+X-MS-InvokeApp: 1; RequireReadOnly
+ uncompressed-len 0   cW

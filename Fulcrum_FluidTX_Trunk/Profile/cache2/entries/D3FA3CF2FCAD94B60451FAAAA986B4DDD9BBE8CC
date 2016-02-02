@@ -1,0 +1,577 @@
+<style type="text/css">
+#snippetContainer div.snippet img.icon {
+  margin: -0.75em 1em 0 0;
+  float: left;
+}
+
+    .snippet {
+       position: relative;
+   }
+
+   .snippet .icon {
+       position: absolute;
+       right: 400px;
+       top: 5px;
+       height: 50px;
+   }
+
+   .snippet p {
+       display: table-cell;
+       height: 40px;
+       padding-left: 80px;
+       vertical-align: middle;
+       width: 400px;
+   }
+ 
+ </style><script type="text/javascript">
+//<![CDATA[
+  // Generated on 2016-01-11 20:43:54.136214
+  // Included snippets:
+  //  - 5440
+  var ABOUTHOME_SNIPPETS = JSON.parse('[{\u0022code\u0022: \u0022\u003Cdiv data\u002Dsnippet\u002Did\u003D\u005C\u00225440\u005C\u0022 data\u002Dweight\u003D\u005C\u002233\u005C\u0022 data\u002Dcampaign\u003D\u005C\u0022smarton\u005C\u0022 class\u003D\u005C\u0022snippet\u002Dmetadata\u005C\u0022\u003E\u003Cstyle\u003E\u005Cn#snippetContainer div.snippet {\u005Cn   margin: 10px 5px\u003B\u005Cn}\u005Cn\u005Cn#snippetContainer div.snippet img.icon {\u005Cn    margin: 5px\u003B\u005Cn    float: none\u003B\u005Cn}\u005Cn\u005Cn.snippet p {\u005Cn    display: inline\u002Dblock\u003B\u005Cn    padding\u002Dleft: 0\u003B\u005Cn    width: auto\u003B\u005Cn    max\u002Dwidth: 380px\u003B\u005Cn    height: auto\u003B\u005Cn    vertical\u002Dalign: middle\u003B\u005Cn}\u005Cn\u005Cn.snippet .icon {\u005Cn    position: relative\u003B\u005Cn    right: 0\u003B\u005Cn    top: 0\u003B\u005Cn    display: inline\u002Dblock\u003B\u005Cn    height: auto\u003B\u005Cn    max\u002Dheight: 64px\u003B\u005Cn    vertical\u002Dalign: middle\u003B\u005Cn}\u005Cn\u005Cn\u005Cn\u005Cn\u005Cn\u003C/style\u003E\u005Cn  \u003Cdiv class\u003D\u005C\u0022snippet\u005C\u0022 id\u003D\u005C\u0022simple\u002Dsnippet\u005C\u0022\u003E\u005Cn    \u005Cn          \u003Ca href\u003D\u005C\u0022https://www.mozilla.org/teach/smarton/surveillance/?utm_source\u003Ddesktop\u002Dsnippet\u0026amp\u003Butm_medium\u003Dsnippet\u0026amp\u003Butm_content\u003Dsmarton\u0026amp\u003Butm_term\u003D5440\u0026amp\u003Butm_campaign\u003Dsmarton\u005C\u0022\u003E\u005Cn              \u003Cimg class\u003D\u005C\u0022icon\u005C\u0022 src\u003D\u005C\u0022data:image/svg+xml\u003Bbase64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxOS4xLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiDQoJIHZpZXdCb3g9Ii0zNjMgNTgxIDY0IDY0IiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IC0zNjMgNTgxIDY0IDY0OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+DQo8c3R5bGUgdHlwZT0idGV4dC9jc3MiPg0KCS5zdDB7ZmlsbDpub25lO30NCgkuc3Qxe2ZpbGw6I0Q4RDlEQTt9DQoJLnN0MntmaWxsOiNFN0VCRUM7fQ0KCS5zdDN7ZmlsbDojNEE1NzYxO30NCgkuc3Q0e2ZpbGw6dXJsKCNTVkdJRF8xXyk7fQ0KCS5zdDV7ZmlsbDojNTk2NTZDO30NCgkuc3Q2e2ZpbGw6IzAwQjk5NTt9DQoJLnN0N3tmaWxsOiNGNUY1RjU7fQ0KCS5zdDh7ZmlsbDojRTZFNkU2O30NCgkuc3Q5e2ZpbGw6IzI0ODhDMDt9DQoJLnN0MTB7ZmlsbDojMTc5NUQ5O30NCgkuc3QxMXtmaWxsOiMzMjNDNDQ7fQ0KCS5zdDEye2ZpbGw6IzNGNEE1Mjt9DQoJLnN0MTN7b3BhY2l0eTowLjY7fQ0KCS5zdDE0e2ZpbGw6I0ZGRkZGRjt9DQo8L3N0eWxlPg0KPGc+DQoJPGc+DQoJCTxyZWN0IHg9Ii0zNjMiIHk9IjU4MSIgY2xhc3M9InN0MCIgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0Ii8+DQoJPC9nPg0KCTxnPg0KCQk8Zz4NCgkJCTxnPg0KCQkJCTxnPg0KCQkJCQk8cGF0aCBjbGFzcz0ic3QxIiBkPSJNLTMyNiw2MzIuOEwtMzI2LDYzMi44di01LjZoLTEyLjF2NS42bDAsMGMtMC4yLDMuNy0yLjUsNi44LTUuNyw4LjJsMCwwaDIzLjRsMCwwDQoJCQkJCQlDLTMyMy42LDYzOS41LTMyNS44LDYzNi40LTMyNiw2MzIuOHoiLz4NCgkJCQkJPHJlY3QgeD0iLTM0My44IiB5PSI2MzguNSIgY2xhc3M9InN0MiIgd2lkdGg9IjIzLjQiIGhlaWdodD0iMi41Ii8+DQoJCQkJPC9nPg0KCQkJCTxnPg0KCQkJCQk8cGF0aCBjbGFzcz0ic3QzIiBkPSJNLTMwMCw1ODcuNGMwLTEuMy0xLjEtMi40LTIuNC0yLjRoLTU3LjJjLTEuMywwLTIuNCwxLjEtMi40LDIuNHYzNi4zaDYyVjU4Ny40eiIvPg0KCQkJCQkNCgkJCQkJCTxyYWRpYWxHcmFkaWVudCBpZD0iU1ZHSURfMV8iIGN4PSIyNDc4LjA5MTgiIGN5PSIyMjk1LjA1MDgiIHI9Ijk1LjUzODciIGdyYWRpZW50VHJhbnNmb3JtPSJtYXRyaXgoMC4yMzg1IDAgMCAwLjIzODUgLTkyMi4wMjQ5IDU2LjU4MDQpIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+DQoJCQkJCQk8c3RvcCAgb2Zmc2V0PSIwIiBzdHlsZT0ic3RvcC1jb2xvcjojODBDRUVEIi8+DQoJCQkJCQk8c3RvcCAgb2Zmc2V0PSIwLjE0MDQiIHN0eWxlPSJzdG9wLWNvbG9yOiM3N0NCRUMiLz4NCgkJCQkJCTxzdG9wICBvZmZzZXQ9IjAuMzY3MiIgc3R5bGU9InN0b3AtY29sb3I6IzVGQzVFOSIvPg0KCQkJCQkJPHN0b3AgIG9mZnNldD0iMC42NTIiIHN0eWxlPSJzdG9wLWNvbG9yOiMzOUI5RTQiLz4NCgkJCQkJCTxzdG9wICBvZmZzZXQ9IjAuOTgwOCIgc3R5bGU9InN0b3AtY29sb3I6IzAzQUFEQyIvPg0KCQkJCQkJPHN0b3AgIG9mZnNldD0iMSIgc3R5bGU9InN0b3AtY29sb3I6IzAwQTlEQyIvPg0KCQkJCQk8L3JhZGlhbEdyYWRpZW50Pg0KCQkJCQk8cmVjdCB4PSItMzU5IiB5PSI1ODgiIGNsYXNzPSJzdDQiIHdpZHRoPSI1NiIgaGVpZ2h0PSIzMS45Ii8+DQoJCQkJCTxnPg0KCQkJCQkJPHBhdGggY2xhc3M9InN0MiIgZD0iTS0zNjIsNjIzLjJ2NC4yYzAsMS4zLDEuMSwyLjQsMi40LDIuNGg1Ny4yYzEuMywwLDIuNC0xLjEsMi40LTIuNHYtNC4ySC0zNjJ6Ii8+DQoJCQkJCTwvZz4NCgkJCQk8L2c+DQoJCQk8L2c+DQoJCQk8Zz4NCgkJCQk8Zz4NCgkJCQkJPGNpcmNsZSBjbGFzcz0ic3Q1IiBjeD0iLTMzMi4xIiBjeT0iNTg2LjYiIHI9IjAuOSIvPg0KCQkJCQk8Y2lyY2xlIGN4PSItMzMyLjEiIGN5PSI1ODYuNiIgcj0iMC40Ii8+DQoJCQkJPC9nPg0KCQkJCTxjaXJjbGUgY2xhc3M9InN0NiIgY3g9Ii0zMzAuNSIgY3k9IjU4Ni4zIiByPSIwLjIiLz4NCgkJCTwvZz4NCgkJPC9nPg0KCQk8Zz4NCgkJCTxnPg0KCQkJCTxnPg0KCQkJCQk8ZGVmcz4NCgkJCQkJCTxwYXRoIGlkPSJTVkdJRF8yXyIgZD0iTS0zMDAsNTg3LjRjMC0xLjMtMS4xLTIuNC0yLjQtMi40aC01Ny4yYy0xLjMsMC0yLjQsMS4xLTIuNCwyLjR2MzYuM2g2MlY1ODcuNHoiLz4NCgkJCQkJPC9kZWZzPg0KCQkJCQk8Y2xpcFBhdGggaWQ9IlNWR0lEXzNfIj4NCgkJCQkJCTx1c2UgeGxpbms6aHJlZj0iI1NWR0lEXzJfIiAgc3R5bGU9Im92ZXJmbG93OnZpc2libGU7Ii8+DQoJCQkJCTwvY2xpcFBhdGg+DQoJCQkJPC9nPg0KCQkJPC9nPg0KCQk8L2c+DQoJCTxnPg0KCQkJPGc+DQoJCQkJPGc+DQoJCQkJCTxwYXRoIGNsYXNzPSJzdDciIGQ9Ik0tMzEzLjksNjA0YzAtMS42LTgtMTAuNy0xOC0xMC43cy0xOCw5LjEtMTgsMTAuOHM2LjksMTAuNywxOCwxMC43Uy0zMTMuOSw2MDUuNi0zMTMuOSw2MDR6Ii8+DQoJCQkJCTxwYXRoIGNsYXNzPSJzdDgiIGQ9Ik0tMzMxLjgsNjE1LjNjLTExLjEsMC0xOC41LTkuMS0xOC41LTExLjNjMC0xLjMsMi41LTQuMiw1LjUtNi41YzIuOS0yLjIsNy41LTQuOSwxMy00LjkNCgkJCQkJCWMxMCwwLDE4LjUsOS4xLDE4LjUsMTEuM2MwLDEuMS0yLDQtNS4xLDYuNEMtMzIxLjIsNjEyLjctMzI1LjgsNjE1LjMtMzMxLjgsNjE1LjN6IE0tMzMxLjgsNTkzLjhjLTkuOCwwLTE3LjQsOS0xNy40LDEwLjINCgkJCQkJCWMwLDEuNCw2LjYsMTAuMSwxNy40LDEwLjFjNS43LDAsMTAuMS0yLjUsMTIuNy00LjdjMy4yLTIuNiw0LjYtNS4xLDQuNi01LjZDLTMxNC41LDYwMi43LTMyMi4xLDU5My44LTMzMS44LDU5My44eiIvPg0KCQkJCTwvZz4NCgkJCTwvZz4NCgkJCTxnPg0KCQkJCTxnPg0KCQkJCQk8Zz4NCgkJCQkJCTxwYXRoIGNsYXNzPSJzdDkiIGQ9Ik0tMzM4LjYsNjAyLjljMC0xLjksMC43LTMuNiwxLjgtNWMtMS44LDEuNS0yLjksMy43LTIuOSw2LjFjMCw0LjQsMy41LDcuOSw3LjksNy45DQoJCQkJCQkJYzIuNSwwLDQuNy0xLjEsNi4xLTIuOWMtMS40LDEuMS0zLjEsMS44LTUsMS44Qy0zMzUsNjEwLjgtMzM4LjYsNjA3LjItMzM4LjYsNjAyLjl6Ii8+DQoJCQkJCTwvZz4NCgkJCQkJPGc+DQoJCQkJCQk8cGF0aCBjbGFzcz0ic3QxMCIgZD0iTS0zMzEuOCw1OTYuMWMtMS45LDAtMy42LDAuNy01LDEuOGMtMS4xLDEuNC0xLjgsMy4xLTEuOCw1YzAsNC40LDMuNSw3LjksNy45LDcuOWMxLjksMCwzLjYtMC43LDUtMS44DQoJCQkJCQkJYzEuMS0xLjQsMS44LTMuMSwxLjgtNUMtMzIzLjksNTk5LjctMzI3LjUsNTk2LjEtMzMxLjgsNTk2LjF6Ii8+DQoJCQkJCTwvZz4NCgkJCQk8L2c+DQoJCQkJPGc+DQoJCQkJCTxnPg0KCQkJCQkJPHBhdGggY2xhc3M9InN0MTEiIGQ9Ik0tMzM1LjcsNjAzYzAtMS4xLDAuNC0yLjEsMS0yLjljLTEuMiwwLjktMiwyLjMtMiwzLjljMCwyLjcsMi4yLDQuOCw0LjgsNC44YzEuNiwwLDMtMC44LDMuOS0yDQoJCQkJCQkJYy0wLjgsMC42LTEuOCwxLTIuOSwxQy0zMzMuNSw2MDcuOS0zMzUuNyw2MDUuNy0zMzUuNyw2MDN6Ii8+DQoJCQkJCTwvZz4NCgkJCQkJPGc+DQoJCQkJCQk8cGF0aCBjbGFzcz0ic3QxMiIgZD0iTS0zMzEuOCw1OTkuMmMtMS4xLDAtMi4xLDAuNC0yLjksMWMtMC42LDAuOC0xLDEuOC0xLDIuOWMwLDIuNywyLjIsNC44LDQuOCw0LjhjMS4xLDAsMi4xLTAuNCwyLjktMQ0KCQkJCQkJCWMwLjYtMC44LDEtMS44LDEtMi45Qy0zMjcsNjAxLjMtMzI5LjEsNTk5LjItMzMxLjgsNTk5LjJ6Ii8+DQoJCQkJCTwvZz4NCgkJCQk8L2c+DQoJCQkJPGcgY2xhc3M9InN0MTMiPg0KCQkJCQk8Y2lyY2xlIGNsYXNzPSJzdDE0IiBjeD0iLTMyOS4yIiBjeT0iNjAwLjkiIHI9IjEuOCIvPg0KCQkJCTwvZz4NCgkJCTwvZz4NCgkJPC9nPg0KCTwvZz4NCjwvZz4NCjwvc3ZnPg0K\u005C\u0022 /\u003E\u005Cn          \u003C/a\u003E\u005Cn    \u005Cn    \u003Cp\u003ELaw enforcement stake\u002Douts have moved beyond binoculars, bugs and bad guys. It\u005Cu2019s gone digital.  \u003Ca href\u003D\u005C\u0022https://www.mozilla.org/teach/smarton/surveillance/?utm_source\u003Ddesktop\u002Dsnippet\u0026amp\u003Butm_medium\u003Dsnippet\u0026amp\u003Butm_content\u003Dsmarton\u0026amp\u003Butm_term\u003D5440\u0026amp\u003Butm_campaign\u003Dsmarton\u005C\u0022\u003ETake a few easy steps to get SmartOn surveillance\u003C/a\u003E.\u003C/p\u003E\u005Cn\u005Cn    \u005Cn      \u003C/div\u003E\u005Cn\u003Cscript type\u003D\u005C\u0022text/javascript\u005C\u0022\u003E\u005Cn //\u003C![CDATA[\u005Cn (function() {\u005Cn     var snippet \u003D document.getElementById(\u0027simple\u002Dsnippet\u0027)\u003B\u005Cn     snippet.addEventListener(\u0027show_snippet\u0027, function () {\u005Cn         var overlay \u003D document.getElementById(\u0027block\u002Dsnippet\u002Doverlay\u0027)\u003B\u005Cn         var xbutton \u003D document.getElementById(\u0027xbutton\u0027)\u003B\u005Cn\u005Cn         \u005Cn              })\u003B\u005Cn })()\u003B\u005Cn //]]\u003E\u005Cn\u003C/script\u003E\u003C/div\u003E\u0022, \u0022campaign\u0022: \u0022smarton\u0022, \u0022weight\u0022: 33, \u0022countries\u0022: [], \u0022exclude_from_search_engines\u0022: [], \u0022id\u0022: 5440}]');
+//]]>
+</script>
+<script type="text/javascript">
+//<![CDATA[
+/*!
+  * $script.js Async loader & dependency manager
+  * https://github.com/ded/script.js
+  * (c) Dustin Diaz, Jacob Thornton 2011
+  * License: MIT
+  */
+(function(a,b,c){typeof c["module"]!="undefined"&&c.module.exports?c.module.exports=b():typeof c["define"]!="undefined"&&c["define"]=="function"&&c.define.amd?define(a,b):c[a]=b()})("$script",function(){function p(a,b){for(var c=0,d=a.length;c<d;++c)if(!b(a[c]))return j;return 1}function q(a,b){p(a,function(a){return!b(a)})}function r(a,b,i){function o(a){return a.call?a():d[a]}function t(){if(!--n){d[m]=1,l&&l();for(var a in f)p(a.split("|"),o)&&!q(f[a],o)&&(f[a]=[])}}a=a[k]?a:[a];var j=b&&b.call,l=j?b:i,m=j?a.join(""):b,n=a.length;return setTimeout(function(){q(a,function(a){if(h[a])return m&&(e[m]=1),h[a]==2&&t();h[a]=1,m&&(e[m]=1),s(!c.test(a)&&g?g+a+".js":a,t)})},0),r}function s(c,d){var e=a.createElement("script"),f=j;e.onload=e.onerror=e[o]=function(){if(e[m]&&!/^c|loade/.test(e[m])||f)return;e.onload=e[o]=null,f=1,h[c]=2,d()},e.async=1,e.src=c,b.insertBefore(e,b.firstChild)}var a=document,b=a.getElementsByTagName("head")[0],c=/^https?:\/\//,d={},e={},f={},g,h={},i="string",j=!1,k="push",l="DOMContentLoaded",m="readyState",n="addEventListener",o="onreadystatechange";return!a[m]&&a[n]&&(a[n](l,function t(){a.removeEventListener(l,t,j),a[m]="complete"},j),a[m]="loading"),r.get=s,r.order=function(a,b,c){(function d(e){e=a.shift(),a.length?r(e,d):r(e,b,c)})()},r.path=function(a){g=a},r.ready=function(a,b,c){a=a[k]?a:[a];var e=[];return!q(a,function(a){d[a]||e[k](a)})&&p(a,function(a){return d[a]})?b():!function(a){f[a]=f[a]||[],f[a][k](b),c&&c(e)}(a.join("|")),r},r},this);
+
+
+'use strict';
+
+var SNIPPET_METRICS_SAMPLE_RATE = 0.1;
+var SNIPPET_METRICS_URL = 'https://snippets-stats.mozilla.org/foo.html';
+var ABOUTHOME_SHOWN_SNIPPET = null;
+var USER_COUNTRY = null;
+var GEO_CACHE_DURATION = 1000 * 60 * 60 * 24 * 30; // 30 days
+
+// Start MozUITour
+// Copy from https://hg.mozilla.org/mozilla-central/file/tip/browser/components/uitour/UITour-lib.js
+if (typeof Mozilla == 'undefined') {
+    var Mozilla = {};
+}
+
+if (typeof Mozilla.UITour == 'undefined') {
+    Mozilla.UITour = {};
+}
+
+function _sendEvent(action, data) {
+    var event = new CustomEvent('mozUITour', {
+        bubbles: true,
+        detail: {
+            action: action,
+            data: data || {}
+        }
+    });
+
+    document.dispatchEvent(event);
+}
+
+function _generateCallbackID() {
+    return Math.random().toString(36).replace(/[^a-z]+/g, '');
+}
+
+function _waitForCallback(callback) {
+    var id = _generateCallbackID();
+
+    function listener(event) {
+        if (typeof event.detail != 'object')
+            return;
+        if (event.detail.callbackID != id)
+            return;
+
+        document.removeEventListener('mozUITourResponse', listener);
+        callback(event.detail.data);
+    }
+    document.addEventListener('mozUITourResponse', listener);
+
+    return id;
+}
+
+Mozilla.UITour.showHighlight = function(target, effect) {
+    _sendEvent('showHighlight', {
+        target: target,
+        effect: effect
+    });
+};
+
+Mozilla.UITour.hideHighlight = function() {
+    _sendEvent('hideHighlight');
+};
+
+Mozilla.UITour.showMenu = function(name, callback) {
+    var showCallbackID;
+    if (callback)
+        showCallbackID = _waitForCallback(callback);
+
+    _sendEvent('showMenu', {
+        name: name,
+        showCallbackID: showCallbackID,
+    });
+};
+
+Mozilla.UITour.hideMenu = function(name) {
+    _sendEvent('hideMenu', {
+        name: name
+    });
+};
+
+Mozilla.UITour.getConfiguration = function(configName, callback) {
+    _sendEvent('getConfiguration', {
+        callbackID: _waitForCallback(callback),
+        configuration: configName,
+    });
+};
+
+Mozilla.UITour.setConfiguration = function(configName, configValue) {
+    _sendEvent('setConfiguration', {
+        configuration: configName,
+        value: configValue,
+    });
+};
+// End MozUITour
+
+
+(function(showDefaultSnippets) {
+    'use strict';
+
+    // showDefaultSnippets polyfill, available in about:home v4
+    if (typeof showDefaultSnippets !== 'function') {
+        showDefaultSnippets = function() {
+            localStorage.snippets = '';
+            showSnippets();
+        };
+    }
+
+    // gSnippetsMap polyfill, available in Firefox 22 and above.
+    var gSnippetsMap = null;
+    if (supportsLocalStorage()) {
+        // localStorage is available, so we wrap it with gSnippetsMap.
+        gSnippetsMap = {
+            set: function(key, value) {
+                localStorage[key] = value;
+            },
+            get: function(key) {
+                return localStorage[key];
+            }
+        };
+        window.gSnippetsMap = gSnippetsMap;
+    } else {
+        // localStorage isn't available, use gSnippetsMap (backed by IndexedDB).
+        gSnippetsMap = window.gSnippetsMap;
+    }
+
+
+    var show_snippet = null;
+    if (ABOUTHOME_SNIPPETS.length > 0) {
+        show_snippet = chooseSnippet(ABOUTHOME_SNIPPETS);
+    }
+
+    if (show_snippet) {
+        ABOUTHOME_SHOWN_SNIPPET = show_snippet;
+
+        // Inject the snippet onto the page.
+        var snippetContainer = document.createElement('div');
+        snippetContainer.innerHTML = show_snippet.code;
+        document.getElementById('snippets').appendChild(snippetContainer);
+        activateScriptTags(snippetContainer);
+
+        try {
+            activateSnippetsButtonClick(show_snippet);
+        } catch (err) {
+            // Do nothing, most likely a newer version of Firefox w/o
+            // activateSnippetsButtonClick
+        }
+
+        // By the time show_snippet event reaches #snippets the snippet
+        // will have finished initializing and altering the DOM. It's the
+        // time to modifyLinks() and addSnippetBlockLinks().
+        var snippets = document.getElementById('snippets');
+        snippets.addEventListener('show_snippet', function(event) {
+            var topSection = document.getElementById('topSection');
+            // Add sample rate and snippet ID to currently displayed links.
+            var parameters = ('sample_rate=' + SNIPPET_METRICS_SAMPLE_RATE + '&snippet_name=' +
+                              ABOUTHOME_SHOWN_SNIPPET.id);
+            modifyLinks(topSection.querySelectorAll('a'), parameters);
+            addSnippetBlockLinks(topSection.querySelectorAll('.block-snippet-button'));
+            sendImpression();
+        });
+
+        // Trigger show_snippet event
+        var evt = document.createEvent('Event');
+        evt.initEvent('show_snippet', true, true);
+        snippetContainer.querySelector('.snippet').dispatchEvent(evt);
+    } else {
+        showDefaultSnippets();
+    }
+
+    // Update FxAccount Status
+    updateFxAccountStatus();
+
+    // Update Selected Search Engine
+    updateSelectedSearchEngine();
+
+    // Fetch user country if we don't have it.
+    if (!haveUserCountry()) {
+        downloadUserCountry();
+    }
+
+        // Choose which snippet to display to the user based on various factors,
+    // such as which country they are in.
+    function chooseSnippet(snippets) {
+        USER_COUNTRY = getUserCountry();
+        if (USER_COUNTRY) {
+            snippets = snippets.filter(
+                function(snippet) {
+                    var countries = snippet.countries;
+                    if (countries.length && countries.indexOf(USER_COUNTRY) === -1) {
+                        return false;
+                    }
+                    return true;
+                }
+            );
+        }
+        else {
+            // If we don't have the user's country, remove all geolocated snippets.
+            // Bug 1140476
+            snippets = snippets.filter(
+                function(snippet) {
+                    return snippet.countries.length === 0;
+                }
+            )
+        }
+
+        // FxAccount is already setup skip snippets that link to
+        // about:accounts
+        if (isFxAccountSetup()) {
+            snippets = snippets.filter(
+                function(snippet) {
+                    return !hasAboutAccountsLink(snippet);
+                }
+            );
+        }
+
+        // Exclude snippets from search providers.
+        var searchProvider = gSnippetsMap.get('selectedSearchEngine');
+        if (searchProvider) {
+            snippets = snippets.filter(
+                function(snippet) {
+                    var excludeFromSearchEngines = snippet.exclude_from_search_engines;
+                    if (excludeFromSearchEngines.length && excludeFromSearchEngines.indexOf(searchProvider) !== -1) {
+                        return false;
+                    }
+                    return true;
+                }
+            );
+        }
+
+        // Exclude snippets in block list.
+        var blockList = getBlockList();
+        snippets = snippets.filter(
+            function (snippet) {
+                if (blockList.indexOf(snippet.id) === -1) {
+                    return true;
+                }
+                return false;
+            }
+        );
+
+        // Choose a random snippet from the snippets list.
+        if (snippets && snippets.length) {
+            var sum = 0;
+            var number_of_snippets = snippets.length;
+            for (var k = 0; k < number_of_snippets; k++) {
+                sum += snippets[k].weight;
+                snippets[k].weight = sum;
+            }
+            var random_number = Math.random() * sum;
+            for (var k = 0; k < number_of_snippets; k++) {
+                if (random_number < snippets[k].weight) {
+                    return snippets[k];
+                }
+            }
+        } else {
+            return null;
+        }
+    }
+    
+    // Check whether snippet links to about:accounts.
+    function hasAboutAccountsLink(snippet) {
+        return snippet.code.indexOf('href="about:accounts"') !== -1;
+    }
+
+    function isFxAccountSetup() {
+        var fxaccount = gSnippetsMap.get('fxaccount');
+        if (fxaccount !== undefined) {
+            return fxaccount;
+        }
+        // If fxaccount === undefined pretend that sync is already
+        // setup, to avoid showing about:accounts snippets to browsers
+        // that do not support mozUITour signal or have accounts
+        // already setup.
+        return true;
+    }
+
+    function updateFxAccountStatus() {
+        var callback = function(result) {
+            gSnippetsMap.set('fxaccount', result.setup);
+        }
+        var event = new CustomEvent(
+            'mozUITour', {
+                bubbles: true,
+                detail: {
+                    action:'getConfiguration',
+                    data: {
+                        configuration: 'sync',
+                        callbackID: _waitForCallback(callback)
+                    }
+                }
+            }
+        );
+        document.dispatchEvent(event);
+    }
+
+    function updateSelectedSearchEngine() {
+        var callback = function(result) {
+            gSnippetsMap.set('selectedSearchEngine', result.searchEngineIdentifier);
+        }
+        var event = new CustomEvent(
+            'mozUITour', {
+                bubbles: true,
+                detail: {
+                    action:'getConfiguration',
+                    data: {
+                        configuration: 'selectedSearchEngine',
+                        callbackID: _waitForCallback(callback)
+                    }
+                }
+            }
+        );
+        document.dispatchEvent(event);
+    }
+
+    // Check whether we have the user's country stored and if it is still valid.
+    function haveUserCountry() {
+        // Check if there's an existing country code to use.
+        if (gSnippetsMap.get('geoCountry')) {
+            // Make sure we have a valid lastUpdated date.
+            var lastUpdated = Date.parse(gSnippetsMap.get('geoLastUpdated'));
+            if (lastUpdated) {
+                // Make sure that it is past the lastUpdated date.
+                var now = new Date();
+                if (now < lastUpdated + GEO_CACHE_DURATION) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    function getUserCountry() {
+        if (haveUserCountry()) {
+            return gSnippetsMap.get('geoCountry').toLowerCase();
+        } else {
+            return null;
+        }
+    }
+
+          function downloadUserCountry() {
+          var GEO_URL = "https://geo.mozilla.org/country.js";
+          $script(GEO_URL, 'geo');
+          $script.ready('geo', function() {
+              try {
+                  gSnippetsMap.set('geoCountry', geoip_country_code());
+                  gSnippetsMap.set('geoLastUpdated', new Date());
+              } catch (e) {
+                  // Most likely failed to load JS file. Continue on without us,
+                  // we'll try again next time.
+              }
+          });
+      }
+    
+    // Notifies stats server that the given snippet ID
+    // was shown. No personally-identifiable information
+    // is sent.
+    function sendImpression() {
+        sendMetric('impression');
+    }
+
+    // Modifies the given links to include the specified GET parameters.
+    function modifyLinks(links, parameters) {
+        for (var k = 0, len = links.length; k < len; k++) {
+            var link = links[k];
+            var delimeter = (link.href.indexOf('?') !== -1 ? '&' : '?');
+
+            // Pull the fragment off of the link
+            var fragment_position = link.href.indexOf('#');
+            if (fragment_position === -1) {
+                fragment_position = link.href.length;
+            }
+
+            var href = link.href.substring(0, fragment_position);
+            var fragment = link.href.substring(fragment_position);
+
+            link.href = href + delimeter + parameters + fragment;
+        }
+    }
+
+    // Add links to buttons that block snippets.
+    function addSnippetBlockLinks(elements) {
+        var snippet_id = ABOUTHOME_SHOWN_SNIPPET.id;
+        var blockSnippet = function (event) {
+            event.preventDefault();
+            addToBlockList(snippet_id);
+            sendMetric('snippet-blocked', function() { window.location.reload(); })
+        };
+
+        for (var k = 0; k < elements.length; k++) {
+            var button = elements[k];
+            button.addEventListener('click', blockSnippet);
+        }
+    }
+
+    // Check for localStorage support. Copied from Modernizr.
+    function supportsLocalStorage() {
+        var s = 'snippets-test';
+        try {
+            localStorage.setItem(s, s);
+            localStorage.removeItem(s);
+            return true;
+        } catch(e) {
+            return false;
+        }
+    }
+
+    // Scripts injected by innerHTML are inactive, so we have to relocate them
+    // through DOM manipulation to activate their contents.
+    // (Adapted from http://mxr.mozilla.org/mozilla-central/source/browser/base/content/abouthome/aboutHome.js)
+    function activateScriptTags(element) {
+       Array.forEach(element.getElementsByTagName('script'), function(elt) {
+           var relocatedScript = document.createElement('script');
+           relocatedScript.type = 'text/javascript;version=1.8';
+           relocatedScript.text = elt.text;
+           elt.parentNode.replaceChild(relocatedScript, elt);
+       });
+    }
+
+    // Listen for clicks on links, send metrics and handle
+    // about:account custom links.
+    var topSection = document.getElementById('topSection');
+    topSection.addEventListener('click', function(event) {
+        var target = event.target;
+        while (target.tagName && target.tagName.toLowerCase() !== 'a') {
+            // Do not track clicks outside topSection.
+            if (target.id === 'topSection') {
+                return;
+            }
+            target = target.parentNode;
+        }
+
+        // Count snippet clicks.
+        if (target.dataset.eventCounted !== 'true') {
+            target.dataset.eventCounted = 'true';
+            // Fetch custom metric or default to 'click'
+            var metric = target.dataset.metric || 'click';
+            // If user is not opening a new tab, preventDefault action.
+            if (target.href && (event.button === 0 && !(event.metaKey || event.ctrlKey))) {
+                event.preventDefault();
+                var callback = function() {
+                    target.click();
+                }
+            }
+            sendMetric(metric, callback);
+        }
+
+        // Handle about:accounts clicks.
+        if (target.href && target.href.indexOf('about:accounts') === 0) {
+            var snippet_id = ABOUTHOME_SHOWN_SNIPPET.id;
+            var metric = snippet_id + '-about-accounts-click';
+            var fire_event = function() {
+                var event = new CustomEvent(
+                    'mozUITour',
+                    { bubbles: true, detail: { action:'showFirefoxAccounts', data: {}}}
+                );
+                document.dispatchEvent(event);
+            };
+            sendMetric(metric, fire_event);
+        }
+    }, false);
+
+
+})(window.showDefaultSnippets);
+
+// Send impressions and other interactions to the service
+// If no parameter is entered, quit function
+function sendMetric(metric, callback) {
+              if ((Math.random() > SNIPPET_METRICS_SAMPLE_RATE) || (!metric)) {
+          if (callback) {
+              callback();
+          }
+          return;
+      }
+
+      var locale = 'en-US';
+      var userCountry = USER_COUNTRY || '';
+      var campaign = ABOUTHOME_SHOWN_SNIPPET.campaign;
+      var snippet_id = ABOUTHOME_SHOWN_SNIPPET.id;
+
+      var url = (SNIPPET_METRICS_URL + '?snippet_name=' + snippet_id +
+                 '&locale=' + locale + '&country=' + userCountry +
+                 '&metric=' + metric + '&campaign=' + campaign);
+      var request = new XMLHttpRequest();
+      request.open('GET', url);
+      if (callback) {
+          request.addEventListener('loadend', callback, false);
+      }
+      request.send();
+      return request;
+    }
+
+function popFromBlockList(snippetID) {
+    var blockList = getBlockList();
+    var item = blockList.pop(snippetID);
+    gSnippetsMap.set('blockList', blockList);
+    return item;
+}
+
+function addToBlockList(snippetID) {
+    var blockList = getBlockList();
+    snippetID = parseInt(snippetID, 10);
+    if (blockList.indexOf(snippetID) === -1) {
+        blockList = [snippetID].concat(blockList);
+        gSnippetsMap.set('blockList', blockList);
+    }
+}
+
+function getBlockList() {
+    if (gSnippetsMap.get('blockList') === undefined) {
+        gSnippetsMap.set('blockList', []);
+    }
+    return gSnippetsMap.get('blockList');
+}
+//]]>
+</script>‘9­              <´ÔV»¡
+   fa,:https://snippets.cdn.mozilla.net/media/bundles/bundle_c636429e396af62ef7077cecebf04d0bfad1fe37.html security-info FnhllAKWRHGAlo+ESXykKAAAAAAAAAAAwAAAAAAAAEaphjojKOpF0qJaNXyu+n+CAAQAAgAAAAAAAAAAAAAAACw4N6+LhUposNgK7YiYWzI/H82DxalM0aJQdnbKfH40ZgoyJpFcT/u7IImFpjLfBYkdIAm5ukoNvr5rOjDjMZEAAAAAAAAFKDCCBSQwggQMoAMCAQICEAbyiE8XBZlRYKQZ0obDh3EwDQYJKoZIhvcNAQELBQAwTTELMAkGA1UEBhMCVVMxFTATBgNVBAoTDERpZ2lDZXJ0IEluYzEnMCUGA1UEAxMeRGlnaUNlcnQgU0hBMiBTZWN1cmUgU2VydmVyIENBMB4XDTE1MDMxMjAwMDAwMFoXDTE3MDMxNjEyMDAwMFowbDELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRwwGgYDVQQKExNNb3ppbGxhIENvcnBvcmF0aW9uMRowGAYDVQQDDBEqLmNkbi5tb3ppbGxhLm5ldDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK3dT8CHNSVM90ffJbOOLDZ/5rORfxiD4jfMJ978cfnEE87UBqjuGtvtBsl9UQ/PHtypQEh3vzG9h8DNgKpr7VDO+TZ0i8thWv/T9Hwri8qkD0EmXUhqylvYyS+GaHf2JYR73/6XC0maN30bwy0VBPU2G7suqDY3qAmFzLY4xaWJeQ8s2Mi/TSgRHwC9qeGvZ6r7jde46CjJ65reSUdwNIOIS8zl3O6Ojp2MH2j4BfXW/552u+ETo9JWEB0JD/4wZcnYgqNIvCbvHZEtCtb3YP4YqPs5iU1OXqVIEeVEMoGIogccqL95JPQC1+V5buTrHCoXEf1bvLrJcActEShHhl0CAwEAAaOCAd8wggHbMB8GA1UdIwQYMBaAFA+AYRyCMWHVLyjnjUY4tCzhxtniMB0GA1UdDgQWBBRMM4ly5RTlI7NgKvz2vEqD9PuPIjAtBgNVHREEJjAkghEqLmNkbi5tb3ppbGxhLm5ldIIPY2RuLm1vemlsbGEubmV0MA4GA1UdDwEB/wQEAwIFoDAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwawYDVR0fBGQwYjAvoC2gK4YpaHR0cDovL2NybDMuZGlnaWNlcnQuY29tL3NzY2Etc2hhMi1nMy5jcmwwL6AtoCuGKWh0dHA6Ly9jcmw0LmRpZ2ljZXJ0LmNvbS9zc2NhLXNoYTItZzMuY3JsMEIGA1UdIAQ7MDkwNwYJYIZIAYb9bAEBMCowKAYIKwYBBQUHAgEWHGh0dHBzOi8vd3d3LmRpZ2ljZXJ0LmNvbS9DUFMwfAYIKwYBBQUHAQEEcDBuMCQGCCsGAQUFBzABhhhodHRwOi8vb2NzcC5kaWdpY2VydC5jb20wRgYIKwYBBQUHMAKGOmh0dHA6Ly9jYWNlcnRzLmRpZ2ljZXJ0LmNvbS9EaWdpQ2VydFNIQTJTZWN1cmVTZXJ2ZXJDQS5jcnQwDAYDVR0TAQH/BAIwADANBgkqhkiG9w0BAQsFAAOCAQEAlskpgs4FwquV7eWjWsrQsBEW0kCFi8w7/H/ABESghmRrrge8iTed2B5NHn+Q39M9d44Oc0nIfY8DRUGZUAvxg77m5Wv94F6vDny0/BhXP0+qSKFxx1CBbBHwNfUutu1rIkjXIAmGCaTqv5oWiLFqVVDIzpguBMA2w73PWw86Mr0ekfHaPhtRNbAjGnSf2EuDjWqW+YwbFdCbLa7MZr+m8RB5wQFahXOAhp4JqGLyTVV+WmVPTorNViM6WRYnBApNYBnjSX1ZqTzMKj0nGkYeMmNv3xKc2PTPQQIDIFOwaceGRSmWNBXsrZOcjKgLMHNEHllSY5EgMdsN3TICDykPgQAAAIAAAACAAAAAJVRMU19FQ0RIRV9SU0FfV0lUSF9BRVNfMTI4X0dDTV9TSEEyNTYAAAABAA== request-method GET response-head HTTP/1.1 200 OK
+Content-Type: text/html; charset=UTF-8
+Content-Length: 27545
+Server: Apache
+x-backend-server: snippets4.webapp.phx1.mozilla.com
+Cache-Control: max-age=2592000
+Date: Mon, 11 Jan 2016 20:43:54 GMT
+Expires: Wed, 10 Feb 2016 20:43:54 GMT
+Accept-Ranges: bytes
+access-control-allow-origin: *
+Etag: W/"52914fecb791e"
+Last-Modified: Mon, 11 Jan 2016 20:43:54 GMT
+x-cache-info: cached
+Age: 69185
+X-Cache: Hit from cloudfront
+Via: 1.1 877c586b5d7d8bda07c8e72d642fa220.cloudfront.net (CloudFront)
+X-Amz-Cf-Id: tLMVAqrbRrfy87tAYk-MQxA9aQeLtH-jqo01aPrRA2dSALtx_NbJ0g==
+ uncompressed-len 0   k™

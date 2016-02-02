@@ -1,0 +1,1203 @@
+Ôªø/***Service request models***/
+var GetChecklistInput = function () {
+    this.Identifier = null;
+    this.ChecklistType = null;
+};
+var TriggerInput = function () {
+    this.SectionIdentifier = null;
+    this.StepName = null;
+    this.TriggerInputs = null;
+    this.ChecklistIdentifier = null;
+    this.ChecklistType = null;
+    this.TriggerName = null;
+};
+var TriggerState = function () {
+    this.InputName = null;
+    this.InputValue = null;
+};
+var Button = function () {
+    this.Name = null;
+    this.Text = null;
+    this.CssClass = null;
+    this.ClickHandler = null;
+};
+var ConfirmDialogContent = function () {
+    this.Title = null;
+    this.Message = null;
+    this.Buttons = [];
+};
+/***End of service request models***/
+window.jsRenderHelpers = {
+    StepStatusMapping: [{ "NotStarted": "Not started" }, { "Completed": "Completed" }, { "InProgress": "In progress" }, { "NotPassedYet": "Not passed yet" }, { "GatePassed": "Gate passed" }],
+    GetStepStatusString: function (status) {
+        var statusMapping = window.jsRenderHelpers.StepStatusMapping;
+        for (var i = 0; i < statusMapping.length; i++) {
+            if (statusMapping[i][status] != null && statusMapping[i][status] != undefined) {
+                return statusMapping[i][status];
+            }
+        }
+        return status;
+    },
+    GetValidationsForStep: function (stepinput) {
+        var validations = "";
+        if (stepinput.IsMandatory) {
+            validations = "required";
+        }
+        if (stepinput.StepInputTypeString == "DateField" || stepinput.StepInputTypeString == "DateFieldPast" || stepinput.StepInputTypeString == "Currency") {
+            validations += " fieldtype";
+        }
+        return validations;
+    },
+    GetTrimmedFileName: function (fileName) {
+        if (fileName != null && fileName.length > 30) {
+            return fileName.substring(0, 13) + "..." + fileName.substring(fileName.length - 13, fileName.length - 1);
+        }
+        return fileName;
+    }
+};
+$.views.helpers({
+    GetStepStatusText: window.jsRenderHelpers.GetStepStatusString,
+    GetValidationsForStep: window.jsRenderHelpers.GetValidationsForStep,
+    GetTrimmedFileName: window.jsRenderHelpers.GetTrimmedFileName
+});
+
+window.ChecklistCore = window.ChecklistCore || {
+    ChecklistTemplate: null,
+    ChecklistPlaceholder: null,
+    //SiteColUrl: _spPageContextInfo.siteServerRelativeUrl,
+    //VtiBin: "/_vti_bin/ChecklistService/ChecklistWebService.svc/",
+    ChecklistType: "EPP",//PRP or PA or PAB etc
+    SiteUrl: null,
+    SiteRelativeUrl: null,
+    SiteColUrl: _spPageContextInfo.siteAbsoluteUrl,
+    VtiBin: "/_vti_bin/EDMSChecklistService/ChecklistWebService.svc/",
+    //FileUploadUrl: "/_vti_bin/PAWebService/PAWebService.svc/UploadChecklistFile?checklistType={checklistType}&checklistIdentifier={checklistIdentifier}&sectionIdentifier={sectionIdentifier}&stepIdentifier={stepIdentifier}&triggerName={triggerName}",
+    FileUploadUrl: "/_layouts/15/App/FileUploadHandler.aspx?",
+    FileUploadQueryString: "checklistType={checklistType}&checklistIdentifier={checklistIdentifier}&sectionIdentifier={sectionIdentifier}&stepIdentifier={stepIdentifier}&triggerName={triggerName}",
+    FileLoaded: null,
+    OnChecklistLoaded: null,
+    BuildMapping: function () {
+        SP.SOD.registerSod(window.ChecklistCore.ChecklistType + '.js', this.SiteColUrl + "/style library/EPP/Checklist/Styles/" + window.ChecklistCore.ChecklistType + ".js");
+    },
+    IsChecklistRequestInProgress: false,
+    FireServiceRequest: function (endpoint, input, beforeSendCallback, successcallback, failurecallback, completioncallback, showProgressIndicator) {
+        var that = this;
+        $.ajax({
+            url: this.SiteUrl + this.VtiBin + endpoint,
+            type: "POST",
+            data: JSON.stringify(input),
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            beforeSend: function () {
+                if (!that.IsChecklistRequestInProgress) {
+                    that.IsChecklistRequestInProgress = true;
+                } else {
+                    //alert("Another checklist request is in progress. Please wait!");
+                    return false;
+                }
+                if (showProgressIndicator == null || showProgressIndicator == true) {
+                    $("#progressIndicator").show();
+                }
+                if (beforeSendCallback != null) {
+                    beforeSendCallback();
+                }
+            },
+            success: function (data) {
+                that.IsChecklistRequestInProgress = false;
+                if (successcallback != null) {
+                    successcallback(data);
+                }
+            },
+            error: function (error) {
+                that.IsChecklistRequestInProgress = false;
+                if (failurecallback != null) {
+                    failurecallback(error);
+                }
+            },
+            complete: function () {
+                that.IsChecklistRequestInProgress = false;
+                if (completioncallback != null) {
+                    completioncallback();
+                }
+                if (showProgressIndicator == null || showProgressIndicator == true) {
+                    $("#progressIndicator").hide();
+                }
+            }
+        });
+    },
+    Checklist: null,
+    ContextIdentifier: null,//The identifier of the checklist context. For PRP this will be project identifier. For PA this will be Property Acquisition Identifier. For PAV this will PropertyAcquisitionBrief identifier.
+    GetChecklist: function (checklistIdentifier, checklistType) {
+        var dataObj = new GetChecklistInput();
+        if (checklistIdentifier != null) {
+            this.ContextIdentifier = checklistIdentifier;
+            this.ChecklistType = checklistType;
+        }
+        var that = this;
+        if (!this.FileLoaded) {
+            SP.SOD.executeFunc(this.ChecklistType + ".js", null, function () {
+                that.FileLoaded = true;
+                dataObj.Identifier = that.ContextIdentifier;
+                dataObj.ChecklistType = that.ChecklistType;
+                that.FireServiceRequest("GetChecklist", dataObj, function () {
+                    $("#progressIndicator").show();
+                    this.Checklist = null;
+                },
+                    function (data) {
+                        if (data.IsSuccess) {
+                            that.Checklist = data.Checklist;
+                            that.Checklist.Sections.sort(function (a, b) {
+                                return a.SortOrder - b.SortOrder;
+                            });
+                            for (var i = 0; i < that.Checklist.Sections; i++) {
+                                var section = that.Checklist.Sections[i];
+                                section.Steps.sort(function (a, b) {
+                                    return a.SortOrder - b.SortOrder;
+                                });
+                                for (var j = 0; j < section.Steps.length; j++) {
+                                    var step = section.Steps[j];
+                                    if (step.Attributes != null) {
+                                        step.Attributes.sort(function (a, b) {
+                                            return a.SortOrder - b.SortOrder;
+                                        });
+                                    }
+                                    if (step.Triggers != null) {
+                                        step.Triggers.sort(function (a, b) {
+                                            return a.SortOrder - b.SortOrder;
+                                        });
+                                    }
+                                }
+                            }
+                            that.BindChecklist();
+                            $(".section.active").find("span.expandcollapse").text("-");
+                        } else {
+                            alert(data.ErrorMessage);
+                        }
+                    }, function (error) {
+                        alert(error);
+                    }, function () {
+                        if (window.ChecklistCore.OnChecklistLoaded != null) {
+                            window.ChecklistCore.OnChecklistLoaded();
+                        }
+                        $("#progressIndicator").hide();
+                    });
+            });
+        } else {
+            dataObj.Identifier = that.ContextIdentifier;
+            dataObj.ChecklistType = that.ChecklistType;
+            that.FireServiceRequest("GetChecklist", dataObj, function () {
+                $("#progressIndicator").show();
+                this.Checklist = null;
+            },
+                function (data) {
+                    if (data.IsSuccess) {
+                        that.Checklist = data.Checklist;
+                        that.Checklist.Sections.sort(function (a, b) {
+                            return a.SortOrder - b.SortOrder;
+                        });
+                        for (var i = 0; i < that.Checklist.Sections; i++) {
+                            var section = that.Checklist.Sections[i];
+                            section.Steps.sort(function (a, b) {
+                                return a.SortOrder - b.SortOrder;
+                            });
+                            for (var j = 0; j < section.Steps.length; j++) {
+                                var step = section.Steps[j];
+                                if (step.Attributes != null) {
+                                    step.Attributes.sort(function (a, b) {
+                                        return a.SortOrder - b.SortOrder;
+                                    });
+                                }
+                                if (step.Triggers != null) {
+                                    step.Triggers.sort(function (a, b) {
+                                        return a.SortOrder - b.SortOrder;
+                                    });
+                                }
+                            }
+                        }
+                        that.BindChecklist();
+                        $(".section.active").find("span.expandcollapse").text("-");
+                    } else {
+                        alert(data.ErrorMessage);
+                    }
+                }, function (error) {
+                    alert(error);
+                }, function () {
+                    if (window.ChecklistCore.OnChecklistLoaded != null) {
+                        window.ChecklistCore.OnChecklistLoaded();
+                    }
+                    $("#progressIndicator").hide();
+                });
+        }
+    },
+    //CreateChecklist: function () {
+    //    //call the  create checklist endpoint on the web service
+    //},
+    BindChecklist: function () {
+
+        //bind the checklist to the jsRender templates
+        //store the section identifier and unique name in the section container element (as part of the jsRender template)
+        //store each step identifier and unique name in the step container element (as part of the jsRender template)
+        //save the checklist object in the Checklist property of ChecklistCore object.
+        this.Checklist.Sections.sort(function (a, b) {
+            return a.SortOrder - b.SortOrder;
+        });
+        var sectionProcessingGroups = [];
+        for (var i = 0; i < this.Checklist.Sections.length; i++) {
+            var section = this.Checklist.Sections[i];
+            var sectionProcessingGroup = { Section: section.Identifier, ProcessingGroups: [] };
+            sectionProcessingGroups.push(sectionProcessingGroup);
+            section.Steps.sort(function (a, b) {
+                return a.SortOrder - b.SortOrder;
+            });
+            for (var j = 0; j < section.Steps.length; j++) {
+                var step = section.Steps[j];
+                if (step.Attributes != null) {
+                    step.Attributes.sort(function (a, b) {
+                        return a.SortOrder - b.SortOrder;
+                    });
+                }
+                if (step.Triggers != null) {
+                    step.Triggers.sort(function (a, b) {
+                        return a.SortOrder - b.SortOrder;
+                    });
+                }
+                if (step.ProcessingGroup != null) {
+                    if ($.inArray(step.ProcessingGroup, sectionProcessingGroup.ProcessingGroups) == -1) {
+                        sectionProcessingGroup.ProcessingGroups.push(step.ProcessingGroup);
+                    }
+                }
+            }
+        }
+        var SectionGroup = function () {
+            this.SectionGroup = null;
+            this.Sections = [];
+        };
+        this.Checklist.SectionGroups = [];
+        for (var l = 0; l < this.Checklist.Sections.length; l++) {
+            var cursection = this.Checklist.Sections[l];
+            var sectionGroup = cursection.SectionGroup;
+            var that = this;
+            var matches = $.grep(this.Checklist.SectionGroups, function (obj, index) {
+                return obj.SectionGroup == sectionGroup;
+            });
+            if (matches != null && matches.length > 0) {
+                var match = matches[0];
+                match.Sections.push(cursection);
+            } else {
+                var sectionGroupObj = new SectionGroup();
+                sectionGroupObj.SectionGroup = sectionGroup;
+                sectionGroupObj.Sections.push(cursection);
+                that.Checklist.SectionGroups.push(sectionGroupObj);
+            }
+        }
+        $(this.ChecklistPlaceholder).html($(this.ChecklistTemplate).render(this.Checklist));
+        for (var k = 0; k < sectionProcessingGroups.length; k++) {
+            var processingGroups = sectionProcessingGroups[k].ProcessingGroups;
+            var processingGroupSection = sectionProcessingGroups[k].Section;
+            if (processingGroups.length > 0) {
+                var section$ = $(".section[data-identifier='" + processingGroupSection + "']");
+                for (var m = 0; m < processingGroups.length; m++) {
+                    var processingGroup = processingGroups[m];
+                    var fieldSet$ = $("#fieldSetTemplate").clone();
+                    fieldSet$.removeAttr("id");
+                    fieldSet$.find("legend").text(processingGroup);
+                    section$.find(".step[data-processinggroup='" + processingGroup + "']").wrapAll(fieldSet$);
+                }
+            }
+        }
+
+        $("#dvCheckList .checklist .steptrigger button").on("click", function (oEvent) {
+            oEvent.preventDefault();
+            var triggerName = $(this).parents(".steptrigger").data("triggername");
+            var step$ = $(this).parents(".step");
+            var stepName = step$.data("identifier");
+            var sectionIdentifier = step$.parents(".section").data("identifier");
+            //re-direct the call to the handler
+            var checkListTypeObj = window.ChecklistCore[window.ChecklistCore.ChecklistType];
+            var fn = checkListTypeObj != null ? (checkListTypeObj[triggerName + "_Click"] != undefined ? checkListTypeObj[triggerName + "_Click"] : checkListTypeObj["HandleTriggerClick"]) : null;
+            if (fn != null && typeof (fn) === 'function') {
+                fn.call($(this), stepName, sectionIdentifier, triggerName);
+            } else {
+                window.ChecklistCore.HandleTriggerClick(stepName, sectionIdentifier, triggerName);
+            }
+            return false;
+        });
+        var sectionGroupHeaderFilter = this.ActiveSectionGroup == null || this.ActiveSectionGroup == "" ? ".SectionGroupHeader:last" : ".SectionGroupHeader[data-sectiongroup='" + this.ActiveSectionGroup + "']";
+        var sectionGroupHeader$ = $("#dvCheckList .checklist .SectionGroup").find(sectionGroupHeaderFilter);
+        var sectionGroupText = sectionGroupHeader$.attr("data-sectiongroup");
+        this.ActiveSectionGroup = sectionGroupText;
+        $("#dvCheckList .checklist .SectionGroup").find(".SectionGroupBody").addClass("DisplayNone");
+        sectionGroupHeader$.addClass("SectionGroupHeaderActive").parent().find(".SectionGroupBody[data-sectiongroup='" + sectionGroupText + "']").removeClass("DisplayNone");
+        $("#dvCheckList .checklist .SectionGroup .SectionGroupBody").each(function () {
+            if ($(this).find(".section.active").length == 0) {
+                $(".section:last-child", this).addClass("active").find("span.expandcollapse").text("-");
+            }
+        });
+        $("#dvCheckList .checklist .SectionGroup").on("click", ".SectionGroupHeader", function () {
+            if (!$(this).hasClass("SectionGroupHeaderActive")) {
+                var sectionGroupText1 = $(this).attr("data-sectiongroup");
+                window.ChecklistCore.ActiveSectionGroup = sectionGroupText1;
+                $("#dvCheckList .checklist .SectionGroup .SectionGroupHeader").removeClass("SectionGroupHeaderActive").parent().find(".SectionGroupBody").addClass("DisplayNone");
+                $(this).addClass("SectionGroupHeaderActive").parent().find(".SectionGroupBody[data-sectiongroup='" + sectionGroupText1 + "']").removeClass("DisplayNone");
+            }
+        });
+        //if ($(".section.active").length == 0) {
+        //    $(".section:last-child").addClass("active").find("span.expandcollapse").text("-");
+        //}
+        $("#dvCheckList .checklist .moreattributes").hide();
+        $("#dvCheckList .checklist .showmore").click(function () {
+            if (window.ChecklistCore.Interval != null) {
+                clearInterval(window.ChecklistCore.Interval);
+            }
+            $("#dvCheckList .checklist .moreattributes").hide();
+            $("#dvCheckList .checklist .showmore").show();
+            $(this).siblings(".moreattributes").show(500);
+            var that$ = $(this);
+            $(this).hide();
+            window.ChecklistCore.Interval = null;
+            window.ChecklistCore.Interval = setInterval(function () {
+                if (that$.siblings(".moreattributes").find(".stepattributeValue:focus,.stepattributeText:focus,.stepattribute:focus").length == 0 && that$.siblings(".moreattributes").has(":focus").length == 0) {
+                    that$.siblings(".moreattributes").hide(500);
+                    $("#dvCheckList .checklist .showmore").show(500);
+                    if (window.ChecklistCore.Interval != null) {
+                        clearInterval(window.ChecklistCore.Interval);
+                    }
+                }
+            }, 10000);
+        });
+        $("#dvCheckList .checklist").tooltip({
+            tooltipClass: 'tooltip'
+        });
+    },
+    HandleTriggerClick: function (stepName, sectionIdentifier, triggerName, triggerInputs, successCallback) {
+        var triggerInput = new TriggerInput();
+        triggerInput.SectionIdentifier = sectionIdentifier;
+        triggerInput.StepName = stepName;
+        triggerInput.ChecklistIdentifier = this.ContextIdentifier;
+        triggerInput.TriggerName = triggerName;
+        triggerInput.ChecklistType = this.ChecklistType;
+        triggerInput.TriggerInputs = triggerInputs != null ? triggerInputs : [];
+        var that = this;
+        this.FireServiceRequest("HandleTrigger", triggerInput, function () {
+            this.Checklist = null;
+            $("#progressIndicator").show();
+        },
+            function (data) {
+                if (data.IsSuccess) {
+                    that.Checklist = data.Checklist;
+                    that.BindChecklist();
+                    $("#popup").addClass("DisplayNone").find(".popupbody").html("");
+                    if (successCallback != null && typeof (successCallback) === 'function') {
+                        successCallback(data.Checklist);
+                    }
+                } else {
+                    alert(data.ErrorMessage);
+                }
+            }, function (error) {
+                alert(error);
+            }, function () {
+                if (window.ChecklistCore.OnChecklistLoaded != null) {
+                    window.ChecklistCore.OnChecklistLoaded(triggerName);
+                }
+                $("#progressIndicator").hide();
+            });
+    },
+    ShowTriggerInputPopup: function (stepName, sectionIdentifier, triggerName) {
+        var curStep = null;
+        for (var i = 0; i < window.ChecklistCore.Checklist.Sections.length; i++) {
+            var section = window.ChecklistCore.Checklist.Sections[i];
+            if (section.Identifier == sectionIdentifier) {
+                for (var j = 0; j < section.Steps.length; j++) {
+                    var step = section.Steps[j];
+                    if (step.StepIdentifier == stepName) {
+                        curStep = step;
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+        if (curStep != null) {
+            $("#progressIndicator").show();
+            var html = $("#StepInputPopup").render(curStep);
+            var popupcontent = $(html);
+            $("#popup").addClass("DisplayNone").find(".popupbody").append(popupcontent);
+            var height = $(document).height();
+            var popupposition = height / 40;
+            $("#popup .popupbody").css({ top: popupposition });
+            $("#popup .helptext").tooltip({
+                tooltipClass: 'tooltip'
+            });
+            $(".stepinputpopupbody .stepinputvalue input[type=text],.stepinputpopupbody .stepinputvalue .textarea").on("keydown", function (oEvent) {
+                oEvent.stopPropagation();
+            });
+            //$(".stepinputpopupbody .stepinputvalue[data-stepinputtype='Comment'] .textarea").jqte();
+            $(".stepinputpopupbody .stepinputvalue[data-stepinputtype='DateField'] input").datepicker({
+                numberOfMonths: 2,
+                showButtonPanel: true,
+                dateFormat: "dd-MM-yy",
+                minDate: +1,
+                showAnim: "slideDown",
+                defaultDate: +1,
+            });
+
+            $(".stepinputpopupbody .stepinputvalue[data-stepinputtype='DateFieldPast'] input").datepicker({
+                numberOfMonths: 2,
+                showButtonPanel: true,
+                dateFormat: "dd-MM-yy",
+                showAnim: "slideDown",
+                defaultDate: +1,
+            });
+            $("#popup .stepinputpopupbody .stepinputvalue .textbox, " +
+                "#popup .stepinputpopupbody .stepinputvalue .textarea, " +
+                "#popup .stepinputpopupbody .stepinputvalue .jqte_editor").on("click mousedown", function (oEvent) {
+                    oEvent.stopPropagation();
+                    $(this).attr({ contenteditable: 'true' });
+                    $(this).focus();
+                });
+            $(".stepinputpopupbody .stepinputvalue[data-stepinputtype='AutocompleteOrg'] .textbox").on("keyup", function (oEvent) {
+                if ($(this).text() != $(this).data("text")) {
+                    $(this).data("text", "");
+                    $(this).data("val", "");
+                }
+                if ($(this).text().length > 2) {
+                    $("div.spusers").empty();
+                    var that$ = $(this);
+                    setTimeout(function () {
+                        window.ChecklistCore.FireServiceRequest("GetOrgs", { SearchText: that$.text(), ListSource: that$.data("autocompletelist") }, null, function (data) {
+                            var pos = that$.offset();
+                            var node$ = $("#spuserlist");
+                            node$.html($("#tmplAutoComplete").render(data)).removeClass("DisplayNone");
+                            node$.data("target", that$);
+                            node$.offset({ top: pos.top + 22, left: pos.left });
+                        }, null, null, true);
+                    }, 100);
+                }
+                return true;
+            });
+            $(".stepinputpopup button.newitembutton").click(function (oEvent) {
+                oEvent.preventDefault();
+                var listName = $(this).data("listname");
+                var options = {
+                    title: "Organisations - New Item",
+                    url: ChecklistCore.SiteUrl + "/Lists/" + listName + "/NewForm.aspx",
+                };
+                SP.UI.ModalDialog.showModalDialog(options);
+                return false;
+            });
+            $(".stepinputpopupbody .linkedfileslist").on("click", ".removeLinkedFile", function (oEvent) {
+                oEvent.preventDefault();
+                var curlinkedFilesList$ = $(this).parent().parent();
+                if (curlinkedFilesList$.find(".linkedFileContainer").length == 1) {
+                    var nodocselement$ = $(".NoDocuments.template").clone();
+                    curlinkedFilesList$.find(".triggerfilelink").before(nodocselement$);
+                    nodocselement$.removeClass("DisplayNone");
+                    nodocselement$.removeClass("template");
+                }
+                $(this).parent().remove();
+                //.NoDocuments.template
+            });
+
+            $(".stepinputpopupbody .stepinputvalue[data-stepinputtype='FileLink'] button.triggerfilelink").on("click", function (oEvent) {
+                oEvent.preventDefault();
+                var fileContainer$ = $(this).parent();//.find(".linkedfileslist");
+                window.ChecklistCore.EPP.ShowFileLinkPicker(function (selectedFiles) {
+
+                    if (selectedFiles.length > 0) {
+                        $(".selectedfilelink").each(function () { $(this).next().remove(); $(this).remove() });
+                        var files = "";
+                        for (var i = 0; i < selectedFiles.length; i++) {
+                            var f = selectedFiles[i];
+                            $(".filelinkcontrol").prepend("<span class='selectedfilelink' url='" + f.URL + "'>" + f.FileName + "(" + f.Version + ")</span></br>");
+                        }
+                    }
+                });
+            });
+
+
+
+            $(".stepinputpopupbody .stepinputvalue[data-stepinputtype='FileUpload'] button.triggerfileupload").on("click", function (oEvent) {
+                oEvent.preventDefault();
+                var input = {
+                    InputXml: "<Inputs>" +
+                        "<Input Name='UploadFor' Value='CHECKLIST' />" +
+                        "<Input Name='StepIdentifier' Value='" + stepName + "' />" +
+                        "<Input Name='SectionIdentifier' Value='" + sectionIdentifier + "' />" +
+                        "<Input Name='TriggerName' Value='" + triggerName + "' />" +
+                        "<Input Name='ChecklistIdentifier' Value='" + window.ChecklistCore.ContextIdentifier + "' />" +
+                        "<Input Name='ChecklistType' Value='" + window.ChecklistCore.ChecklistType + "' />" +
+                        "<Input Name='DocLib' Value='UploadedFiles' />" +
+                        "</Inputs>"
+                };
+                var file$ = $(this).parent().find("input.triggerfileinput");
+                var clone$ = file$.clone();
+                var stepTrigger$ = file$.parents(".stepinputvalue");
+                window.ChecklistCore.Helpers.UploadFile(file$, input, function (uploadedFilePath) {
+                    stepTrigger$.find(".fileuploadcontrol").prepend(clone$);
+                    stepTrigger$.find(".fileuploadcontrol").addClass("DisplayNone");
+                    stepTrigger$.find(".fileuploaddelete").removeClass("DisplayNone").on("click", function (oEvent1) {
+                        oEvent1.preventDefault();
+                        var filedelete$ = $(this);
+                        var triggerInput = new TriggerInput();
+                        triggerInput.SectionIdentifier = sectionIdentifier;
+                        triggerInput.StepName = stepName;
+                        triggerInput.ChecklistIdentifier = window.ChecklistCore.ContextIdentifier;
+                        triggerInput.ChecklistType = window.ChecklistCore.ChecklistType;
+                        triggerInput.TriggerName = triggerName;
+                        ChecklistCore.FireServiceRequest("DeleteUploadedChecklistFile", { TriggerInput: triggerInput, FilePath: uploadedFilePath }, null, function (data) {
+                            if (data.IsSuccess) {
+                                alert("File deleted successfully!");
+                                filedelete$.addClass("DisplayNone");
+                                stepTrigger$.find(".fileuploadcontrol").removeClass("DisplayNone");
+                                stepTrigger$.find(".status").remove();
+                                stepTrigger$.data("filepath", null);
+                                stepTrigger$.data("fullfilepath", null);
+                            } else {
+                                alert("File couldn't be deleted!" + (data.Message != null ? data.Message : ""));
+                            }
+                        }, function () {
+                            alert("File couldn't be deleted. Please try again!");
+                        });
+                    });
+                    stepTrigger$.prepend("<span class='status'>file uploaded scuccessfully to: " + uploadedFilePath + "</span>");
+                    stepTrigger$.data("filepath", uploadedFilePath);
+                    stepTrigger$.data("fullfilepath", ChecklistCore.SiteUrl + "/" + uploadedFilePath);
+                }, function (errorMessage) {
+                    stepTrigger$.find(".fileuploadcontrol").prepend(clone$);
+                    stepTrigger$.append("file upload failed!. Error returned:" + errorMessage);
+                });
+            });
+            $("#popup").find(".popupbody").append(popupcontent);
+            var autoCompleteLength = $(".stepinputpopupbody .stepinputvalue[data-stepinputtype='PeoplePicker'] span.peoplepicker").length;
+            if (autoCompleteLength == 0) {
+                ChecklistCore.BuildPeoplePickerMultiple();
+            } else {
+                var completedCount = 0;
+                $(".stepinputpopupbody .stepinputvalue[data-stepinputtype='PeoplePicker'] span.peoplepicker").each(function (index) {
+                    var id = $(this).attr("id");
+                    ChecklistCore.Helpers.PeoplePicker.initializePeoplePicker(id, false, function () {
+                        completedCount = completedCount + 1;
+                        if (completedCount == autoCompleteLength) {
+                            ChecklistCore.BuildPeoplePickerMultiple();
+                        }
+                    });
+                });
+            }
+
+        }
+        $(".stepinputpopup  .btnCancel").on("click", function () {
+            $("#popup").addClass("DisplayNone").find(".popupbody").html("");
+            $("div.spusers").addClass("DisplayNone").empty();
+            return false;
+        });
+        $(".stepinputpopup  .btnok").on("click", function () {
+            if (window.ChecklistCore.ClientValidators.validate($(".stepinputpopup  .stepinputpopupbody"))) {
+                var inputs$ = $("#popup .stepinputpopup .stepinput");
+                var inputArray = [];
+                if (inputs$.length > 0) {
+                    for (var k = 0; k < inputs$.length; k++) {
+                        var input$ = $(inputs$[k]);
+                        var triggerState = new TriggerState();
+                        triggerState.InputName = input$.data("inputname");
+                        var stepInputType = input$.find(".stepinputvalue").data("stepinputtype");
+                        switch (stepInputType) {
+                            case "PeoplePicker":
+                                var inputElement1$ = input$.find(input$.data("selector"));
+                                var userKey = ChecklistCore.Helpers.PeoplePicker.getUserKey(inputElement1$.attr("id"));
+                                triggerState.InputValue = userKey;
+                                break;
+                            case "PeoplePickerMultiple":
+                                var inputElement2$ = input$.find(input$.data("selector"));
+                                var userKeys = ChecklistCore.Helpers.PeoplePicker.getUserKeys(inputElement2$.attr("id"));
+                                triggerState.InputValue = userKeys;
+                                break;
+                            case "AutocompleteOrg":
+                                triggerState.InputName = "Id";
+                                var inputElement$ = input$.find(input$.data("selector"));
+                                var orgval = inputElement$.data("val");
+                                triggerState.InputValue = orgval.toString();
+                                var triggerStateName = new TriggerState();
+                                triggerStateName.InputName = input$.data("inputname");
+                                triggerStateName.InputValue = inputElement$.text();
+                                inputArray.push(triggerStateName);
+                                break;
+                            case "FileLink":
+                                $(".selectedfilelink").each(function () {
+                                    var url = $(this).attr("url");
+                                    var triggerState = new TriggerState();
+                                    triggerState.InputName = "LinkedResources";
+                                    triggerState.InputValue = url;
+                                    inputArray.push(triggerState);
+                                });
+                                break;
+                            case "Comment":
+                                triggerState.InputValue = input$.find(".stepinputvalue .textarea").val();
+                                break;
+                            case "Checkbox":
+                                triggerState.InputValue = input$.find(".stepinputvalue input[type='checkbox']").is(":checked");
+                                break;
+                            case "FileUpload":
+                                triggerState.InputValue = input$.find(".stepinputvalue").data("filepath");
+                                break;
+                            case "DropDown":
+                                triggerState.InputValue = input$.find(".stepinputvalue select").val();
+                                break;
+                            case "Currency":
+                                triggerState.InputValue = input$.find(".stepinputvalue .inputvalue").text();
+                                break;                            
+                            default:
+                                triggerState.InputValue = input$.find(".stepinputvalue .inputvalue").val();
+                                break;
+                        }
+                        if (stepInputType != null && stepInputType != "FileLink") {
+                            inputArray.push(triggerState);
+                        }
+                    }
+                }
+                window.ChecklistCore.HandleTriggerClick(stepName, sectionIdentifier, triggerName, inputArray);
+            } else {
+                return false;
+            }
+        });
+    },
+    BuildPeoplePickerMultiple: function () {
+        var autoCompleteMultipleLength = $(".stepinputpopupbody .stepinputvalue[data-stepinputtype='PeoplePickerMultiple'] span.peoplepickermultiple").length;
+        if (autoCompleteMultipleLength == 0) {
+            $("#popup").removeClass("DisplayNone");
+            $("#progressIndicator").hide();
+            // $("#popup .popupbody .stepinputpopupbody .stepinputvalue[data-stepinputtype='DateField'] input:first").datepicker("show");
+            $("#popup .popupbody").addClass("DisplayNone");
+            //setTimeout(function () {
+            $("#popup .popupbody").removeClass("DisplayNone");
+            //$("#popup .popupbody .stepinputpopupbody .stepinputvalue[data-stepinputtype='DateField'] input:first").datepicker("hide");
+            //setTimeout(function () {
+            $("#popup .jqte_toolbar .jqte_tool_label:first").click();
+            $("#popup .jqte_toolbar .jqte_tool_label:first").click();
+            //}, 100);
+            $("#popup .popupbody .stepinputpopupbody .stepinputvalue  .inputvalue:not(.datefield):first").focus();
+            $("#popup .stepinputpopupbody .helptext:first").tooltip("open");
+            $("#popup .stepinputpopupbody .helptext:first").tooltip("close");
+            //}, 10);
+        } else {
+            var completedMultipleCount = 0;
+            $(".stepinputpopupbody .stepinputvalue[data-stepinputtype='PeoplePickerMultiple'] span.peoplepickermultiple").each(function (iindex) {
+                var iid = $(this).attr("id");
+                ChecklistCore.Helpers.PeoplePicker.initializePeoplePicker(iid, true, function () {
+                    completedMultipleCount = completedMultipleCount + 1;
+                    if (completedMultipleCount == autoCompleteMultipleLength) {
+                        $("#popup").removeClass("DisplayNone");
+                        $("#progressIndicator").hide();
+                        //$("#popup .popupbody .stepinputpopupbody .stepinputvalue[data-stepinputtype='DateField'] input:first").datepicker("show");
+                        $("#popup .popupbody").addClass("DisplayNone");
+                        //          setTimeout(function () {
+                        $("#popup .popupbody").removeClass("DisplayNone");
+                        // $("#popup .popupbody .stepinputpopupbody .stepinputvalue[data-stepinputtype='DateField'] input:first").datepicker("hide");
+                        //setTimeout(function () {
+                        //$("#popup .popupbody .dummydiv").remove();
+                        $("#popup .jqte_toolbar .jqte_tool_label:first").click();
+                        $("#popup .jqte_toolbar .jqte_tool_label:first").click();
+                        //}, 100);
+                        $("#popup .popupbody .stepinputpopupbody .stepinputvalue  .inputvalue:not(.datefield):first").focus();
+                        $("#popup .stepinputpopupbody .helptext:first").tooltip("open");
+                        $("#popup .stepinputpopupbody .helptext:first").tooltip("close");
+                        //        }, 10);
+                    }
+                });
+            });
+        }
+    },
+    ShowConfirmDialog: function (confirmDialogContent) {
+        $("#confirmpopup").removeClass("DisplayNone").find(".confirmpopupbody").html($("#confirmDialogTemplate").render(confirmDialogContent));
+
+        for (var i = 0; i < confirmDialogContent.Buttons.length; i++) {
+            var btn = confirmDialogContent.Buttons[i];
+            (function (btn) {
+                $("#confirmpopup").find("." + btn.Name).on("click", function (oEvent) {
+                    oEvent.preventDefault();
+                    if (btn.ClickHandler != null && typeof (btn.ClickHandler) === "function") {
+                        btn.ClickHandler();
+                    }
+                    $("#confirmpopup").addClass("DisplayNone").find(".confirmpopupbody").empty();
+                });
+            })(btn);
+        }
+    },
+    ChecklistContainer$: function () {
+        return $(".checklist").first();
+    },
+    Init: function (checklistType, contextIdentifier, checklistTemplate, checklistPlaceholder) {
+        SP.SOD.loadMultiple(['sp.js', 'clienttemplates.js', 'clientforms.js', 'clientpeoplepicker.js', 'autofill.js'], function () {
+            var innerInit = function () {
+                if (checklistTemplate == null) {
+                    checklistTemplate = "#ChecklistTemplate";
+                }
+                if (checklistPlaceholder == null) {
+                    checklistPlaceholder = "#dvCheckList";
+                }
+
+                this.ChecklistType = checklistType;
+                this.ContextIdentifier = contextIdentifier;
+                this.SiteUrl = _spPageContextInfo.webAbsoluteUrl;
+                this.SiteRelativeUrl = _spPageContextInfo.webServerRelativeUrl;
+                this.ChecklistTemplate = checklistTemplate;
+                this.ChecklistPlaceholder = checklistPlaceholder;
+                this.BuildMapping();
+                var that = this;
+                if (contextIdentifier != null) {
+                    if (this.FileLoaded == null) {
+                        SP.SOD.executeFunc(this.ChecklistType + ".js", null, function () {
+                            that.FileLoaded = true;
+                            that.GetChecklist();
+                        });
+                    } else {
+                        this.GetChecklist();
+                    }
+                }
+                $("body").on("click", ".section>.sectionheader", function () {
+                    var sectionGroupBody = $(this).parents(".SectionGroupBody");
+                    if ($(this).parent().hasClass("active")) {
+                        $(".section.active", sectionGroupBody).removeClass("active");
+                        $(".section", sectionGroupBody).find("span.expandcollapse").text("+");
+                    } else {
+                        $(".section.active", sectionGroupBody).removeClass("active");
+                        $(".section", sectionGroupBody).find("span.expandcollapse").text("+");
+                        $(this).parent().addClass("active");
+                        $(this).parent().find("span.expandcollapse").text("-");
+                    }
+                });
+                $("body").on("click", ".AttributeLink", function (oEvent) {
+                    oEvent.preventDefault();
+                    //var lnkParent$ = $("a.lnkChecklistDownloadDummy");
+                    var url = $(this).data("href");
+                    editDocumentWithProgID2(url, '', 'SharePoint.OpenDocuments', '0', window.ChecklistCore.getSiteRelativeUrl(), '0');
+                    //var times = 1;
+                    //var interval = setTimeout(function () {
+                    //    if (times == 1) {
+                    //        clearInterval(interval);
+                    //    }
+                    //    var lnk = lnkParent$.clone();
+                    //    lnk.attr("href", url);
+                    //    lnkParent$.parent().append(lnk);
+                    //    lnk[0].click();
+                    //    lnk.remove();
+                    //}, 100);
+                });
+                $("body").on("click mousedown", ".spuser", function () {
+                    var targetinput = $("#spuserlist").data("target");
+                    targetinput.data("val", $(this).data("loginname")).data("text", $(this).data("username")).data("userval", $(this).data("username")).val($(this).data("loginname"));
+                    $("#spuserlist").addClass("DisplayNone").empty();
+                });
+                $("body").on("click mousedown", ".spautocomplete", function () {
+                    if ($(this).data("val") != null && $(this).data("val") != -1) {
+                        var targetinput = $("#spuserlist").data("target");
+                        targetinput.data("val", $(this).data("val")).data("text", $(this).data("displaytext")).text($(this).data("displaytext"));
+                    }
+                    $("#spuserlist").addClass("DisplayNone").empty();
+                });
+                $("body").on("click mousedown", function () {
+                    $("#spuserlist").data("target", null).addClass("DisplayNone").empty();
+                });
+                $("body").on("click", ".expandCollapseAll", window.ChecklistCore.ToggleCollapseExpand);
+                $("#confirmpopup").draggable();
+                $("#popup .popupbody").draggable();
+            };
+            innerInit.call(window.ChecklistCore);
+        });
+    },
+    getSiteRelativeUrl: function () {
+        var relativeUrl = _spPageContextInfo.siteServerRelativeUrl;
+        relativeUrl = relativeUrl.substring(relativeUrl.length - 1) != '/' ? (relativeUrl += '/') : relativeUrl;
+        return relativeUrl;
+    },
+    ToggleCollapseExpand: function () {
+        if ($(this).text() == '+ expand all') {
+            $(this).text('- collapse all');
+            $('#dvCheckList .section').addClass("active");
+            $('#dvCheckList .sectionheader .expandcollapse').text("-");
+        } else {
+            $(this).text('+ expand all');
+            $('#dvCheckList .section').removeClass("active");
+            $('#dvCheckList .sectionheader .expandcollapse').text("+");
+        }
+        return false;
+    }
+};
+window.ChecklistCore.ClientValidators = {
+    "required": function (element, type) {
+        switch (type) {
+            case "DateField":
+            case "DateFieldPast":
+                try {
+                    if ($.trim($(element).val()) != "") {
+                        try {
+                            var dateVal = $.datepicker.parseDate("dd-MM-yy", $(element).val());
+                            return true;
+                        } catch (exception) {
+                            return false;
+                        }
+                    }
+                    return false;
+                } catch (error) {
+                    return false;
+                }
+            case "Currency":
+                try {
+                    var currencyval = $(element).text();
+                    if ($.trim(currencyval) == "") {
+                        return false;
+                    }
+                    parseFloat($(element).text());
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            case "FileUpload":
+                return $(element).parent().data("filepath") != null;
+            case "PeoplePicker":
+                var userKey = ChecklistCore.Helpers.PeoplePicker.getUserKey($(element).attr("id"));
+                return userKey != null && userKey != "";
+            case "PeoplePickerMultiple":
+                var userKeys = ChecklistCore.Helpers.PeoplePicker.getUserKeys($(element).attr("id"));
+                return userKeys != null && userKeys != "";
+            case "AutocompleteOrg":
+                return $(element).html() != null && $.trim($(element).html()) != "" && $(element).data("val") != null && $.trim($(element).data("val").toString()) != "";
+            case "Comment":
+                return $(element).val() != null && $.trim($(element).val()) != "";
+            case "FileLink":
+                return $(element).find(".selectedfilelink").length > 0;
+            case "FreeText":
+            case "DropDown":
+            default:
+                return $(element).val() != null && $.trim($(element).val()) != "";
+        }
+    },
+    "fieldtype": function (element, type) {
+        switch (type) {
+            case "DateField":
+                try {
+                    if ($.trim($(element).val()) != "") {
+                        try {
+                            var dateVal = $.datepicker.parseDate("dd-MM-yy", $(element).val());
+                            return dateVal >= Date.now();
+                        } catch (exception) {
+                            return false;
+                        }
+                    }
+                    return true;
+                } catch (error) {
+                    return false;
+                }
+            case "DateFieldPast":
+                try {
+                    if ($.trim($(element).val()) != "") {
+                        try {
+                            var dateVal1 = $.datepicker.parseDate("dd-MM-yy", $(element).val());
+                            return true;
+                        } catch (exception) {
+                            return false;
+                        }
+                    }
+                    return true;
+                } catch (error) {
+                    return false;
+                }
+            case "Currency":
+                try {
+                    var val = $(element).text();
+                    if ($.trim(val) != "") {
+                        var currency = parseFloat($(element).text());
+                        return currency >= 0;
+                    } else {
+                        return true;
+                    }
+                } catch (e) {
+                    return false;
+                }
+            case "FileUpload":
+                return $(element).parent().data("filepath") != null;
+            case "PeoplePicker":
+                var userKey = ChecklistCore.Helpers.PeoplePicker.getUserKey($(element).attr("id"));
+                return userKey != null && userKey != "";
+            case "PeoplePickerMultiple":
+                var userKeys = ChecklistCore.Helpers.PeoplePicker.getUserKeys($(element).attr("id"));
+                return userKeys != null && userKeys != "";
+            case "AutocompleteOrg":
+                if ($.trim($("element").html()) == "") {
+                    return true;
+                }
+                return $(element).html() != null && $.trim($(element).html()) != "" && $(element).data("val") != null && $.trim($(element).data("val")) != "";
+            case "Comment":
+                return $(element).val() != null && $.trim($(element).val()) != "";
+            case "FileLink":
+                return $(element).find(".selectedfilelink").length > 0;
+            case "FreeText":
+            case "DropDown":
+            default:
+                //return $(element).val() != null && $.trim($(element).val()) != "";
+                return true;
+        }
+    },
+    "datefield": function (element) {
+        try {
+            if ($.trim($(element).val()) != "") {
+
+                try {
+                    var dateVal1 = $.datepicker.parseDate("dd-MM-yy", $(element).val());
+                    return dateVal1 > Date.now();
+                } catch (exception) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (error) {
+            return false;
+        }
+    },
+    "datefieldpast": function (element) {
+        try {
+            if ($.trim($(element).val()) != "") {
+                try {
+                    var dateVal1 = $.datepicker.parseDate("dd-MM-yy", $(element).val());
+                    return true;
+                } catch (exception) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (error) {
+            return false;
+        }
+    },
+    "requiredmessage": function (element) {
+        var validationMessage = $(element).data("requiredmessage");
+        if (validationMessage == null || $.trim(validationMessage) == "") {
+            validationMessage = "please enter a value";
+        }
+        return validationMessage;
+    },
+    "fieldtypemessage": function (element, fieldtype) {
+        var validationMessage = $(element).data(fieldtype + "message");
+        if (validationMessage == null || $.trim(validationMessage) == "") {
+            validationMessage = "please enter a valid value";
+        }
+        return validationMessage;
+    },
+    "datefieldmessage": function (element) {
+        var validationMessage = $(element).data("datefieldmessage");
+        if (validationMessage == null || $.trim(validationMessage) == "") {
+            validationMessage = "please enter a valid date";
+        }
+        return validationMessage;
+    },
+    "datefieldpastmessage": function (element) {
+        var validationMessage = $(element).data("datefieldpastmessage");
+        if (validationMessage == null || $.trim(validationMessage) == "") {
+            validationMessage = "please enter a valid date";
+        }
+        return validationMessage;
+    },
+    validate: function (containerElement$) {
+        var elementsToValidate = $(containerElement$).find(".validate");
+        var isValid = true;
+        for (var i = 0; i < elementsToValidate.length; i++) {
+            var element$ = $(elementsToValidate[i]);
+            var elementToValidate$ = element$.find(element$.data("selector"));
+            element$.find(".validationmessage").text("");
+            var validationsString = element$.data("validations");
+            if ($.trim(validationsString) != "") {
+                var validations = validationsString.split(" ");
+                var validationMessage = "";
+                var isCurValid = true;
+                for (var j = 0; j < validations.length; j++) {
+                    var validationType = validations[j];
+                    var validator = this[validationType];
+                    if (validator != null) {
+                        if (!validator(elementToValidate$, elementToValidate$.data("stepinputtype"))) {
+                            isValid = false;
+                            isCurValid = false;
+                            var validatorMessage = this[validationType + "message"];
+                            if (validatorMessage != null) {
+                                validationMessage += validatorMessage(elementToValidate$, elementToValidate$.data("stepinputtype"));
+                            } else {
+                                validationMessage += validationType + " validation failed";
+                            }
+                        }
+                    }
+                }
+                if (!isCurValid) {
+                    element$.find(".validationmessage").removeClass("DisplayNone").text(validationMessage);
+                } else {
+                    element$.find(".validationmessage").addClass("DisplayNone").text("");
+                }
+            }
+        }
+        return isValid;
+    }
+};
+
+window.ChecklistCore.Helpers = {
+    UploadFile: function (fileControl, inputs, successcallback, failurecallback) {
+        var url = window.ChecklistCore.SiteUrl + window.ChecklistCore.FileUploadUrl;
+        var file$ = $(fileControl);
+        if (file$.length == 0 || file$[0].files.length == 0) {
+            alert("Please select a file to upload");
+            return false;
+        }
+        //var cloneFile$ = file$.clone();
+        //cloneFile$[0].files = file$[0].files;
+        //cloneFile$.attr("name", "checklistfileupload");
+        var newForm$ = $("<form>");
+        file$.remove();
+        file$.attr("name", "checklistfileupload");
+        newForm$.append(file$);
+
+        for (var prop in inputs) {
+            if (inputs.hasOwnProperty(prop)) {
+                prop = prop.replace("  ", " ").replace(" ", "_");
+                var input$ = $("<input type='text'>");
+                input$.attr({ 'name': prop, 'id': prop });
+                input$.val(inputs[prop]);
+                newForm$.append(input$);
+            }
+        }
+        $("body").append(newForm$);
+        var iframe$ = $("<iframe>");
+        iframe$.attr({ name: "upload_iframe", id: "upload_iframe", "class": "DisplayNone" });
+        $("body").append(iframe$);
+        newForm$.attr({ "action": url, "method": "post", "class": "DisplayNone", "enctype": "multipart/form-data", target: "upload_iframe" });
+
+        $("#progressIndicator").show();
+        newForm$[0].submit();
+        $(iframe$).load(function () {
+            var response = iframe$.contents().find("body").text();
+            newForm$.remove();
+            iframe$.remove();
+            var responses = response.split(":");
+            if (response.length > 0) {
+                var status = responses[0];
+                var message = responses[1];
+                if (status.toLowerCase() == "success") {
+                    if (successcallback != null && typeof (successcallback) === "function") {
+                        successcallback(message);
+                    } else {
+                        alert("file uploaded scuccessfully to: " + message);
+                    }
+                } else {
+                    if (failurecallback != null && typeof (failurecallback) === "function") {
+                        failurecallback(message);
+                    } else {
+                        alert("file upload failed!" + message);
+                    }
+                }
+            } else {
+                if (failurecallback != null && typeof (failurecallback) === "function") {
+                    failurecallback("unexpected error occured. Please try again!");
+                }
+            }
+            $("#progressIndicator").hide();
+        });
+    },
+    PeoplePicker: {
+        initializePeoplePicker: function (peoplePickerElementId, allowMultiple, callback) {
+            var defaultValue = $("#" + peoplePickerElementId).text();
+            var schema = {};
+            schema['PrincipalAccountType'] = 'User,DL,SecGroup,SPGroup';
+            schema['SearchPrincipalSource'] = 15;
+            schema['ResolvePrincipalSource'] = 15;
+            schema['AllowMultipleValues'] = allowMultiple;
+            schema['MaximumEntitySuggestions'] = 50;
+            schema['Width'] = '280px';
+            if (defaultValue != null && $.trim(defaultValue) != "") {
+                var that = this;
+                this.getUser(defaultValue, function () {
+                    var users = [];
+                    var defaultUser = new Object();
+                    defaultUser.AutoFillDisplayText = that.user.get_title();
+                    defaultUser.AutoFillKey = that.user.get_loginName();
+                    defaultUser.Description = that.user.get_email();
+                    defaultUser.DisplayText = that.user.get_title();
+                    defaultUser.EntityType = "User";
+                    defaultUser.IsResolved = true;
+                    defaultUser.Key = that.user.get_loginName();
+                    defaultUser.Resolved = true;
+                    users.push(defaultUser);
+                    try {
+                        window.SPClientPeoplePicker_InitStandaloneControlWrapper(peoplePickerElementId, users, schema);
+                    } catch (e) {
+                        window.SPClientPeoplePicker_InitStandaloneControlWrapper(peoplePickerElementId, null, schema);
+                    }
+                    callback();
+                }, function (sender, args) {
+                    window.SPClientPeoplePicker_InitStandaloneControlWrapper(peoplePickerElementId, null, schema);
+                    callback();
+                });
+            } else {
+                window.SPClientPeoplePicker_InitStandaloneControlWrapper(peoplePickerElementId, null, schema);
+                callback();
+            }
+        },
+        // Query the picker for user information.
+        getUserKeys: function (peoplePickerElementId) {
+
+            // Get the people picker object from the page.
+            var peoplePicker = window.SPClientPeoplePicker.SPClientPeoplePickerDict[peoplePickerElementId + "_TopSpan"];
+            if (peoplePicker != null) {
+                var keys = peoplePicker.GetAllUserKeys();
+                return keys;
+            }
+            return null;
+        },
+        getUserKey: function (peoplePickerElementId) {
+            // Get the people picker object from the page.
+            var peoplePicker = window.SPClientPeoplePicker.SPClientPeoplePickerDict[peoplePickerElementId + "_TopSpan"];
+            if (peoplePicker != null) {
+                var keys = peoplePicker.GetAllUserKeys();
+                var keyObj = keys.split(";");
+                return keyObj[0];
+            }
+            return null;
+        },
+        getUser: function (loginName, successFunc, failureFunc) {
+            var context = SP.ClientContext.get_current();
+            this.user = context.get_web().ensureUser(loginName);
+            context.load(this.user);
+            context.executeQueryAsync(
+                 Function.createDelegate(null, successFunc),
+                 Function.createDelegate(null, failureFunc)
+            );
+        }
+    }
+};
+window.alert = function (message) {
+    var dialogContent1 = new ConfirmDialogContent();
+    dialogContent1.Title = "Information!";
+    dialogContent1.Message = message;
+    dialogContent1.Buttons = [];
+    var btnOk = new Button();
+    btnOk.Name = "btnOk";
+    btnOk.Text = "OK";
+    dialogContent1.Buttons.push(btnOk);
+    window.ChecklistCore.ShowConfirmDialog(dialogContent1);
+}÷’«}{y              <‡¶       d:http://atprojects.leapthought.co.nz/sites/cid/style%20library/EPP/Checklist/Styles/ChecklistCore.js request-method GET response-head HTTP/1.1 200 OK
+Expires: Tue, 29 Dec 2015 09:04:34 GMT
+Date: Wed, 13 Jan 2016 09:04:33 GMT
+Content-Type: application/javascript
+Etag: "{98007A66-D0D4-4689-BD03-78790F1EC3B5},1"
+Server: Microsoft-IIS/8.0
+Cache-Control: private,max-age=0
+Last-Modified: Mon, 13 Jul 2015 23:41:52 GMT
+X-SharePointHealthScore: 0
+ResourceTag: rt:98007A66-D0D4-4689-BD03-78790F1EC3B5@00000000001
+Content-Disposition: attachment; filename="ChecklistCore.js"
+X-Download-Options: noopen
+Public-Extension: http://schemas.microsoft.com/repl-2
+SPRequestGuid: 79c6549d-d253-209c-f465-3528906a8dfc
+request-id: 79c6549d-d253-209c-f465-3528906a8dfc
+x-frame-options: SAMEORIGIN
+SPRequestDuration: 16
+SPIisLatency: 1
+X-Powered-By: ASP.NET
+MicrosoftSharePointTeamServices: 15.0.0.4535
+x-content-type-options: nosniff
+X-MS-InvokeApp: 1; RequireReadOnly
+ uncompressed-len 0   Ôc

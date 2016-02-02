@@ -1,0 +1,1 @@
+<suite name="Selenium Automation Suite-MAT-1.0"><listeners><listerner class-name="com.nuview.listener.TestsListenerAdapter"/></listeners><suite-files><suite-file path="./conf/TestNG/suites/TRANSMITTALS Suite.xml"/></suite-files></suite>

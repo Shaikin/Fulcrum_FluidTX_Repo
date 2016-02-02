@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="TRANSMITTALS Suite">
+  <test name="FLD_Transmittals_New_IssuedForInformation">
+    <classes>
+      <class name="com.proj.suiteTRANSMITTALS.FLD_Transmittals_New_IssuedForInformation"/>
+    </classes>
+  </test> <!-- FLD_Transmittals_New_IssuedForInformation -->
+</suite> <!-- TRANSMITTALS Suite -->
