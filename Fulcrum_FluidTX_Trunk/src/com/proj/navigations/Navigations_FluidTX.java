@@ -1,13 +1,10 @@
 package com.proj.navigations;
 
 import java.util.Hashtable;
-import java.util.List;
 
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 
 import com.frw.Constants.Constants_FRMWRK;
-import com.frw.util.FetchWebElement;
 import com.frw.util.WaitUtil;
 import com.frw.util.Xls_Reader;
 import com.proj.Constants.Constants;
@@ -23,7 +20,7 @@ public class Navigations_FluidTX extends TestSuiteBase{
 
 	static String res="";
 	static String input="";	
-	static String className=Navigations_USERSITE.class.getSimpleName();
+	static String className=Navigations_FluidTX.class.getSimpleName();
 	private static String locator_menu_pattern=".//*[@class='menu-item-text' and contains(text(),'objectlocator')]";
 	private static String locator_submenu_pattern=".//*[contains(@id,'SelectorMenu_Container')]/ul/li/a[text()='objectlocator']";
 
