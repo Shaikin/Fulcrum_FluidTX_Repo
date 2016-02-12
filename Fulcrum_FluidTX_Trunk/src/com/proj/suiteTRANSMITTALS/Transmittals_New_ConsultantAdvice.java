@@ -11,13 +11,13 @@ import org.testng.annotations.Test;
 import com.frw.Constants.Constants_FRMWRK;
 import com.frw.util.WaitUtil;
 import com.proj.Constants.Constants;
-import com.proj.library.ApplicationMethods_Falcrum;
-import com.proj.navigations.Navigations_USERSITE;
+import com.proj.navigations.Navigations_Fulcrum;
 import com.proj.suiteTRANSMITTALS.pages.MyInboxPage;
 import com.proj.suiteTRANSMITTALS.pages.MySentPage;
 import com.proj.suiteTRANSMITTALS.pages.Transmittals_EntryPage;
 import com.proj.util.CustomExceptions;
 import com.proj.util.TestExecutionUtil;
+import com.proj.utilFulcrum.ApplicationMethods;
 
 
 public class Transmittals_New_ConsultantAdvice extends TestSuiteBase{
@@ -68,11 +68,7 @@ public class Transmittals_New_ConsultantAdvice extends TestSuiteBase{
 		try {
 
 			if(!isBeforeTestPass ==Constants_FRMWRK.FalseB){				
-//Dialogs.browse(browserName, "C:\\Users\\Khaleel\\Desktop\\TestingFromAutomation.docx", "Business Case - All Documents")	;		
-				
-				
-				//ApplicationMethods_Falcrum.logIntoApplication(driver_TRANS, browserName, CONFIG.getProperty("testSiteName"), CONFIG.getProperty("userUserName"), CONFIG.getProperty("userpassword"));
-				driver_TRANS=ApplicationMethods_Falcrum.launchBrowserAndlogIntoApplication(browserName, url, username1, password1, refID);
+				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, url, username1, password1, refID);
 				logsObj.log("Before method success for "+testcaseName);
 			}else{
 				CustomExceptions.Exit(testcaseName, "Before Method-Failure", "Due to above error in the Before Test cannot execute the test..");
@@ -102,12 +98,15 @@ public class Transmittals_New_ConsultantAdvice extends TestSuiteBase{
 		logsObj.log("Executing the test case: "+testcaseName);
 
 		try{
+			if(isBeforeMethodPass==Constants_FRMWRK.FalseB){
+				CustomExceptions.Exit(testcaseName, "Before Method-Failure", "Due to above error in the Before Method cannot execute the test..");
+			}
 			//************************************** LEVEL 1 *****************************************************************************
 			worflow_l1=worflow_l1+" ["+data.get("TxType")+"]"+worflow_end;		
-			Navigations_USERSITE.Transmittals.navigateToNewTransmittal(driver_TRANS);
+			Navigations_Fulcrum.Transmittals.navigateToNewTransmittal(driver_TRANS);
 			//WaitUtil.pause(2);				
 
-			returnData=Transmittals_EntryPage.newItem(ApplicationMethods_Falcrum.getSiteName(url),driver_TRANS, refID,testcaseName,worflow_l1,  data);
+			returnData=Transmittals_EntryPage.createAndSendTransmittalRecord(ApplicationMethods.getSiteName(url),driver_TRANS, refID,testcaseName,worflow_l1,  data);
 			System.out.println("Done.."+returnData);
 
 			if (returnData.size()==0 || returnData.get("Tramsmittals-Subject").equals(Constants_FRMWRK.False)){
@@ -116,67 +115,81 @@ public class Transmittals_New_ConsultantAdvice extends TestSuiteBase{
 			}
 
 			getResult=MySentPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l1, returnData);
-
+			if(getResult.equalsIgnoreCase(Constants_FRMWRK.False)){
+				CustomExceptions.Exit(testcaseName, worflow_l1+"- Failure", "Unable to continue the test due to above error ");
+			}
 
 
 			//************************************** LEVEL 2 *****************************************************************************		
 			if(data.get("TxType").equalsIgnoreCase("Correspondence")){
 				worflow_l2=worflow_l2+" validate"+worflow_end;
-				ApplicationMethods_Falcrum.logOutFromApplicationAndcloseBrowser(driver_TRANS);
+				ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver_TRANS);
 
-				driver_TRANS=ApplicationMethods_Falcrum.launchBrowserAndlogIntoApplication(browserName, url, username2, password2,refID);
+				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, url, username2, password2,refID);
 
-				MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data);
+				getResult=MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data);
+				if(getResult.equalsIgnoreCase(Constants_FRMWRK.False)){
+					CustomExceptions.Exit(testcaseName, worflow_l2+"- Failure", "Unable to continue the test due to above error ");
+				}
 
 			}
 			
 			else if(data.get("TxType").equalsIgnoreCase("Change Note") && (data.get("Action-Level2").equals("Approved")|| data.get("Action-Level2").equals("Rejected"))){
 				worflow_l2=worflow_l2+data.get("Action-Level2")+worflow_end;
-				ApplicationMethods_Falcrum.logOutFromApplicationAndcloseBrowser(driver_TRANS);
+				ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver_TRANS);
 
-				driver_TRANS=ApplicationMethods_Falcrum.launchBrowserAndlogIntoApplication(browserName, url, username2, password2,refID);
+				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, url, username2, password2,refID);
 
 				MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data);
 				
 				//Transmittals_EntryPage.switchToTramsmittalEditFrame(driver_TRANS, refID, testcaseName, workFlow_ValidateNewTransmittal);
 				Transmittals_EntryPage.clickCompleteAction(driver_TRANS, worflow_l2);
 				
-				Transmittals_EntryPage.editItem(driver_TRANS, refID, testcaseName, worflow_l2, returnData,data.get("Action-Level2"));
-				MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data.get("Action-Level2"));
+				Transmittals_EntryPage.editAndSubmitTransmittalRecord(ApplicationMethods.getSiteName(url),driver_TRANS, refID, testcaseName, worflow_l2, returnData,data.get("Action-Level2"));
+				getResult=MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data.get("Action-Level2"));
+				if(getResult.equalsIgnoreCase(Constants_FRMWRK.False)){
+					CustomExceptions.Exit(testcaseName, worflow_l2+"- Failure", "Unable to continue the test due to above error ");
+				}
 
 			}
 			else if((data.get("TxType").equalsIgnoreCase("Change Note")||data.get("TxType").equalsIgnoreCase("Consultant Advice") )&& (data.get("Action-Level2").equals("Forward"))){
 				worflow_l2=worflow_l2+data.get("Action-Level2")+worflow_end;
-				ApplicationMethods_Falcrum.logOutFromApplicationAndcloseBrowser(driver_TRANS);
+				ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver_TRANS);
 
-				driver_TRANS=ApplicationMethods_Falcrum.launchBrowserAndlogIntoApplication(browserName, url, username2, password2,refID);
+				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, url, username2, password2,refID);
 			
 				MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data);
 				
 				
-				Transmittals_EntryPage.forward(driver_TRANS, worflow_l2, data);
-				MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data.get("Action-Level2"));
+				Transmittals_EntryPage.forwardAndSendTransmittalRecord(ApplicationMethods.getSiteName(url),driver_TRANS, worflow_l2, data);
+				getResult=MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data.get("Action-Level2"));
+				if(getResult.equalsIgnoreCase(Constants_FRMWRK.False)){
+					CustomExceptions.Exit(testcaseName, worflow_l2+"- Failure", "Unable to continue the test due to above error ");
+				}
 			}
 			else if(data.get("TxType").equalsIgnoreCase("Consultant Advice")){
 				worflow_l2=worflow_l2+" Submit"+worflow_end;
-				ApplicationMethods_Falcrum.logOutFromApplicationAndcloseBrowser(driver_TRANS);
+				ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver_TRANS);
 
-				driver_TRANS=ApplicationMethods_Falcrum.launchBrowserAndlogIntoApplication(browserName, url, username2, password2,refID);
+				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, url, username2, password2,refID);
 
 				MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data);
 				
 				Transmittals_EntryPage.switchToTramsmittalEditFrame(driver_TRANS, refID, testcaseName, worflow_l2);
 				Transmittals_EntryPage.clickCompleteAction(driver_TRANS, worflow_l2);
 				//WaitUtil.pause(3);
-				Transmittals_EntryPage.editItem(driver_TRANS, refID, testcaseName, worflow_l2, returnData,data.get("Action-Level2"));
-				MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data.get("Action-Level2"));
+				Transmittals_EntryPage.editAndSubmitTransmittalRecord(ApplicationMethods.getSiteName(url),driver_TRANS, refID, testcaseName, worflow_l2, returnData,data.get("Action-Level2"));
+				getResult=MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data.get("Action-Level2"));
+				if(getResult.equalsIgnoreCase(Constants_FRMWRK.False)){
+					CustomExceptions.Exit(testcaseName, worflow_l2+"- Failure", "Unable to continue the test due to above error ");
+				}
 
 			}
 			//************************************** LEVEL 3 *****************************************************************************
 			if(!data.get("Action-Level2").isEmpty()&& data.get("Action-Level2").equalsIgnoreCase("Forward")){
 				worflow_l3=worflow_l3+" Submit"+worflow_end;
-				ApplicationMethods_Falcrum.logOutFromApplicationAndcloseBrowser(driver_TRANS);
-				driver_TRANS=ApplicationMethods_Falcrum.launchBrowserAndlogIntoApplication(browserName, url, username1, password1,refID);
+				ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver_TRANS);
+				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, url, username1, password1,refID);
 				String subj=returnData.get("Tramsmittals-Subject");
 				subj="FW: "+subj;
 				returnData.put("Tramsmittals-Subject", subj);
@@ -185,8 +198,11 @@ public class Transmittals_New_ConsultantAdvice extends TestSuiteBase{
 				Transmittals_EntryPage.switchToTramsmittalEditFrame(driver_TRANS, refID, testcaseName, worflow_l3);
 				Transmittals_EntryPage.clickCompleteAction(driver_TRANS, worflow_l3);
 				//WaitUtil.pause(3);
-				Transmittals_EntryPage.editItem(driver_TRANS, refID, testcaseName, worflow_l3, returnData,data.get("Action-Level3"));
-				MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l3, returnData,data.get("Action-Level3"));
+				Transmittals_EntryPage.editAndSubmitTransmittalRecord(ApplicationMethods.getSiteName(url),driver_TRANS, refID, testcaseName, worflow_l3, returnData,data.get("Action-Level3"));
+				getResult=MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l3, returnData,data.get("Action-Level3"));
+				if(getResult.equalsIgnoreCase(Constants_FRMWRK.False)){
+					CustomExceptions.Exit(testcaseName, worflow_l3+"- Failure", "Unable to continue the test due to above error ");
+				}
 
 			}
 			logsObj.log(" after test of "+testcaseName+"-testresult"+isTestPass);
@@ -207,7 +223,7 @@ public class Transmittals_New_ConsultantAdvice extends TestSuiteBase{
 			if (!isBeforeMethodPass==Constants_FRMWRK.FalseB){
 				WaitUtil.pause(2);
 				//ApplicationMethods_Falcrum.logOutFromApplication(driver_TRANS);
-				ApplicationMethods_Falcrum.logOutFromApplicationAndcloseBrowser(driver_TRANS);
+				ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver_TRANS);
 				
 				logsObj.log(" after test of "+testcaseName+"-AfterTest successful");			}
 		} catch (Throwable t) {
