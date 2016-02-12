@@ -6,16 +6,19 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 
+import org.openqa.selenium.WebDriver;
+
 import atu.utils.windows.handler.WindowElement;
 import atu.utils.windows.handler.WindowHandler;
 import atu.utils.windows.handler.exceptions.WindowsHandlerException;
 
 import com.frw.Constants.Constants_FRMWRK;
+import com.proj.library.commonMethods;
 import com.report.reporter.Reporting;
 
 public class Dialogs {
 	
-	public static void userAuthentication(String browser,String url,String username,String password) throws WindowsHandlerException, InterruptedException{
+	public static void userAuthentication(WebDriver driver,String browser,String url,String username,String password) throws WindowsHandlerException, InterruptedException{
 		WindowElement windowElement;
 		WindowElement authwindowElement = null;
 		AutoITUtil.loadJocobDLL();
@@ -24,7 +27,11 @@ public class Dialogs {
 		WindowHandler handle=AutoIT_ActionsUtil.getHandler();
 		
 		if(browser.equalsIgnoreCase("ie")){
-			 windowElement=AutoIT_ActionsUtil.getDialog(handle,"WebDriver - Internet Explorer");
+			if(commonMethods.getBrowserVersion(driver).contains("11")){
+				 windowElement=AutoIT_ActionsUtil.getDialog(handle,"WebDriver - Internet Explorer");
+			}else{
+					windowElement=AutoIT_ActionsUtil.getDialog(handle,"WebDriver - Windows Internet Explorer");
+			}			
 			 authwindowElement=AutoIT_ActionsUtil.elementByName(handle, windowElement, "Windows Security");
 			 user_auth_ie(handle, authwindowElement, username, password);
 		}
