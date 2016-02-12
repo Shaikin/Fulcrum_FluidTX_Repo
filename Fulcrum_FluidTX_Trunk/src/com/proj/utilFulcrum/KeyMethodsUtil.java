@@ -3,16 +3,17 @@ package com.proj.utilFulcrum;
 import java.util.Hashtable;
 import java.util.List;
 
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import com.frw.Constants.Constants_FRMWRK;
 import com.frw.util.FetchWebElement;
+import com.frw.util.PageLoadWaitUtil;
 import com.frw.util.WaitUtil;
 import com.proj.Constants.Constants_TimeOuts;
 import com.proj.base.TestBase;
-import com.proj.library.ApplicationMethods_Falcrum;
 import com.proj.library.commonMethods;
 import com.proj.objectRepository.ObjRepository;
 import com.report.reporter.Reporting;
@@ -128,14 +129,45 @@ public class KeyMethodsUtil extends TestBase{
 		return flag;
 	}
 	
-	
-	public static String textbox_autosuggest_browse(WebDriver driver,String testcasename,String workFlow,String step,String input,WebElement element) throws Throwable{
+	public static String enter_autoSuggestAndSelectChoice(WebDriver driver,String refID,String testcaseName,String workFlow,String Step,String locatorType, String objectType, String objectLocator,String input,WebElement element) throws Throwable{
+		String flag=Constants_FRMWRK.False;			
+		String generic_autosuggest_step="Enter Suggestion for ";
+		generic_autosuggest_step=workFlow+generic_autosuggest_step+Step;
+
+			//element.click();				
+			if(input.equalsIgnoreCase("Any")){
+				element.sendKeys(Keys.SPACE);
+				element.sendKeys(Keys.BACK_SPACE);
+				Reporting.logStep(driver, refID, generic_autosuggest_step, objectType+": "+objectLocator+" exists and the input value is Any hence entered Space & BackSpace to list all items available", Constants_FRMWRK.Pass);
+			}else{
+				element=FetchWebElement.waitForElement(driver,locatorType, objectLocator, Constants_TimeOuts.Element_TimeOut) ;
+				element.click();
+				WaitUtil.pause(300L);
+				element.clear();
+				WaitUtil.pause(300L);
+				element.sendKeys(new String[]{input});					
+				WaitUtil.pause(3);
+			}									    					
+			logsObj.log(testcaseName+"--> "+objectLocator+" exists and the value entered is "+input);
+			Reporting.logStep(driver, refID, generic_autosuggest_step, objectType+": "+objectLocator+" exists and the value entered is "+input, Constants_FRMWRK.Pass);
+			if(!input.equalsIgnoreCase("") ){					
+				PageLoadWaitUtil.waitForAjax(driver);
+				PageLoadWaitUtil.waitForPageToLoad(driver);
+				WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);
+				flag=KeyMethodsUtil.js_selectChoice(driver, workFlow, Step, objectLocator, input);
+			}
+			
+			return flag;
+	}
+	public static String enter_autosuggest_browse(WebDriver driver,String testcasename,String workFlow,String step,String input,WebElement element) throws Throwable{
 		String flag=Constants_FRMWRK.False;
+		String generic_autosuggest_step="Select Suggestion for ";
+		generic_autosuggest_step=workFlow+generic_autosuggest_step+step;
 		try{
 			element.click();
 			try{
 				//commonMethods.switchToFrameFromDefault(driver, testcaseName, Constants_FRMWRK.FindElementByXPATH, ObjRepository.frame_double);
-				ApplicationMethods_Falcrum.switchToLatestDLGframe(driver,testcasename);
+				ApplicationMethods.switchToLatestDLGframe(driver,testcasename);
 				WebElement prvPage=FetchWebElement.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.choice_prvpage, Constants_TimeOuts.Element_TimeOut);
 				if(prvPage!=null && prvPage.isDisplayed()==true){
 					prvPage.click();
@@ -172,7 +204,7 @@ public class KeyMethodsUtil extends TestBase{
 		}
 		finally{
 			WaitUtil.pause(500L);
-			ApplicationMethods_Falcrum.switchToLatestDLGframe(driver,testcasename);
+			ApplicationMethods.switchToLatestDLGframe(driver,testcasename);
 		}
 		return flag;
 	}

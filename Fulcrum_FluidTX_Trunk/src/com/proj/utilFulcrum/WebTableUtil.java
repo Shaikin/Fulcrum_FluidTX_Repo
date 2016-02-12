@@ -28,7 +28,7 @@ public class WebTableUtil extends TestBase{
 	 * @param colXpath
 	 * @return
 	 */
-	private static List<WebElement> waitUntilAllVisible(WebDriver driver, String colXpath){
+	public static List<WebElement> waitUntilAllVisible(WebDriver driver, String colXpath){
 		int counter =1;
 		List<WebElement> rows_search_previous =null;
 		List<WebElement> rows_search_current = null;
@@ -228,9 +228,7 @@ public class WebTableUtil extends TestBase{
 
 			final List<WebElement> rows_search = waitUntilAllVisible(driver,colXpath_search);
 			final List<WebElement> rows_action = waitUntilAllVisible(driver,colXpath_action);
-		/*	final List<WebElement> rows_search = FetchWebElement.visibleElementsList(driver, Constants_FRMWRK.FindElementByXPATH, colXpath_search);
-			final List<WebElement> rows_action = FetchWebElement.visibleElementsList(driver, Constants_FRMWRK.FindElementByXPATH, colXpath_action);;
-*/
+	
 			WaitUtil.pause(100L);
 
 			for (WebElement rowSearch : rows_search) { 
@@ -387,10 +385,23 @@ public class WebTableUtil extends TestBase{
 		}
 		return flag;
 	}
-	
-	public static String searchforDataInsearchColumnAndClickInactionableLinkColumn(WebDriver driver,String testcaseName,String Step,String containerName,String searchData,String actionData,int colToSearch,int actionPerformCol){
+	/**
+	 * Searches and validate the data in the respective columns provided and clicks on required column
+	 * @author shaikka
+	 * @param driver
+	 * @param testcaseName
+	 * @param Step
+	 * @param containerName
+	 * @param searchData
+	 * @param actionColumnType
+	 * @param actionData
+	 * @param colToSearch
+	 * @param actionPerformCol
+	 * @return
+	 */
+	public static String searchforDataInsearchColumnAndClickInactionableLinkColumn(WebDriver driver,String testcaseName,String Step,String containerName,String searchData,String actionColumnType,String actionData,int colToSearch,int actionPerformCol){
 		String flag=Constants_FRMWRK.False;
-
+		String colXpath_action;
 		String rowNumber="row";
 		int rowCount=0;
 
@@ -401,7 +412,12 @@ public class WebTableUtil extends TestBase{
 		}
 
 		String colXpath_search= "//table[@summary='containerName']/descendant :: tr /td[ToSearchColumn]";
-		String colXpath_action="//table[@summary='containerName']/descendant :: tr /td[actionPerformCol]/a";
+		if(actionColumnType.equalsIgnoreCase("LINK")){
+			colXpath_action="//table[@summary='containerName']/descendant :: tr /td[actionPerformCol]/a";
+		}else{
+			colXpath_action="//table[@summary='containerName']/descendant :: tr /td[actionPerformCol]";
+		}
+		
 
 		colXpath_search=commonMethods.replaceString("containerName",colXpath_search,containerName);
 		colXpath_search=commonMethods.replaceString("ToSearchColumn",colXpath_search,Integer.toString(colToSearch));
