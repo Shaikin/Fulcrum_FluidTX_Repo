@@ -9,13 +9,11 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import com.frw.Constants.Constants_FRMWRK;
-import com.frw.util.WaitUtil;
 import com.proj.Constants.Constants;
-import com.proj.library.ApplicationMethods_Falcrum;
-import com.proj.navigations.Navigations_USERSITE;
-import com.proj.suiteDOCS.testdata.pages.Documents_EntryPage;
+import com.proj.navigations.Navigations_Fulcrum;
 import com.proj.util.CustomExceptions;
 import com.proj.util.TestExecutionUtil;
+import com.proj.utilFulcrum.ApplicationMethods;
 
 public class Documents_New extends TestSuiteBase{
 
@@ -52,7 +50,7 @@ public class Documents_New extends TestSuiteBase{
 		try {
 
 			if(!isBeforeTestPass ==Constants_FRMWRK.FalseB){				
-				driver_DOCS=ApplicationMethods_Falcrum.launchBrowserAndlogIntoApplication(browserName, CONFIG.getProperty("testSiteName"), CONFIG.getProperty("userUserName"), CONFIG.getProperty("userpassword"), refID);
+				driver_DOCS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, CONFIG.getProperty("testSiteName"), CONFIG.getProperty("userUserName"), CONFIG.getProperty("userpassword"), refID);
 				logsObj.log("Before method success for "+testcaseName);
 			}else{
 				CustomExceptions.Exit(testcaseName, "Before Method-Failure", "Due to above error in the Before Test cannot execute the test..");
@@ -74,7 +72,7 @@ public class Documents_New extends TestSuiteBase{
 	public static void TestDocuments_New(Hashtable<String,String>data
 			) throws Throwable{
 		System.out.println("In test");
-		Navigations_USERSITE.DocumentsAndFileStorage.navigateToBusinessCenter(driver_DOCS);
+		Navigations_Fulcrum.DocumentsAndFileStorage.navigateToBusinessCenter(driver_DOCS);
 		//Documents_EntryPage.uploadADocumentIntoApplication(driver_DOCS, refID, testcaseName, worflow_upload, data);
 	}
 
@@ -87,7 +85,7 @@ public class Documents_New extends TestSuiteBase{
 			if (!isBeforeMethodPass==Constants_FRMWRK.FalseB){
 				
 				//ApplicationMethods_Falcrum.logOutFromApplication(driver_TRANS);
-				ApplicationMethods_Falcrum.logOutFromApplicationAndcloseBrowser(driver_DOCS);
+				ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver_DOCS);
 
 				logsObj.log(" after test of "+testcaseName+"-AfterTest successful");			}
 		} catch (Throwable t) {
