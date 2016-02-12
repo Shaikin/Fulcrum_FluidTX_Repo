@@ -9,15 +9,12 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import com.frw.Constants.Constants_FRMWRK;
-import com.frw.util.WaitUtil;
 import com.proj.Constants.Constants;
-import com.proj.library.ApplicationMethods_Falcrum;
-import com.proj.navigations.Navigations_FliuidTX;
-import com.proj.suiteTRANSMITTALS.pages.MyInboxPage;
-import com.proj.suiteTRANSMITTALS.pages.MySentPage;
-import com.proj.suiteTRANSMITTALS.pages.Transmittals_EntryPage;
+import com.proj.library.LocalDriverManager;
+import com.proj.suiteTRANSMITTALS.workflows.Workflows;
 import com.proj.util.CustomExceptions;
 import com.proj.util.TestExecutionUtil;
+import com.proj.utilFulcrum.ApplicationMethods;
 
 
 public class FLD_Transmittals_New_IssuedForInformation extends TestSuiteBase{
@@ -29,19 +26,19 @@ public class FLD_Transmittals_New_IssuedForInformation extends TestSuiteBase{
 	private static boolean isBeforeTestPass=Constants_FRMWRK.TrueB;
 	private static boolean isBeforeMethodPass=Constants_FRMWRK.TrueB;
 
-	static Hashtable<String,String>returnData=new Hashtable<String,String>();
-	private String local_refID="TRAN-01";
-	private static String worflow_l1="Level-1:-Initiation of Transmittal";
-	private static String worflow_l2="Level-2:-Recieve Transmittal and ";
-	private static String worflow_l3="Level-3:-Recieve Transmittal and ";
-	private static String worflow_end=" || ";
+	static Hashtable<String,String>transmittalData=new Hashtable<String,String>();
+	private String local_refID="FLU-TRAN-01";
+	private static String workflow_l1="Level-1:-Initiation of Transmittal";
+	private static String workflow_l2="Level-2:-Recieve Transmittal and ";
+	private static String workflow_end=" || ";
 	private static String url;
 	private static String username1;
 	private static String password1;
-	
+	private static String username2;
+	private static String password2;
+
 
 	@BeforeTest
-
 	public void testPrerequisite() throws Throwable{
 		refID=local_refID;
 		logsObj.log("starting before test of "+local_testcaseName);
@@ -53,6 +50,8 @@ public class FLD_Transmittals_New_IssuedForInformation extends TestSuiteBase{
 		url=CONFIG.getProperty("testSiteName");
 		username1=CONFIG.getProperty("userUserName");
 		password1=CONFIG.getProperty("userpassword");
+		username2=CONFIG.getProperty("userUserName2");
+		password2=CONFIG.getProperty("userpassword2");
 		try{
 
 			TestExecutionUtil.initialiseTestFlags(testcaseName);
@@ -68,11 +67,7 @@ public class FLD_Transmittals_New_IssuedForInformation extends TestSuiteBase{
 		try {
 
 			if(!isBeforeTestPass ==Constants_FRMWRK.FalseB){				
-//Dialogs.browse(browserName, "C:\\Users\\Khaleel\\Desktop\\TestingFromAutomation.docx", "Business Case - All Documents")	;		
-				
-				
-				//ApplicationMethods_Falcrum.logIntoApplication(driver_TRANS, browserName, CONFIG.getProperty("testSiteName"), CONFIG.getProperty("userUserName"), CONFIG.getProperty("userpassword"));
-				driver_TRANS=ApplicationMethods_Falcrum.launchBrowserAndlogIntoApplication(browserName, url, username1, password1, refID);
+				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, url, username1, password1, refID);
 				logsObj.log("Before method success for "+testcaseName);
 			}else{
 				CustomExceptions.Exit(testcaseName, "Before Method-Failure", "Due to above error in the Before Test cannot execute the test..");
@@ -94,101 +89,29 @@ public class FLD_Transmittals_New_IssuedForInformation extends TestSuiteBase{
 	public static void TestFLD_Transmittals_New_IssuedForInformation(Hashtable<String,String>data
 			) throws Throwable{
 		System.out.println("In test");
-		String appName=ApplicationMethods_Falcrum.getSiteName(url);
-		String username2=CONFIG.getProperty("userUserName2");
-		String password2=CONFIG.getProperty("userpassword2");
-		
+
+
+
 		logsObj.log("******************************************************");		
 		logsObj.log("Executing the test case: "+testcaseName);
-
+		
 		try{
-			//************************************** LEVEL 1 *****************************************************************************
-			worflow_l1=worflow_l1+" ["+data.get("TxType")+"]"+worflow_end;		
-			Navigations_FliuidTX.Transmittals.navigateToNewTransmittal(driver_TRANS);
-			//WaitUtil.pause(2);				
-
-			returnData=Transmittals_EntryPage.newItem(appName,driver_TRANS, refID,testcaseName,worflow_l1,  data);
-			System.out.println("Done.."+returnData);
-
-			if (returnData.size()==0 || returnData.get("Tramsmittals-Subject").equals(Constants_FRMWRK.False)){
-				logsObj.log("Due to above error in the test case"+testcaseName+" hence quiting ,cannot continue further steps of the testcase");
-				CustomExceptions.Exit(testcaseName, "Failure during New Transmittal entry for the test case"+testcaseName, "Please refer the above error details for more information");
+			if(isBeforeMethodPass==Constants_FRMWRK.FalseB){
+				CustomExceptions.Exit(testcaseName, "Before Method-Failure", "Due to above error in the Before Method cannot execute the test..");
 			}
+			String siteName=ApplicationMethods.getSiteName(url);
+			String condition="";
+			condition=" ["+data.get("IssueReason")+"]";
 
-			getResult=MySentPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l1, returnData);
-
-
+			//************************************** LEVEL 1 *****************************************************************************
+			workflow_l1=workflow_l1+condition+workflow_end;		
+			
+			transmittalData=Workflows.Level1_Initaite_Transmittal(driver_TRANS, url, workflow_l1, data);
 
 			//************************************** LEVEL 2 *****************************************************************************		
-			if(data.get("TxType").equalsIgnoreCase("Correspondence")){
-				worflow_l2=worflow_l2+" validate"+worflow_end;
-				ApplicationMethods_Falcrum.logOutFromApplicationAndcloseBrowser(driver_TRANS);
-
-				driver_TRANS=ApplicationMethods_Falcrum.launchBrowserAndlogIntoApplication(browserName, url, username2, password2,refID);
-
-				MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data);
-
-			}
+			driver_TRANS=Workflows.Level2_Validate_OR_Submit_OR_ApproveOrReject_OR_Forward_Transmittal(siteName,driver_TRANS, workflow_l2, condition, workflow_end, url, browserName, username2, password2, transmittalData, data);
 			
-			else if(data.get("TxType").equalsIgnoreCase("Change Note") && (data.get("Action-Level2").equals("Approved")|| data.get("Action-Level2").equals("Rejected"))){
-				worflow_l2=worflow_l2+data.get("Action-Level2")+worflow_end;
-				ApplicationMethods_Falcrum.logOutFromApplicationAndcloseBrowser(driver_TRANS);
-
-				driver_TRANS=ApplicationMethods_Falcrum.launchBrowserAndlogIntoApplication(browserName, url, username2, password2,refID);
-
-				MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data);
-				
-				//Transmittals_EntryPage.switchToTramsmittalEditFrame(driver_TRANS, refID, testcaseName, workFlow_ValidateNewTransmittal);
-				Transmittals_EntryPage.clickCompleteAction(driver_TRANS, worflow_l2);
-				
-				Transmittals_EntryPage.editItem(driver_TRANS, refID, testcaseName, worflow_l2, returnData,data.get("Action-Level2"));
-				MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data.get("Action-Level2"));
-
-			}
-			else if((data.get("TxType").equalsIgnoreCase("Change Note")||data.get("TxType").equalsIgnoreCase("Consultant Advice") )&& (data.get("Action-Level2").equals("Forward"))){
-				worflow_l2=worflow_l2+data.get("Action-Level2")+worflow_end;
-				ApplicationMethods_Falcrum.logOutFromApplicationAndcloseBrowser(driver_TRANS);
-
-				driver_TRANS=ApplicationMethods_Falcrum.launchBrowserAndlogIntoApplication(browserName, url, username2, password2,refID);
 			
-				MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data);
-				
-				
-				Transmittals_EntryPage.forward(driver_TRANS, worflow_l2, data);
-				MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data.get("Action-Level2"));
-			}
-			else if(data.get("TxType").equalsIgnoreCase("Consultant Advice")){
-				worflow_l2=worflow_l2+" Submit"+worflow_end;
-				ApplicationMethods_Falcrum.logOutFromApplicationAndcloseBrowser(driver_TRANS);
-
-				driver_TRANS=ApplicationMethods_Falcrum.launchBrowserAndlogIntoApplication(browserName, url, username2, password2,refID);
-
-				MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data);
-				
-				Transmittals_EntryPage.switchToTramsmittalEditFrame(driver_TRANS, refID, testcaseName, worflow_l2);
-				Transmittals_EntryPage.clickCompleteAction(driver_TRANS, worflow_l2);
-				//WaitUtil.pause(3);
-				Transmittals_EntryPage.editItem(driver_TRANS, refID, testcaseName, worflow_l2, returnData,data.get("Action-Level2"));
-				MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data.get("Action-Level2"));
-
-			}
-			//************************************** LEVEL 3 *****************************************************************************
-			if(!data.get("Action-Level2").isEmpty()&& data.get("Action-Level2").equalsIgnoreCase("Forward")){
-				worflow_l3=worflow_l3+" Submit"+worflow_end;
-				ApplicationMethods_Falcrum.logOutFromApplicationAndcloseBrowser(driver_TRANS);
-				driver_TRANS=ApplicationMethods_Falcrum.launchBrowserAndlogIntoApplication(browserName, url, username1, password1,refID);
-				String subj=returnData.get("Tramsmittals-Subject");
-				subj="FW: "+subj;
-				returnData.put("Tramsmittals-Subject", subj);
-				MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l3, returnData,data);
-
-				Transmittals_EntryPage.switchToTramsmittalEditFrame(driver_TRANS, refID, testcaseName, worflow_l3);
-				Transmittals_EntryPage.clickCompleteAction(driver_TRANS, worflow_l3);
-				//WaitUtil.pause(3);
-				Transmittals_EntryPage.editItem(driver_TRANS, refID, testcaseName, worflow_l3, returnData,data.get("Action-Level3"));
-				MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l3, returnData,data.get("Action-Level3"));
-
-			}
 			logsObj.log(" after test of "+testcaseName+"-testresult"+isTestPass);
 
 		}catch(Throwable t){
@@ -205,10 +128,9 @@ public class FLD_Transmittals_New_IssuedForInformation extends TestSuiteBase{
 		try {
 
 			if (!isBeforeMethodPass==Constants_FRMWRK.FalseB){
-				WaitUtil.pause(2);
-				//ApplicationMethods_Falcrum.logOutFromApplication(driver_TRANS);
-				ApplicationMethods_Falcrum.logOutFromApplicationAndcloseBrowser(driver_TRANS);
-				
+				//WaitUtil.pause(2);
+				ApplicationMethods.logOutFromApplicationAndcloseBrowser(LocalDriverManager.getDriver());
+
 				logsObj.log(" after test of "+testcaseName+"-AfterTest successful");			}
 		} catch (Throwable t) {
 			logsObj.log("Not able to logout to the application due to error "+t+" hence cannot continue execution of "+testcaseName);
