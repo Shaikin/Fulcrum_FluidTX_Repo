@@ -12,6 +12,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.ITestResult;
 import org.testng.Reporter;
@@ -193,9 +194,10 @@ public class commonMethods extends TestBase{
 
 	}
 
-	public static void getBrowserVersion(WebDriver driver){
+	public static String getBrowserVersion(WebDriver driver){
 		//String name = ((RemoteWebDriver) driver).getCapabilities().getBrowserName();
 		browserVersion = ((RemoteWebDriver) driver).getCapabilities().getVersion();
+		return browserVersion;
 	}
 
 
@@ -273,6 +275,10 @@ public class commonMethods extends TestBase{
 		((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView(true);", element);
 	}
 
+	public static String getSelectedOptionFromDropdown(WebElement element){
+		Select dropdown = new Select(element);
+		return dropdown.getFirstSelectedOption().getText();	    
+	}
 }
 
 
