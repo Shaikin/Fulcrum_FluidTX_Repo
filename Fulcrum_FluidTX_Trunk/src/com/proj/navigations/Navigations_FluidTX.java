@@ -49,14 +49,25 @@ public class Navigations_FluidTX extends TestSuiteBase{
 	 * @throws Exception
 	 */
 	public static void navigateToTramsmittals(WebDriver driver) throws Exception{
-			commonMethods.switchToDefaultPage(driver);
+		commonMethods.switchToDefaultPage(driver);
 
-			String locator=locator_menu_pattern.replaceAll("objectlocator", objects_objectLocator_Navigation.get("Usersite Menu - Transmittals"));
-			res=KeyMethods.f_performAction(driver, refID, testcaseName, "", objects_step_Navigation.get("Usersite Menu - Transmittals"), objects_locatorType_Navigation.get("Usersite Menu - Transmittals"), objects_objectType_Navigation.get("Usersite Menu - Transmittals"),locator , "");
-			if(res.equals(Constants_FRMWRK.False)){
-				CustomExceptions.Exit(locator, " Navigate Failure - Transmittals", "Please refer above details for more details");
-			}
+		String locator=locator_menu_pattern.replaceAll("objectlocator", objects_objectLocator_Navigation.get("Usersite Menu - Transmittals"));
+		res=KeyMethods.f_performAction(driver, refID, testcaseName, "", objects_step_Navigation.get("Usersite Menu - Transmittals"), objects_locatorType_Navigation.get("Usersite Menu - Transmittals"), objects_objectType_Navigation.get("Usersite Menu - Transmittals"),locator , "");
+		if(res.equals(Constants_FRMWRK.False)){
+			CustomExceptions.Exit(locator, " Navigate Failure - Transmittals", "Please refer above details for more details");
 		}
+	}
+
+	public static void navigateToDocumentRegister(WebDriver driver) throws Exception{
+		String Step="Usersite Menu - Document Register";
+		commonMethods.switchToDefaultPage(driver);
+		String locator=locator_menu_pattern.replaceAll("objectlocator", objects_objectLocator_Navigation.get(Step));
+		res=KeyMethods.f_performAction(driver, refID, testcaseName, "", objects_step_Navigation.get(Step), objects_locatorType_Navigation.get(Step), objects_objectType_Navigation.get(Step),locator , input);
+		if(res.equals(Constants_FRMWRK.False)){
+			CustomExceptions.Exit(locator, " Navigate Failure - "+Step, "Please refer above details for more details");
+		}
+	}
+
 	public static class Transmittals{
 		/**
 		 * Navigates to New Transmittals sub menu
@@ -74,7 +85,7 @@ public class Navigations_FluidTX extends TestSuiteBase{
 			}
 			//ApplicationMethods_Falcrum.getApplicationFrameCount(driver);
 		}
-		
+
 		/**
 		 * Navigates to My Sent Sub menu
 		 * @param driver
@@ -84,7 +95,7 @@ public class Navigations_FluidTX extends TestSuiteBase{
 			navigateToTramsmittals(driver);
 			String key_step="Usersite SubMenu - My Sent";
 			String locator=locator_submenu_pattern.replaceAll("objectlocator", objects_objectLocator_Navigation.get(key_step));
-			
+
 			res=KeyMethods.f_performAction(driver, refID, testcaseName, "", objects_step_Navigation.get(key_step), objects_locatorType_Navigation.get(key_step), objects_objectType_Navigation.get(key_step),locator , "");
 			if(res.equals(Constants_FRMWRK.False)){
 				CustomExceptions.Exit(locator, " Navigate Failure - My Sent", "Please refer above details for more details");
@@ -99,7 +110,7 @@ public class Navigations_FluidTX extends TestSuiteBase{
 			navigateToTramsmittals(driver);
 			String key_step="Usersite SubMenu - My Inbox";
 			String locator=locator_submenu_pattern.replaceAll("objectlocator", objects_objectLocator_Navigation.get(key_step));
-			
+
 			res=KeyMethods.f_performAction(driver, refID, testcaseName, "", objects_step_Navigation.get(key_step), objects_locatorType_Navigation.get(key_step), objects_objectType_Navigation.get(key_step),locator , "");
 			if(res.equals(Constants_FRMWRK.False)){
 				CustomExceptions.Exit(locator, " Navigate Failure - My Inbox", "Please refer above details for more details");
@@ -108,6 +119,6 @@ public class Navigations_FluidTX extends TestSuiteBase{
 	}
 
 
-	
+
 
 }
