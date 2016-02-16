@@ -43,7 +43,7 @@ public class ObjRepository {
 	//Grid Container
 	public static String container_subMenu="//*[@class='ui popup inverted right center']";
 	public static String container_transmittals="Transmittals";
-	public static String container_attachDocument="Document Register";
+	public static String container_documentRegister="Document Register";
 	public static String container_transmittalFiles="transmittalFiles";
 	public static String container_supportingDocumentFiles="supportingDocumentFiles";
 	
