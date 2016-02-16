@@ -321,18 +321,19 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 			}
 			
 		}
-		if(!data.get("AttachDocuments").isEmpty()){			
-			res=KeyMethods.f_performAction(driver, refid, testcasename, workflow, "Tramsmittals-Attach Document", objects_locatorType_Transmittals_toolbar, objects_objectType_Transmittals_toolbar, objects_objectLocator_Transmittals_toolbar, input);
-			ApplicationMethods.waitForOverlayToDisappear(driver);
-			ApplicationMethods.switchToLatestDLGframe(driver, testcasename);
-			
-			res=KeyMethods.f_performAction(driver, refid, testcasename, workflow, "Tramsmittals-Document Registry", objects_locatorType_Transmittals_toolbar, objects_objectType_Transmittals_toolbar, objects_objectLocator_Transmittals_toolbar, data.get("AttachDocuments"));
-			switchToDocumentsListFrame(driver);
-			String page ="Attach Document";
-			WebTableUtil.searchforDataInsearchColumnAndClickInactionableLinkColumn(driver, testcaseName, workflow+" "+page+" - Select a Document", ObjRepository.container_attachDocument, data.get("AttachDocumentName"),"Text", data.get("AttachDocumentName"), 2, 1);
-			res=KeyMethods.f_performAction(driver, refid, testcasename, workflow, "Tramsmittals-Attach", objects_locatorType_Transmittals_toolbar, objects_objectType_Transmittals_toolbar, objects_objectLocator_Transmittals_toolbar, input);
-			ApplicationMethods.waitForOverlayToDisappear(driver);
-			
+		if(!data.get("AttachDocuments").isEmpty()){		
+			if(!data.get("AttachDocuments").isEmpty()){
+				res=KeyMethods.f_performAction(driver, refid, testcasename, workflow, "Tramsmittals-Attach Document", objects_locatorType_Transmittals_toolbar, objects_objectType_Transmittals_toolbar, objects_objectLocator_Transmittals_toolbar, input);
+				ApplicationMethods.waitForOverlayToDisappear(driver);
+				ApplicationMethods.switchToLatestDLGframe(driver, testcasename);
+
+				res=KeyMethods.f_performAction(driver, refid, testcasename, workflow, "Tramsmittals-Document Registry", objects_locatorType_Transmittals_toolbar, objects_objectType_Transmittals_toolbar, objects_objectLocator_Transmittals_toolbar, data.get("AttachDocuments"));
+				switchToDocumentsListFrame(driver);
+				String page ="Attach Document";
+				WebTableUtil.searchforDataInsearchColumnAndClickInactionableLinkColumn(driver, testcaseName, workflow+" "+page+" - Select a Document", ObjRepository.container_documentRegister, data.get("AttachDocumentName"),"Text", data.get("AttachDocumentName"), 2, 1);
+				res=KeyMethods.f_performAction(driver, refid, testcasename, workflow, "Tramsmittals-Attach", objects_locatorType_Transmittals_toolbar, objects_objectType_Transmittals_toolbar, objects_objectLocator_Transmittals_toolbar, input);
+				ApplicationMethods.waitForOverlayToDisappear(driver);
+			}			
 			
 			ApplicationMethods.switchToLatestDLGframe(driver, testcasename);
 			String locator=objects_objectLocator_Transmittals.get("Tramsmittals-Attached Transmittal Files").replaceAll("docName", data.get("AttachDocumentName"));
@@ -348,7 +349,7 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 			res=KeyMethods.f_performAction(driver, refid, testcasename, workflow, "Tramsmittals-Document Registry", objects_locatorType_Transmittals_toolbar, objects_objectType_Transmittals_toolbar, objects_objectLocator_Transmittals_toolbar, data.get("AttachSupportDocuments"));
 			switchToDocumentsListFrame(driver);
 			String page ="Attach Support Document";
-			WebTableUtil.searchforDataInsearchColumnAndClickInactionableLinkColumn(driver, testcaseName, workflow+" "+page+" - Select a Document", ObjRepository.container_attachDocument, data.get("AttachSupportDocumentName"),"Text", data.get("AttachSupportDocumentName"), 2, 1);
+			WebTableUtil.searchforDataInsearchColumnAndClickInactionableLinkColumn(driver, testcaseName, workflow+" "+page+" - Select a Document", ObjRepository.container_documentRegister, data.get("AttachSupportDocumentName"),"Text", data.get("AttachSupportDocumentName"), 2, 1);
 			res=KeyMethods.f_performAction(driver, refid, testcasename, workflow, "Tramsmittals-Attach", objects_locatorType_Transmittals_toolbar, objects_objectType_Transmittals_toolbar, objects_objectLocator_Transmittals_toolbar, input);
 			ApplicationMethods.waitForOverlayToDisappear(driver);			
 			
