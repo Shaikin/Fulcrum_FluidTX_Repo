@@ -205,7 +205,7 @@ public class WebTableUtil extends TestBase{
 
 		String rowNumber="row";
 		int rowCount=0;
-		
+
 		WebElement webtableElement=FetchWebElement.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, "//table[@summary='"+containerName+"']",Constants_TimeOuts.Element_TimeOut);
 		if(webtableElement==null){
 			Reporting.logStep(driver, Step, "Webtable-"+ containerName+" is not displayed on the page", Constants_FRMWRK.Fail);
@@ -228,7 +228,7 @@ public class WebTableUtil extends TestBase{
 
 			final List<WebElement> rows_search = waitUntilAllVisible(driver,colXpath_search);
 			final List<WebElement> rows_action = waitUntilAllVisible(driver,colXpath_action);
-	
+
 			WaitUtil.pause(100L);
 
 			for (WebElement rowSearch : rows_search) { 
@@ -291,8 +291,8 @@ public class WebTableUtil extends TestBase{
 		}
 		return flag;
 	}
-	
-	
+
+
 	public static String searchforDataInsearchColumnAndValidateDataInactionableLinkColumn(WebDriver driver,String testcaseName,String Step,String containerName,String searchData,String actionData,int colToSearch,int actionPerformCol){
 		String flag=Constants_FRMWRK.False;
 
@@ -417,7 +417,7 @@ public class WebTableUtil extends TestBase{
 		}else{
 			colXpath_action="//table[@summary='containerName']/descendant :: tr /td[actionPerformCol]";
 		}
-		
+
 
 		colXpath_search=commonMethods.replaceString("containerName",colXpath_search,containerName);
 		colXpath_search=commonMethods.replaceString("ToSearchColumn",colXpath_search,Integer.toString(colToSearch));
@@ -449,10 +449,10 @@ public class WebTableUtil extends TestBase{
 					try{							
 						while (counter< 5){
 							try{
-									rows_action.get(rowCount).click();
-									WaitUtil.pause(1);
-									clicked=Constants_FRMWRK.TrueB;
-								
+								rows_action.get(rowCount).click();
+								WaitUtil.pause(1);
+								clicked=Constants_FRMWRK.TrueB;
+
 								logsObj.log("searchforDataInColumnAndClickInAcionableColumn:Successfully clicked the record from required column in the table") ;
 
 								break;
@@ -488,6 +488,131 @@ public class WebTableUtil extends TestBase{
 			Reporting.logStep(driver, Step, "Could not locate the required search data "+searchData+" in the table "+colXpath_search+" due to error-->"+e+ "and stack is "+commonMethods.getStackTrace(e), Constants_FRMWRK.Fail);
 			return flag;		
 		}
+
+		if(flag.equalsIgnoreCase(Constants_FRMWRK.False)){
+			isTestPass=Constants_FRMWRK.FalseB;
+			Reporting.logStep(driver, Step, "Unable to list the required search data "+searchData+" in the table "+colXpath_search+ " the complete table data available is: "+tableData, Constants_FRMWRK.Fail);
+		}
+		return flag;
+	}
+
+
+	/**
+	 * Searches the data in the required column (Without Reporting)
+	 * @param driver
+	 * @param testcaseName
+	 * @param Step
+	 * @param containerName
+	 * @param searchData
+	 * @param colToSearch
+	 * @return
+	 */
+	public static String searchforDataInsearchColumn_WOR(WebDriver driver,String testcaseName,String Step,String containerName,String searchData,int colToSearch){
+		String flag=Constants_FRMWRK.False;
+		String rowNumber="row";
+		int rowCount=0;
+
+		WebElement webtableElement=ElementMethods.fetchElement(driver, Constants_FRMWRK.FindElementByXPATH, "//table[@summary='"+containerName+"']");
+		if(webtableElement==null){
+			Reporting.logStep(driver, Step, "Webtable-"+ containerName+" is not displayed on the page", Constants_FRMWRK.Fail);
+			flag=Constants_FRMWRK.False;
+		}
+
+		String colXpath_search= "//table[@summary='containerName']/descendant :: tr /td[ToSearchColumn]";
+
+
+		colXpath_search=commonMethods.replaceString("containerName",colXpath_search,containerName);
+		colXpath_search=commonMethods.replaceString("ToSearchColumn",colXpath_search,Integer.toString(colToSearch));
+
+
+		LinkedHashMap<String,String> tableData=new LinkedHashMap<String,String>();
+
+		try{
+			logsObj.log("Get Grid row count for column under search");
+
+			final List<WebElement> rows_search = waitUntilAllVisible(driver,colXpath_search);
+			WaitUtil.pause(100L);
+
+			for (WebElement rowSearch : rows_search) { 
+
+				tableData.put(rowNumber+Integer.toString(rowCount), rowSearch.getText());
+				logsObj.log("Table- RowNumber-"+rowNumber+" Data:-"+rowSearch.getText().trim()+" Input Data:-"+searchData.trim());
+
+				if(rowSearch.getText().trim().equals(searchData.trim())){
+					flag=Constants_FRMWRK.True;
+					logsObj.log("searchforDataInsearchColumn_WOR : actual data equals to expected data for the record from required column in the table") ;
+					WaitUtil.pause(100L);
+					break;					
+				}
+				rowCount++;
+
+			}
+		}catch(Exception e){
+			isTestPass=Constants_FRMWRK.FalseB;
+			flag=Constants_FRMWRK.Error;
+			Reporting.logStep(driver, Step, "Could not locate the required search data "+searchData+" in the table "+colXpath_search+" due to error-->"+e+ "and stack is "+commonMethods.getStackTrace(e), Constants_FRMWRK.Fail);
+			return flag;		
+		}
+
+		return flag;
+	}
+	/**
+	 * Searches the data in the required column (With Reporting)
+	 * @param driver
+	 * @param testcaseName
+	 * @param Step
+	 * @param containerName
+	 * @param searchData
+	 * @param colToSearch
+	 * @return
+	 */
+	public static String searchforDataInsearchColumn(WebDriver driver,String testcaseName,String Step,String containerName,String searchData,String actionColumnType,int colToSearch){
+		String flag=Constants_FRMWRK.False;
+		String rowNumber="row";
+		int rowCount=0;
+
+		WebElement webtableElement=ElementMethods.fetchElement(driver, Constants_FRMWRK.FindElementByXPATH, "//table[@summary='"+containerName+"']");
+		if(webtableElement==null){
+			Reporting.logStep(driver, Step, "Webtable-"+ containerName+" is not displayed on the page", Constants_FRMWRK.Fail);
+			flag=Constants_FRMWRK.False;
+		}
+
+		String colXpath_search= "//table[@summary='containerName']/descendant :: tr /td[ToSearchColumn]";
+
+
+		colXpath_search=commonMethods.replaceString("containerName",colXpath_search,containerName);
+		colXpath_search=commonMethods.replaceString("ToSearchColumn",colXpath_search,Integer.toString(colToSearch));
+
+
+		LinkedHashMap<String,String> tableData=new LinkedHashMap<String,String>();
+
+		try{
+			logsObj.log("Get Grid row count for column under search");
+
+			final List<WebElement> rows_search = waitUntilAllVisible(driver,colXpath_search);
+			WaitUtil.pause(100L);
+
+			for (WebElement rowSearch : rows_search) { 
+
+				tableData.put(rowNumber+Integer.toString(rowCount), rowSearch.getText());
+				logsObj.log("Table- RowNumber-"+rowNumber+" Data:-"+rowSearch.getText().trim()+" Input Data:-"+searchData.trim());
+
+				if(rowSearch.getText().trim().equals(searchData.trim())){
+					flag=Constants_FRMWRK.True;					
+					logsObj.log("searchforDataInsearchColumn_WOR : actual data equals to expected data for the record from required column in the table") ;
+					Reporting.logStep(driver, Step, "Sucessfully The actual data:-"+rowSearch.getText()+" matches with expected data:-"+searchData+" in the table "+colXpath_search, Constants_FRMWRK.Pass);
+					WaitUtil.pause(100L);
+					break;					
+				}
+				rowCount++;
+			}
+		}catch(Exception e){
+			isTestPass=Constants_FRMWRK.FalseB;
+			flag=Constants_FRMWRK.Error;
+			Reporting.logStep(driver, Step, "Could not locate the required search data "+searchData+" in the table "+colXpath_search+" due to error-->"+e+ "and stack is "+commonMethods.getStackTrace(e), Constants_FRMWRK.Fail);
+			return flag;		
+		}
+
 
 		if(flag.equalsIgnoreCase(Constants_FRMWRK.False)){
 			isTestPass=Constants_FRMWRK.FalseB;
