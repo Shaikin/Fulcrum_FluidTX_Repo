@@ -68,5 +68,9 @@ public class TransmittalsGridUtil extends TestSuiteBase{
 		return WebTableUtil.searchforDataInsearchColumnAndValidateDataInactionableColumn(driver, testcaseName, workflow+" "+page+" - Status", ObjRepository.container_transmittals, subject, status, 4, 13);
 	}
 
+	public static String searchSubject(WebDriver driver,String page,String workflow,String subject) throws Exception{
+		return WebTableUtil.searchforDataInsearchColumn_WOR(driver, testcaseName, workflow+" "+page+" - Subject", ObjRepository.container_transmittals, subject, 4);
+		
+	}
 
 }
