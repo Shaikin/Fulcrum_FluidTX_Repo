@@ -10,6 +10,7 @@ import org.testng.annotations.Test;
 
 import com.frw.Constants.Constants_FRMWRK;
 import com.proj.Constants.Constants;
+import com.proj.Constants.Constants_Workflow;
 import com.proj.library.LocalDriverManager;
 import com.proj.suiteTRANSMITTALS.workflows.Workflows;
 import com.proj.util.CustomExceptions;
@@ -109,7 +110,7 @@ public class FLD_Transmittals_New_IssuedForInformation extends TestSuiteBase{
 			transmittalData=Workflows.Level1_Initaite_Transmittal(driver_TRANS, url, workflow_l1, data);
 
 			//************************************** LEVEL 2 *****************************************************************************		
-			driver_TRANS=Workflows.Level2_Validate_OR_Submit_OR_ApproveOrReject_OR_Forward_Transmittal(siteName,driver_TRANS, workflow_l2, condition, workflow_end, url, browserName, username2, password2, transmittalData, data);
+			driver_TRANS=Workflows.Level2_Validate_OR_Submit_OR_ApproveOrReject_OR_Forward_Transmittal(siteName,Constants_Workflow.page_myInbox,driver_TRANS, workflow_l2, condition, workflow_end, url, browserName, username2, password2, transmittalData, data);
 			
 			
 			logsObj.log(" after test of "+testcaseName+"-testresult"+isTestPass);
