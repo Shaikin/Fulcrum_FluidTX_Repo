@@ -8,6 +8,10 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.firefox.internal.ProfilesIni;
 import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.remote.CapabilityType;
+import org.openqa.selenium.remote.DesiredCapabilities;
+
+import bsh.Capabilities;
 
 import com.frw.Constants.Constants_FRMWRK;
 import com.frw.util.WaitUtil;
@@ -30,7 +34,9 @@ public class Driver extends TestBase{
 	 * @return
 	 */
 	public static WebDriver launchBrowser(String browserType){
-
+		DesiredCapabilities cap=new DesiredCapabilities();
+		cap.setCapability(CapabilityType.TAKES_SCREENSHOT, true);
+		
 		if (browserType.equalsIgnoreCase(Constants.browserfirefox)){
 			isRemoteDriver=Constants_FRMWRK.False;
 			isMobile=Constants_FRMWRK.False;
@@ -60,9 +66,9 @@ public class Driver extends TestBase{
 		}
 		else if(browserType.equalsIgnoreCase(Constants.browserie)) {
 			isRemoteDriver=Constants_FRMWRK.False;
-			isMobile=Constants_FRMWRK.False;
+			isMobile=Constants_FRMWRK.False;			
 			System.setProperty("webdriver.ie.driver", (System.getProperty("user.dir")+"\\src\\com\\proj\\drivers\\IEDriverServer.exe"));
-			driver=new InternetExplorerDriver();
+			driver=new InternetExplorerDriver(cap);
 			bak_ie=driver;
 			driver.manage().window().maximize();					
 			logsObj.log("launching the "+browserType+" browser");
@@ -73,7 +79,7 @@ public class Driver extends TestBase{
 			isRemoteDriver=Constants_FRMWRK.False;
 			isMobile=Constants_FRMWRK.False;
 			System.setProperty("webdriver.chrome.driver", (System.getProperty("user.dir")+"\\src\\com\\proj\\drivers\\chromedriver.exe"));
-			driver=new ChromeDriver();
+			driver=new ChromeDriver(cap);
 			bak_chrome=driver;
 			driver.manage().window().maximize();
 			//maximise();
