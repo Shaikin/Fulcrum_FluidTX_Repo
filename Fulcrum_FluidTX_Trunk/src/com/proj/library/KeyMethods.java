@@ -144,10 +144,10 @@ public class KeyMethods extends TestBase{
 				flag=KeysUtil.isEnabled(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
 				break;
 			case ELEMENT_DISABLE:
-				KeysUtil.isDisabled(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
+				flag=KeysUtil.isDisabled(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
 				break;
 			case ELEMENT_DISABLE_ATTRIBUTE:
-				KeyMethodsUtil.isDisabledWithAttr(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
+				flag=KeyMethodsUtil.isDisabledWithAttr(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
 			}
 
 
@@ -304,10 +304,10 @@ public class KeyMethods extends TestBase{
 				flag=KeysUtil.isEnabled(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
 				break;
 			case ELEMENT_DISABLE:
-				KeysUtil.isDisabled(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
+				flag=KeysUtil.isDisabled(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
 				break;
 			case ELEMENT_DISABLE_ATTRIBUTE:
-				KeyMethodsUtil.isDisabledWithAttr(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
+				flag=KeyMethodsUtil.isDisabledWithAttr(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
 			
 			}
 
