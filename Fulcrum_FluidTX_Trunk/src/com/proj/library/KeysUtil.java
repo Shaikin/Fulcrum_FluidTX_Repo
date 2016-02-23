@@ -133,27 +133,29 @@ public class KeysUtil extends KeyMethods{
 		String flag=Constants_FRMWRK.False;		
 		String generic_autosuggest_step="Enter Suggestion for ";
 		generic_autosuggest_step=workFlow+generic_autosuggest_step+Step;
-
-		element.click();				
-		if(input.equalsIgnoreCase("Any")){
-			element.sendKeys(Keys.SPACE);
-			element.sendKeys(Keys.BACK_SPACE);
-			Reporting.logStep(driver, refID, generic_autosuggest_step, objectType+": "+objectLocator+" exists and the input value is Any hence entered Space & BackSpace to list all items available", Constants_FRMWRK.Pass);
-		}else{
-			objectLocator=objectLocator+ObjRepository.js_autosuggest_input;
-			element=FetchWebElement.waitForElement(driver,locatorType, objectLocator, Constants_TimeOuts.Element_TimeOut) ;
-			element.click();
-			element.sendKeys(input);
-			WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);					
-		}									    					
-		logsObj.log(testcaseName+"--> "+objectLocator+" exists and the value entered is "+input);
-		Reporting.logStep(driver, refID, generic_autosuggest_step, objectType+": "+objectLocator+" exists and the value entered is "+input, Constants_FRMWRK.Pass);
 		if(!input.equalsIgnoreCase("") ){
+			element.click();				
+			if(input.equalsIgnoreCase("Any")){
+				element.sendKeys(Keys.SPACE);
+				element.sendKeys(Keys.BACK_SPACE);
+				Reporting.logStep(driver, refID, generic_autosuggest_step, objectType+": "+objectLocator+" exists and the input value is Any hence entered Space & BackSpace to list all items available", Constants_FRMWRK.Pass);
+			}else{
+				objectLocator=objectLocator+ObjRepository.js_autosuggest_input;
+				element=FetchWebElement.waitForElement(driver,locatorType, objectLocator, Constants_TimeOuts.Element_TimeOut) ;
+				element.click();
+				element.sendKeys(input);
+				WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);					
+			}									    					
+			logsObj.log(testcaseName+"--> "+objectLocator+" exists and the value entered is "+input);
+			Reporting.logStep(driver, refID, generic_autosuggest_step, objectType+": "+objectLocator+" exists and the value entered is "+input, Constants_FRMWRK.Pass);
+
 			objectLocator=objectLocator+ObjRepository.js_autosuggest_items;
 			PageLoadWaitUtil.waitForAjax(driver);
 			PageLoadWaitUtil.waitForPageToLoad(driver);
 			WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);
 			flag=KeyMethodsUtil.js_selectItem(driver, workFlow, Step, objectLocator, input);
+		}else{
+			flag=Constants_FRMWRK.True;	
 		}
 		return flag;
 	}
@@ -261,7 +263,7 @@ public class KeysUtil extends KeyMethods{
 			element.click();				    					
 			logsObj.log(testcaseName+"-->"+objectLocator+" exists and clicked ");
 			Reporting.logStep(driver, refID, Step,  objectType+": "+objectLocator+" exists and clicked  ", Constants_FRMWRK.Pass);
-			flag=Constants_FRMWRK.Pass;
+			flag=Constants_FRMWRK.True;
 		}catch(StaleElementReferenceException ex){
 			logsObj.log("Button-Encountered stale exception for "+objectLocator+" So trying for recovery..");
 			/*int count=StaleElementHandleAndClick(driver,identifyBy,objectLocator);
@@ -768,6 +770,91 @@ public class KeysUtil extends KeyMethods{
 			Reporting.logStep(driver, Step,  objectType+":- "+objectLocator+" Actual Value: "+flag+" does not match with the Expected Displayed Value:- "+cinput+" /Expected Input Value given"+input, Constants_FRMWRK.Fail);
 
 		} 
+		return flag;
+	}
+	
+	/**
+	 * Verifies the given element is enabled
+	 * @author Khaleel
+	 * @param driver
+	 * @param refID
+	 * @param testcaseName
+	 * @param workFlow
+	 * @param Step
+	 * @param locatorType
+	 * @param objectType
+	 * @param objectLocator
+	 * @param input
+	 * @param element
+	 * @return
+	 * @throws Throwable
+	 */
+	protected static String isEnabled(WebDriver driver,String refID,String testcaseName,String workFlow,String Step,String locatorType, String objectType, String objectLocator,String input,WebElement element) throws Throwable{
+		String flag=Constants_FRMWRK.False;
+		String generic_Step="Check Element is enabled ";
+		
+		Step=workFlow+generic_Step+Step;
+
+		try{
+			boolean isEnabled=element.isEnabled();
+			if(String.valueOf(isEnabled).equalsIgnoreCase(Constants_FRMWRK.True)){
+				logsObj.log(testcaseName+"--> "+objectLocator+" exists and enabled status is "+String.valueOf(isEnabled));
+				Reporting.logStep(driver, refID, Step,  objectType+": "+objectLocator+" exists and enable status is "+String.valueOf(isEnabled), Constants_FRMWRK.Pass);
+				flag=Constants_FRMWRK.True;
+			}else{
+				isTestPass=Constants_FRMWRK.FalseB;
+				logsObj.log(testcaseName+"--> "+objectLocator+" exists and enabled status is "+String.valueOf(isEnabled));
+				Reporting.logStep(driver, refID, Step,  objectType+": "+objectLocator+" exists and enable status is "+String.valueOf(isEnabled), Constants_FRMWRK.Fail);
+			}
+			
+		}catch (StaleElementReferenceException st)	{
+			logsObj.logError("Stale exits for the element-"+objectLocator,st);
+			boolean isEnabled=element.isEnabled();
+			if(String.valueOf(isEnabled).equalsIgnoreCase(Constants_FRMWRK.True)){
+				logsObj.log(testcaseName+"--> "+objectLocator+" exists and enabled status is "+String.valueOf(isEnabled));
+				Reporting.logStep(driver, refID, Step,  objectType+": "+objectLocator+" exists and enable status is "+String.valueOf(isEnabled), Constants_FRMWRK.Pass);
+				flag=Constants_FRMWRK.True;
+			}else{
+				isTestPass=Constants_FRMWRK.FalseB;
+				logsObj.log(testcaseName+"--> "+objectLocator+" exists and enabled status is "+String.valueOf(isEnabled));
+				Reporting.logStep(driver, refID, Step,  objectType+": "+objectLocator+" exists and enable status is "+String.valueOf(isEnabled), Constants_FRMWRK.Fail);
+			}
+		}
+		return flag;
+	}
+	
+	
+	protected static String isDisabled(WebDriver driver,String refID,String testcaseName,String workFlow,String Step,String locatorType, String objectType, String objectLocator,String input,WebElement element) throws Throwable{
+		String flag=Constants_FRMWRK.False;
+		String generic_Step="Check Element is disabled ";
+		
+		Step=workFlow+generic_Step+Step;
+
+		try{
+			boolean isEnabled=element.isDisplayed();
+			if(String.valueOf(isEnabled).equalsIgnoreCase(Constants_FRMWRK.False)){
+				logsObj.log(testcaseName+"--> "+objectLocator+" exists and disabled status is "+String.valueOf(isEnabled));
+				Reporting.logStep(driver, refID, Step,  objectType+": "+objectLocator+" exists & disabled , status is "+String.valueOf(isEnabled), Constants_FRMWRK.Pass);
+				flag=Constants_FRMWRK.True;
+			}else{
+				isTestPass=Constants_FRMWRK.FalseB;
+				logsObj.log(testcaseName+"--> "+objectLocator+" exists and disabled status is "+String.valueOf(isEnabled));
+				Reporting.logStep(driver, refID, Step,  objectType+": "+objectLocator+" exists & is not disable , status is "+String.valueOf(isEnabled), Constants_FRMWRK.Fail);
+			}
+			
+		}catch (StaleElementReferenceException st)	{
+			logsObj.logError("Stale exits for the element-"+objectLocator,st);
+			boolean isEnabled=element.isEnabled();
+			if(String.valueOf(isEnabled).equalsIgnoreCase(Constants_FRMWRK.False)){
+				logsObj.log(testcaseName+"--> "+objectLocator+" exists and disabled status is "+String.valueOf(isEnabled));
+				Reporting.logStep(driver, refID, Step,  objectType+": "+objectLocator+" exists and disabled status is "+String.valueOf(isEnabled), Constants_FRMWRK.Pass);
+				flag=Constants_FRMWRK.True;
+			}else{
+				isTestPass=Constants_FRMWRK.FalseB;
+				logsObj.log(testcaseName+"--> "+objectLocator+" exists and disabled status is "+String.valueOf(isEnabled));
+				Reporting.logStep(driver, refID, Step,  objectType+": "+objectLocator+" exists and disabled status is "+String.valueOf(isEnabled), Constants_FRMWRK.Fail);
+			}
+		}
 		return flag;
 	}
 }
