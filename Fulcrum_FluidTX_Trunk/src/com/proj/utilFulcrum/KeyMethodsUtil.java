@@ -162,7 +162,7 @@ public class KeyMethodsUtil extends TestBase{
 	public static String enter_autosuggest_browse(WebDriver driver,String testcasename,String workFlow,String step,String input,WebElement element) throws Throwable{
 		String flag=Constants_FRMWRK.False;
 		String generic_autosuggest_step="Select Suggestion for ";
-		generic_autosuggest_step=workFlow+generic_autosuggest_step+step;
+		step=workFlow+generic_autosuggest_step+step;
 		try{
 			element.click();
 			try{
@@ -183,24 +183,24 @@ public class KeyMethodsUtil extends TestBase{
 					try{
 						WebElement ok=FetchWebElement.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.choice_ok, Constants_TimeOuts.Element_TimeOut);
 						ok.click();
-						Reporting.logStep(driver, step, "Able to select a choice "+input, Constants_FRMWRK.Pass);
+						Reporting.logStep(driver, step, "enter_autosuggest_browse: Able to select a choice "+input, Constants_FRMWRK.Pass);
 						flag=input;
 					}catch(Throwable tttt){
 						isTestPass=Constants_FRMWRK.FalseB;
-						Reporting.logStep(driver, step, "Unable to click on the ok button due to error"+commonMethods.getStackTrace(tttt), Constants_FRMWRK.Fail);
+						Reporting.logStep(driver, step, "enter_autosuggest_browse: Unable to click on the ok button due to error"+commonMethods.getStackTrace(tttt), Constants_FRMWRK.Fail);
 					}
 					
 				}catch(Throwable ttt){
 					isTestPass=Constants_FRMWRK.FalseB;
-					Reporting.logStep(driver, step, "Unable to click on the select button due to error"+commonMethods.getStackTrace(ttt), Constants_FRMWRK.Fail);
+					Reporting.logStep(driver, step, "enter_autosuggest_browse: Unable to click on the select button due to error"+commonMethods.getStackTrace(ttt), Constants_FRMWRK.Fail);
 				}
 			}catch (Throwable tt){
 				isTestPass=Constants_FRMWRK.FalseB;
-				Reporting.logStep(driver, step, "Unable to click on the choice due to error"+commonMethods.getStackTrace(tt), Constants_FRMWRK.Fail);
+				Reporting.logStep(driver, step, "enter_autosuggest_browse: Unable to click on the choice due to error"+commonMethods.getStackTrace(tt), Constants_FRMWRK.Fail);
 			}			
 		}catch (Throwable t){
 			isTestPass=Constants_FRMWRK.FalseB;
-			Reporting.logStep(driver, step, "Unable to click the browse for valid choice due to error"+commonMethods.getStackTrace(t), Constants_FRMWRK.Fail);
+			Reporting.logStep(driver, step, "enter_autosuggest_browse: Unable to click the browse for valid choice due to error"+commonMethods.getStackTrace(t), Constants_FRMWRK.Fail);
 		}
 		finally{
 			WaitUtil.pause(500L);
