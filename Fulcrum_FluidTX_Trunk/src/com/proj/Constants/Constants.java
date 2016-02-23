@@ -43,6 +43,7 @@ public class Constants {
 	//OR Paths
 	public static final String OR_Nav_Path=System.getProperty("user.dir")+"\\src\\com\\proj\\objectRepository\\ObjectsFile_Navigation.xlsx";
 	public static final String OR_Toolbar_Path=System.getProperty("user.dir")+"\\src\\com\\proj\\objectRepository\\ObjectsFile_Toolbars.xlsx";
+	public static final String OR_Popup_Path=System.getProperty("user.dir")+"\\src\\com\\proj\\objectRepository\\ObjectsFile_Popup.xlsx";
 	public static final String OR_TRANS_Path=System.getProperty("user.dir")+"\\src\\com\\proj\\objectRepository\\ObjectsFile_Transmittals.xlsx";
 	public static final String OR_DOCS_Path=System.getProperty("user.dir")+"\\src\\com\\proj\\objectRepository\\ObjectsFile_Documents.xlsx";
 
@@ -81,5 +82,7 @@ public class Constants {
 	public static final String objectType_Link="link";
 	public static final String objectType_WebElement="webelement";
 	
-		
+	//common buttons
+	public static final String ok="OK";
+	public static final String cancel="Cancel";
 }
