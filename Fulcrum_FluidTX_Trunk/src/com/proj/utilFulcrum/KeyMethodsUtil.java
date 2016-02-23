@@ -209,6 +209,39 @@ public class KeyMethodsUtil extends TestBase{
 		return flag;
 	}
 	
+	public static String isDisabledWithAttr(WebDriver driver,String refID,String testcaseName,String workFlow,String Step,String locatorType, String objectType, String objectLocator,String input,WebElement element) throws Throwable{
+		String flag=Constants_FRMWRK.False;
+		String generic_Step="Check Element is disabled ";
+		
+		Step=workFlow+generic_Step+Step;
+
+		try{
+			String isEnabled=element.getAttribute("class");
+			if(isEnabled.contains("disabled")){
+				logsObj.log(testcaseName+"--> "+objectLocator+" exists and disabled status is "+isEnabled);
+				Reporting.logStep(driver, refID, Step,  objectType+": "+objectLocator+" exists and disabled, status is "+isEnabled, Constants_FRMWRK.Pass);
+				flag=Constants_FRMWRK.True;
+			}else{
+				isTestPass=Constants_FRMWRK.FalseB;
+				logsObj.log(testcaseName+"--> "+objectLocator+" exists and but not disabled & status is "+isEnabled);
+				Reporting.logStep(driver, refID, Step,  objectType+": "+objectLocator+" exists and but not disabled & status is  "+String.valueOf(isEnabled), Constants_FRMWRK.Fail);
+			}
+			
+		}catch (StaleElementReferenceException st)	{
+			logsObj.logError("Stale exits for the element-"+objectLocator,st);
+			String isEnabled=element.getAttribute("class");
+			if(String.valueOf(isEnabled).equalsIgnoreCase("disabled")){
+				logsObj.log(testcaseName+"--> "+objectLocator+" exists and disabled status is "+isEnabled);
+				Reporting.logStep(driver, refID, Step,  objectType+": "+objectLocator+" exists and disabled, status is "+isEnabled, Constants_FRMWRK.Pass);
+				flag=Constants_FRMWRK.True;
+			}else{
+				isTestPass=Constants_FRMWRK.FalseB;
+				logsObj.log(testcaseName+"--> "+objectLocator+" exists and but not disabled & status is "+isEnabled);
+				Reporting.logStep(driver, refID, Step,  objectType+": "+objectLocator+" exists and but not disabled & status is  "+String.valueOf(isEnabled), Constants_FRMWRK.Fail);
+			}
+		}
+		return flag;
+	}
 	
 
 }
