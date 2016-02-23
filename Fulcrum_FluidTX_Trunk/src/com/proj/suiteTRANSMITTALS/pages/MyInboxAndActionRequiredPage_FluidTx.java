@@ -89,4 +89,40 @@ public class MyInboxAndActionRequiredPage_FluidTx extends TestSuiteBase{
 
 		return status;
 	}
+	
+	public static String validate_CaC_TxComplete_StatusAndStatus(WebDriver driver,String validationPage,String workflow,Hashtable<String,String>data,String action) throws Exception{
+		String subject = null;
+		String status = null;
+		String TxComplete_Status = null;
+		
+		if(data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForReview)||data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_RequestForInformation)&& action.equalsIgnoreCase("CANCEL")){
+			status="Cancelling from Initiator";
+			TxComplete_Status="Open";
+			subject=data.get("Tramsmittals-Subject");
+		}
+		else if((data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForApproval))&& action.equals("Approved")){
+			status="Approved";
+			TxComplete_Status="Closed";
+			subject=data.get("Tramsmittals-Subject");
+		}
+		else if((data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForApproval))&& action.equals("Rejected")){
+			status="Rejected";
+			TxComplete_Status="Closed";
+			subject=data.get("Tramsmittals-Subject");
+		}
+		else if((!data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForInformation)) && (action.equals("Forward"))){
+			status="Outstanding";
+			TxComplete_Status="Open";
+			subject=data.get("Tramsmittals-Subject");
+		}			
+		if(validationPage.equalsIgnoreCase(Constants_Workflow.page_myInbox)){
+			Navigations_FluidTX.Transmittals.navigateToMyinbox(driver);
+		}else{
+			Navigations_FluidTX.Transmittals.navigateToActionRequired(driver);
+		}
+		TransmittalsGridUtil.searchSubjectAndCheck_TxComplete_Status(driver,validationPage, workflow, subject, TxComplete_Status);
+		TransmittalsGridUtil.searchSubjectAndCheck_Status(driver,validationPage, workflow, subject, status);
+
+		return status;
+	}
 }
