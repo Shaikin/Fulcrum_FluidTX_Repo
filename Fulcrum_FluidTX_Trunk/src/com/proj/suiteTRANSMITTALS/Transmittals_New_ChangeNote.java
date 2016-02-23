@@ -127,7 +127,7 @@ public class Transmittals_New_ChangeNote extends TestSuiteBase{
 			//************************************** LEVEL 2 *****************************************************************************		
 			if(data.get("TxType").equalsIgnoreCase("Correspondence")){
 				worflow_l2=worflow_l2+" validate"+worflow_end;
-				ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver_TRANS);
+				ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver_TRANS,refID,testcaseName);
 
 				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, url, username2, password2,refID);
 
@@ -140,7 +140,7 @@ public class Transmittals_New_ChangeNote extends TestSuiteBase{
 
 			else if(data.get("TxType").equalsIgnoreCase("Change Note") && (data.get("Action-Level2").equals("Approved")|| data.get("Action-Level2").equals("Rejected"))){
 				worflow_l2=worflow_l2+data.get("Action-Level2")+worflow_end;
-				ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver_TRANS);
+				ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver_TRANS,refID,testcaseName);
 
 				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, url, username2, password2,refID);
 
@@ -158,7 +158,7 @@ public class Transmittals_New_ChangeNote extends TestSuiteBase{
 			}
 			else if((data.get("TxType").equalsIgnoreCase("Change Note")||data.get("TxType").equalsIgnoreCase("Consultant Advice") )&& (data.get("Action-Level2").equals("Forward"))){
 				worflow_l2=worflow_l2+data.get("Action-Level2")+worflow_end;
-				ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver_TRANS);
+				ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver_TRANS,refID,testcaseName);
 
 				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, url, username2, password2,refID);
 
@@ -172,7 +172,7 @@ public class Transmittals_New_ChangeNote extends TestSuiteBase{
 			}
 			else if(data.get("TxType").equalsIgnoreCase("Consultant Advice")){
 				worflow_l2=worflow_l2+" Submit"+worflow_end;
-				ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver_TRANS);
+				ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver_TRANS,refID,testcaseName);
 
 				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, url, username2, password2,refID);
 
@@ -191,7 +191,7 @@ public class Transmittals_New_ChangeNote extends TestSuiteBase{
 			//************************************** LEVEL 3 *****************************************************************************
 			if(!data.get("Action-Level2").isEmpty()&& data.get("Action-Level2").equalsIgnoreCase("Forward")){
 				worflow_l3=worflow_l3+" Submit for "+data.get("Action-Level3")+worflow_end;
-				ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver_TRANS);
+				ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver_TRANS,refID,testcaseName);
 				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, url, username1, password1,refID);
 				String subj=returnData.get("Tramsmittals-Subject");
 				subj="FW: "+subj;
@@ -226,7 +226,7 @@ public class Transmittals_New_ChangeNote extends TestSuiteBase{
 			if (!isBeforeMethodPass==Constants_FRMWRK.FalseB){
 				WaitUtil.pause(2);
 				//ApplicationMethods_Falcrum.logOutFromApplication(driver_TRANS);
-				ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver_TRANS);
+				ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver_TRANS,refID,testcaseName);
 
 				logsObj.log(" after test of "+testcaseName+"-AfterTest successful");			}
 		} catch (Throwable t) {
