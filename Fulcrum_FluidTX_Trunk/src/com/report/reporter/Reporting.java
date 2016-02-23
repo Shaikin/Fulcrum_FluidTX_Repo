@@ -7,6 +7,7 @@ import java.util.Date;
 
 import org.openqa.selenium.WebDriver;
 
+import com.frw.Constants.Constants_FRMWRK;
 import com.frw.util.FileUtil;
 import com.frw.util.WaitUtil;
 import com.proj.base.TestBase;
@@ -73,6 +74,9 @@ public class Reporting extends TestBase{
 			htmlStep(driver, currentSuite_bfw, moduleName, scenarioName, refID, testcaseName, browserName, browserVersion, System.getProperty("os.name").toLowerCase(), Step, stepDescription, status);
 		}
 		
+		if(status.equalsIgnoreCase(Constants_FRMWRK.Fail)){
+			isTestPass=Constants_FRMWRK.FalseB;
+		}
 	}
 	/**
 	 * Logs the step action details of a test under suite into the relevant suite summary sheet/page
@@ -93,6 +97,9 @@ public class Reporting extends TestBase{
 			htmlStep( currentSuite_bfw, moduleName, scenarioName, refID, testcaseName, browserName, browserVersion, System.getProperty("os.name").toLowerCase(), Step, stepDescription, status);
 		}
 		
+		if(status.equalsIgnoreCase(Constants_FRMWRK.Fail)){
+			isTestPass=Constants_FRMWRK.FalseB;
+		}
 	}
 	
 	/**
@@ -112,7 +119,32 @@ public class Reporting extends TestBase{
 		if (CONFIG.getProperty("htmlReporting").equalsIgnoreCase("YES")){
 			htmlStep(driver, currentSuite_bfw, moduleName, scenarioName, refID, testcaseName, browserName, browserVersion, System.getProperty("os.name").toLowerCase(), Step, stepDescription, status);
 		}
+		if(status.equalsIgnoreCase(Constants_FRMWRK.Fail)){
+			isTestPass=Constants_FRMWRK.FalseB;
+		}
+	}
+	
+	/**
+	 * Logs the step action details of a test under suite into the relevant suite summary sheet/page
+	 * @author khshaik
+	 * @date Nov 05 2014
+	 * @param driver
+	 * @param refID
+	 * @param Step
+	 * @param stepDescription
+	 * @param status
+	 */
+	public static void logStep(WebDriver driver,String refID,String testcaseName,String Step,String stepDescription,String status){
+		if (CONFIG.getProperty("excelReporting").equalsIgnoreCase("YES")){
+			excelStep(driver, currentSuite_Sheetname, moduleName, scenarioName, refID, testcaseName, browserName, browserVersion, System.getProperty("os.name").toLowerCase(), Step, stepDescription, status);			
+		}
 		
+		if (CONFIG.getProperty("htmlReporting").equalsIgnoreCase("YES")){
+			htmlStep(driver, currentSuite_bfw, moduleName, scenarioName, refID, testcaseName, browserName, browserVersion, System.getProperty("os.name").toLowerCase(), Step, stepDescription, status);
+		}
+		if(status.equalsIgnoreCase(Constants_FRMWRK.Fail)){
+			isTestPass=Constants_FRMWRK.FalseB;
+		}
 	}
 	
 	/**
