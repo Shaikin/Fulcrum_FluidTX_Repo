@@ -85,7 +85,7 @@ public class Documents_New extends TestSuiteBase{
 			if (!isBeforeMethodPass==Constants_FRMWRK.FalseB){
 				
 				//ApplicationMethods_Falcrum.logOutFromApplication(driver_TRANS);
-				ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver_DOCS);
+				ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver_DOCS,refID,testcaseName);
 
 				logsObj.log(" after test of "+testcaseName+"-AfterTest successful");			}
 		} catch (Throwable t) {

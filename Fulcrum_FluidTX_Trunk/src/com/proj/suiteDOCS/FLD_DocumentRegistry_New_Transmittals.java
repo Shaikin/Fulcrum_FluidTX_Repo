@@ -103,7 +103,7 @@ public class FLD_DocumentRegistry_New_Transmittals extends TestSuiteBase{
 		
 		transmittalData=Workflows.Level1_Initaite_Transmittal_FromDocumentRegister(driver_DOCS, url, workflow_l1, data);
 		//************************************** LEVEL 2 *****************************************************************************		
-		driver_DOCS=Workflows.Level2_Validate_OR_Submit_OR_ApproveOrReject_OR_Forward_Transmittal(siteName,Constants_Workflow.page_actionRequired,driver_DOCS, workflow_l2, condition, workflow_end, url, browserName, username2, password2, transmittalData, data);
+		driver_DOCS=Workflows.Level2_Validate_OR_Submit_OR_ApproveOrReject_OR_Forward_Transmittal(siteName,Constants_Workflow.page_actionRequired,driver_DOCS,refID,testcaseName, workflow_l2, condition, workflow_end, url, browserName, username2, password2, transmittalData, data);
 		
 		
 		logsObj.log(" after test of "+testcaseName+"-testresult"+isTestPass);
@@ -116,7 +116,7 @@ public class FLD_DocumentRegistry_New_Transmittals extends TestSuiteBase{
 		logsObj.log("Aft method "+testcaseName);
 		try {
 			if (!isBeforeMethodPass==Constants_FRMWRK.FalseB){
-				ApplicationMethods.logOutFromApplicationAndcloseBrowser(LocalDriverManager.getDriver());
+				ApplicationMethods.logOutFromApplicationAndcloseBrowser(LocalDriverManager.getDriver(),refID,testcaseName);
 				logsObj.log(" after test of "+testcaseName+"-AfterTest successful");			}
 		} catch (Throwable t) {
 			logsObj.log("Not able to logout to the application due to error "+t+" hence cannot continue execution of "+testcaseName);
