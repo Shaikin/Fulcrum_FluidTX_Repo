@@ -91,6 +91,9 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 	public static void clickCancel(WebDriver driver,String workFlow){
 		res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-Cancel", objects_locatorType_Transmittals, objects_objectType_Transmittals, objects_objectLocator_Transmittals, input);
 	}
+	public static void clickToolbarCancel(WebDriver driver,String workFlow){
+		res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-Cancel", objects_locatorType_Transmittals_toolbar, objects_objectType_Transmittals_toolbar, objects_objectLocator_Transmittals_toolbar, input);
+	}
 	/**
 	 * Clicks on Submit button of a Transmittal
 	 * @author shaikka
@@ -139,6 +142,45 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 			CustomExceptions.Exit(testcaseName, "Tramsmittals-Forward -Failure", "Please refer above details for more details");
 		}
 		Transmittals_EntryPage.waitInvisiblilityofWorkingTitle(driver);
+	}
+	
+	public static void clickCloseTransmittal(WebDriver driver,String workFlow) throws Throwable{
+		Transmittals_EntryPage.switchToTramsmittalEditFrame(driver, refID, testcaseName, workFlow);
+		WaitUtil.pause(3);		
+		res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-Close Transmittal", objects_locatorType_Transmittals_toolbar, objects_objectType_Transmittals_toolbar, objects_objectLocator_Transmittals_toolbar, input);
+		if(res.equalsIgnoreCase(Constants_FRMWRK.False)){
+			CustomExceptions.Exit(testcaseName, "Tramsmittals-Close Transmittal -Failure", "Please refer above details for more details");
+		}
+		Transmittals_EntryPage.waitInvisiblilityofWorkingTitle(driver);
+	}
+	public static String checkCancelIsEnabled(WebDriver driver,String workFlow,String refID,String testcaseName) throws Throwable{
+		Transmittals_EntryPage.switchToTramsmittalEditFrame(driver, refID, testcaseName, workFlow);
+		WaitUtil.pause(3);		
+		res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-View -Cancel - IsEnabled", objects_locatorType_Transmittals, objects_objectType_Transmittals, objects_objectLocator_Transmittals, input);
+		return res;
+	
+	}
+	public static String checkCancelIsDisabled(WebDriver driver,String workFlow,String refID,String testcaseName) throws Throwable{
+		Transmittals_EntryPage.switchToTramsmittalEditFrame(driver, refID, testcaseName, workFlow);
+		WaitUtil.pause(3);		
+		res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-View -Cancel - IsDisabled", objects_locatorType_Transmittals, objects_objectType_Transmittals, objects_objectLocator_Transmittals, input);
+		return res;
+	
+	}
+	
+	public static String checkCloseTransmittalIsEnabled(WebDriver driver,String workFlow,String refID,String testcaseName) throws Throwable{
+		Transmittals_EntryPage.switchToTramsmittalEditFrame(driver, refID, testcaseName, workFlow);
+		WaitUtil.pause(3);		
+		res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-View -Close Transmittal - IsEnabled", objects_locatorType_Transmittals, objects_objectType_Transmittals, objects_objectLocator_Transmittals, input);
+		return res;
+	
+	}
+	public static String checkCloseTransmittalIsDisabled(WebDriver driver,String workFlow,String refID,String testcaseName) throws Throwable{
+		Transmittals_EntryPage.switchToTramsmittalEditFrame(driver, refID, testcaseName, workFlow);
+		WaitUtil.pause(3);		
+		res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-View -Close Transmittal - IsDisabled", objects_locatorType_Transmittals, objects_objectType_Transmittals, objects_objectLocator_Transmittals, input);
+		return res;
+	
 	}
 	/**
 	 * Waits until the Working On it Tile disappears from page
