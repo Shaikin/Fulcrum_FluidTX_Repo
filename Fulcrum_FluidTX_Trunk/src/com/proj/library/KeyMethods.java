@@ -139,9 +139,17 @@ public class KeyMethods extends TestBase{
 
 			case SELECTITEMBYTEXTFROMLIST:
 				flag=KeysUtil.selectItemByTextFromList(driver, Step, identifyBy, objectLocator, input);				
+				break;			
+			case ELEMENT_ENABLE:
+				flag=KeysUtil.isEnabled(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
 				break;
-
+			case ELEMENT_DISABLE:
+				KeysUtil.isDisabled(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
+				break;
+			case ELEMENT_DISABLE_ATTRIBUTE:
+				KeyMethodsUtil.isDisabledWithAttr(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
 			}
+
 
 
 		}
@@ -292,7 +300,15 @@ public class KeyMethods extends TestBase{
 			case SELECTITEMBYTEXTFROMLIST:
 				flag=KeysUtil.selectItemByTextFromList(driver, Step, identifyBy, objectLocator, input);				
 				break;
-
+			case ELEMENT_ENABLE:
+				flag=KeysUtil.isEnabled(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
+				break;
+			case ELEMENT_DISABLE:
+				KeysUtil.isDisabled(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
+				break;
+			case ELEMENT_DISABLE_ATTRIBUTE:
+				KeyMethodsUtil.isDisabledWithAttr(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
+			
 			}
 
 
