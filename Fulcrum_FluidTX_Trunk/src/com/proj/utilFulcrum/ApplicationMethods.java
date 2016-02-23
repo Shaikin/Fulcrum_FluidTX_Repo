@@ -3,6 +3,7 @@ package com.proj.utilFulcrum;
 import java.util.List;
 
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
@@ -156,9 +157,12 @@ public class ApplicationMethods extends TestBase{
 	}
 
 
-	public static String logOutFromApplicationAndcloseBrowser(WebDriver driver) throws Throwable{
+	public static String logOutFromApplicationAndcloseBrowser(WebDriver driver,String refid,String testcasename) throws Throwable{
 		WaitUtil.pause(2);
-		String flag=Constants_FRMWRK.True;				
+		String flag=Constants_FRMWRK.True;	
+		if(isTestPass==Constants_FRMWRK.FalseB){
+			ApplicationMethods.closeAllDialogs(driver, refid, testcasename);
+		}
 		flag=logOutFromApplication(driver);
 		PopUpUtil.checkDefaultPopup(driver, "ok");
 		Driver.close(driver);
@@ -174,9 +178,13 @@ public class ApplicationMethods extends TestBase{
 			System.out.println("Number of Close icons are "+elements.size());
 			for (WebElement element :elements){
 				WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);	
-				if(element!=null && element.isDisplayed()==true){
-					commonMethods.getViewOfElement(driver, element);
-					element.click();
+				try{
+					if(element!=null && element.isDisplayed()==true){
+						commonMethods.getViewOfElement(driver, element);					
+						element.click();
+					}
+				}catch(StaleElementReferenceException st){
+					System.out.println("closeAllDialogs :- stale..");
 				}
 				//WaitUtil.pause(3);		
 				WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);	
@@ -189,7 +197,7 @@ public class ApplicationMethods extends TestBase{
 				System.out.println("Number of Close icons are still "+elements.size());
 				closeAllDialogs(driver, refID, testcaseName);
 			}else if (elements.size()==0 && counter <10){
-				Reporting.logStep(driver, "Closing the popup dialogs", "All Opened dialogs are closed", Constants_FRMWRK.Pass);
+				//Reporting.logStep(driver, "Closing the popup dialogs", "All Opened dialogs are closed", Constants_FRMWRK.Pass);
 			}else if (elements.size()!=0 && counter >=10){
 				isTestPass=Constants_FRMWRK.FalseB;
 				Reporting.logStep(driver, "Closing the popup dialogs", "Unable to close all opened dialogs after 10 attempts", Constants_FRMWRK.Fail);
