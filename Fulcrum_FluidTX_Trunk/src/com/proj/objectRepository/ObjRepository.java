@@ -34,7 +34,6 @@ public class ObjRepository {
 	
 	//popup Objects
 	
-
 	//autosuggest text box item objects
 	public static String js_autosuggest_input="/../input[2]";
 	public static String js_autosuggest_items="/../div/ul/li/a/div";
