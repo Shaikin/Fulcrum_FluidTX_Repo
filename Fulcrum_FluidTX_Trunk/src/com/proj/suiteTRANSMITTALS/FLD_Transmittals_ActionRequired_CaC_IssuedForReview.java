@@ -30,8 +30,7 @@ public class FLD_Transmittals_ActionRequired_CaC_IssuedForReview extends TestSui
 	static Hashtable<String,String>transmittalData=new Hashtable<String,String>();
 	private String local_refID="FLU-TRAN-02";
 	private static String workflow_l1="Level-1:-Initiation of Transmittal";
-	private static String workflow_l2_close="Level-2:-Close option ";
-	private static String workflow_l2_cancel="Level-2:-Cancel option ";
+	private static String workflow_l2="Level-2:- ";	
 	private static String workflow_end=" || ";
 	private static String url;
 	private static String username1;
@@ -52,7 +51,7 @@ public class FLD_Transmittals_ActionRequired_CaC_IssuedForReview extends TestSui
 		url=CONFIG.getProperty("testSiteName");
 		username1=CONFIG.getProperty("userUserName");
 		password1=CONFIG.getProperty("userpassword");
-		
+
 		try{
 
 			TestExecutionUtil.initialiseTestFlags(testcaseName);
@@ -91,35 +90,31 @@ public class FLD_Transmittals_ActionRequired_CaC_IssuedForReview extends TestSui
 			) throws Throwable{
 		System.out.println("In test");
 		logsObj.log("******************************************************");		
-		logsObj.log("Executing the test case: "+testcaseName);
+		logsObj.log("Executing the test case: "+testcaseName);		
 
 		try{
 			if(data.get("RecieverRole").equalsIgnoreCase(Constants_Workflow.role_admin)){
 				username2=CONFIG.getProperty("userUserName2");
-				password2=CONFIG.getProperty("userpassword2");
+				password2=CONFIG.getProperty("userpassword2");				
 			}else{
 				username2=CONFIG.getProperty("normalUserName");
 				password2=CONFIG.getProperty("normalpassword");
 			}
-			
+
 			if(isBeforeMethodPass==Constants_FRMWRK.FalseB){
 				CustomExceptions.Exit(testcaseName, "Before Method-Failure", "Due to above error in the Before Method cannot execute the test..");
 			}
 			String siteName=ApplicationMethods.getSiteName(url);
 			String condition="";
-			condition=" ["+data.get("IssueReason")+"]";
+			condition=" ["+data.get("RecieverRole")+"-"+data.get("Action-Level2")+"]";
 
 			//************************************** LEVEL 1 *****************************************************************************
 			workflow_l1=workflow_l1+condition+workflow_end;		
-			
+
 			transmittalData=Workflows.Level1_Initaite_Transmittal(driver_TRANS, url, workflow_l1, data);
-			
-/*transmittalData.put("Tramsmittals-Subject", "Issued for Review - Admin -Close-1");
-			transmittalData.put("Tramsmittals-Issue Reason", "Issued for Review");*/			
-			
+
 			//************************************** LEVEL 2 *****************************************************************************		
-			
-			driver_TRANS=Workflows.Level2_Close_Cancel_Transmittal(siteName,Constants_Workflow.page_actionRequired,driver_TRANS,refID,testcaseName,workflow_l2_cancel,condition,workflow_end,url,browserName,username2, password2, transmittalData, data);
+			driver_TRANS=Workflows.Level2_Close_Cancel_Transmittal(siteName,Constants_Workflow.page_actionRequired,driver_TRANS,refID,testcaseName,workflow_l2,condition,workflow_end,url,browserName,username2, password2, transmittalData, data);
 			logsObj.log(" after test of "+testcaseName+"-testresult"+isTestPass);
 
 		}catch(Throwable t){
