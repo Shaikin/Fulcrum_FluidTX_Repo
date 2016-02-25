@@ -70,14 +70,28 @@ public class MyInboxAndActionRequiredPage_FluidTx extends TestSuiteBase{
 		String TxComplete_Status = null;
 
 		if(data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForReview)||data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_RequestForInformation)){
-			status="Completed";
-			TxComplete_Status="Closed";
-			subject=data.get("Tramsmittals-Subject");
+			if(!data.get("Tramsmittals-Level2-Reciever").equalsIgnoreCase(data.get("Tramsmittals-ToCount"))){
+				status="Outstanding";
+				TxComplete_Status="Open";
+				subject=data.get("Tramsmittals-Subject");
+			}else{
+				status="Completed";
+				TxComplete_Status="Closed";
+				subject=data.get("Tramsmittals-Subject");
+
+			}
+
 		}
 		else if((data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForApproval))&& action.equals("Approved")){
-			status="Approved";
-			TxComplete_Status="Closed";
-			subject=data.get("Tramsmittals-Subject");
+			if(!data.get("Tramsmittals-Level2-Reciever").equalsIgnoreCase(data.get("Tramsmittals-ToCount"))){
+				status="Outstanding";
+				TxComplete_Status="Open";
+				subject=data.get("Tramsmittals-Subject");
+			}else{
+				status="Approved";
+				TxComplete_Status="Closed";
+				subject=data.get("Tramsmittals-Subject");
+			}
 		}
 		else if((data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForApproval))&& action.equals("Rejected")){
 			status="Rejected";

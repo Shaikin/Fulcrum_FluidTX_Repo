@@ -210,6 +210,16 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 		boolean tt=ExplicitWaitUtil.waitUntilInvisibilityOfElement(driver, Constants_FRMWRK.FindElementByXPATH, com.proj.objectRepository.ObjRepository.heading_working, 20);
 		System.out.println("Working.. invisibility.."+tt);
 	}
+	
+	public static int getRecieverUserCount(Hashtable<String,String>data){
+		int flag=1;
+		if(data.get("To").contains(Constants.delimiter_data)){
+			String[] receivers=commonMethods.splitString(data.get("To"), Constants.delimiter_data);
+			flag=receivers.length;			
+		}
+		logsObj.log("Receiver count is "+flag);
+		return flag;
+	}
 	/**
 	 * Enter the require details in To field for a Transmittal
 	 * @author shaikka
@@ -220,7 +230,7 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 	 * @return
 	 * @throws Throwable
 	 */
-	private static String enterTo(String appName,WebDriver driver,String workFlow,String data) throws Throwable{
+	private static String enterTo(String appName,WebDriver driver,String testcasename,String workFlow,String data) throws Throwable{
 		ApplicationMethods.waitForOverlayToDisappear(driver);
 		WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);
 		switchToTramsmittalEditFrame(driver, refID, testcaseName, workFlow);
@@ -228,6 +238,9 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 			WorkArounds.deFocusCursor(driver);
 		}
 		res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-To", objects_locatorType_Transmittals, objects_objectType_Transmittals, objects_objectLocator_Transmittals, data);
+		if(res.equalsIgnoreCase(Constants_FRMWRK.False)){
+			CustomExceptions.Exit(testcasename, workFlow+"To-Failure", "Due to above failure could not continue execution ,Please refer above details for more details");
+		}
 		return res;
 	}
 	/**
@@ -246,8 +259,9 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 		Hashtable<String,String>returnData = new Hashtable<String,String>();
 
 
-		res=enterTo(appName, driver, workFlow, data.get("To"));		
+		res=enterTo(appName, driver,testcaseName, workFlow, data.get("To"));		
 		returnData.put("Tramsmittals-To", res);
+		returnData.put("Tramsmittals-ToCount",String.valueOf(getRecieverUserCount(data)));
 		res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-CC", objects_locatorType_Transmittals, objects_objectType_Transmittals, objects_objectLocator_Transmittals, data.get("CC"));
 		returnData.put("Tramsmittals-CC", res);
 		res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-Subject", objects_locatorType_Transmittals, objects_objectType_Transmittals, objects_objectLocator_Transmittals, data.get("Subject")+"-"+DateUtil.getCurrentDateInRequiredDateFormat("dd/MM/yyyy hh:mm:ss"));
@@ -334,10 +348,10 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 	 * @param data
 	 * @throws Throwable
 	 */
-	public static void forwardAndSendTransmittalRecord(String appName,WebDriver driver,String workFlow,Hashtable<String,String>data) throws Throwable{		
+	public static void forwardAndSendTransmittalRecord(String appName,WebDriver driver,String testcasename,String workFlow,Hashtable<String,String>data) throws Throwable{		
 		clickForward(driver, workFlow);
 		Hashtable<String,String>returnData = new Hashtable<String,String>();
-		res=enterTo(appName, driver, workFlow, data.get("ForwardTo"));
+		res=enterTo(appName, driver,testcasename, workFlow, data.get("ForwardTo"));
 		returnData.put("Tramsmittals-ForwardTo", res);
 		if(appName.equals(Constants.App_Fluid)){
 			res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-Issue Reason", objects_locatorType_Transmittals, objects_objectType_Transmittals, objects_objectLocator_Transmittals, data.get("IssueReason"));
