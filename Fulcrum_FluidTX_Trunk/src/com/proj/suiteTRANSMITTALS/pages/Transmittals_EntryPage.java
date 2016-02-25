@@ -143,6 +143,24 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 		}
 		Transmittals_EntryPage.waitInvisiblilityofWorkingTitle(driver);
 	}
+	/**
+	 * Clicks on ReplyAll button of a Transmittal
+	 * @param driver
+	 * @param workFlow
+	 * @throws Throwable
+	 */
+	
+	public static void clickReplyAll(WebDriver driver,String workFlow) throws Throwable{
+		Transmittals_EntryPage.switchToTramsmittalEditFrame(driver, refID, testcaseName, workFlow);
+		WaitUtil.pause(3);		
+		res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-ReplyAll", objects_locatorType_Transmittals_toolbar, objects_objectType_Transmittals_toolbar, objects_objectLocator_Transmittals_toolbar, input);
+		if(res.equalsIgnoreCase(Constants_FRMWRK.False)){
+			CustomExceptions.Exit(testcaseName, "Tramsmittals-ReplyAll -Failure", "Please refer above details for more details");
+		}
+		Transmittals_EntryPage.waitInvisiblilityofWorkingTitle(driver);
+	}
+	
+	
 	
 	public static void clickCloseTransmittal(WebDriver driver,String workFlow) throws Throwable{
 		Transmittals_EntryPage.switchToTramsmittalEditFrame(driver, refID, testcaseName, workFlow);
@@ -321,6 +339,39 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 		Hashtable<String,String>returnData = new Hashtable<String,String>();
 		res=enterTo(appName, driver, workFlow, data.get("ForwardTo"));
 		returnData.put("Tramsmittals-ForwardTo", res);
+		if(appName.equals(Constants.App_Fluid)){
+			res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-Issue Reason", objects_locatorType_Transmittals, objects_objectType_Transmittals, objects_objectLocator_Transmittals, data.get("IssueReason"));
+		}
+		if(!data.get("IsConfidential").equalsIgnoreCase(Constants_FRMWRK.Tick)){
+			res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-TxType", objects_locatorType_Transmittals, objects_objectType_Transmittals, objects_objectLocator_Transmittals, data.get("TxType"));
+			returnData.put("Tramsmittals-TxType", res);
+		}else{			
+			returnData.put("Tramsmittals-TxType", data.get("TxType"));
+		}
+		clickSend(driver, workFlow);
+		WorkArounds.getViewPortOfPage(driver);
+		ApplicationMethods.closeAllDialogs(driver, refID, testcaseName);
+	}
+	/**
+	 * ReplyAll the transmittal with required details
+	 * @param appName
+	 * @param driver
+	 * @param workFlow
+	 * @param data
+	 * @throws Throwable
+	 */
+	public static void replyAllAndSendTransmittalRecord(String appName,WebDriver driver,String workFlow,Hashtable<String,String>data) throws Throwable{		
+		clickReplyAll(driver, workFlow);
+		ApplicationMethods.waitForOverlayToDisappear(driver);
+		Transmittals_EntryPage.switchToTramsmittalEditFrame(driver, refID, testcaseName, workFlow);
+		
+		Hashtable<String,String>returnData = new Hashtable<String,String>();
+		res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-ReplyAll", objects_locatorType_Transmittals, objects_objectType_Transmittals, objects_objectLocator_Transmittals, input);
+		if (res.isEmpty())
+		{
+			CustomExceptions.Exit(testcaseName, "Tramsmittals-ReplyAll -Failure", "Please refer above details for more details");
+		}
+	
 		if(appName.equals(Constants.App_Fluid)){
 			res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-Issue Reason", objects_locatorType_Transmittals, objects_objectType_Transmittals, objects_objectLocator_Transmittals, data.get("IssueReason"));
 		}
