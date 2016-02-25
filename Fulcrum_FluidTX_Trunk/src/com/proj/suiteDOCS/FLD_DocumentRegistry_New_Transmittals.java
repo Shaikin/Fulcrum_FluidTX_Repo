@@ -103,7 +103,7 @@ public class FLD_DocumentRegistry_New_Transmittals extends TestSuiteBase{
 		
 		transmittalData=Workflows.Level1_Initaite_Transmittal_FromDocumentRegister(driver_DOCS, url, workflow_l1, data);
 		//************************************** LEVEL 2 *****************************************************************************		
-		driver_DOCS=Workflows.Level2_Validate_OR_Submit_OR_ApproveOrReject_OR_Forward_Transmittal(siteName,Constants_Workflow.page_actionRequired,driver_DOCS,refID,testcaseName, workflow_l2, condition, workflow_end, url, browserName, username2, password2, transmittalData, data);
+		driver_DOCS=Workflows.Level2_Validate_OR_Submit_OR_ApproveOrReject_OR_Forward_OR_ReplyAll_Transmittal(siteName,Constants_Workflow.page_actionRequired,driver_DOCS,refID,testcaseName, workflow_l2, condition, workflow_end, url, browserName, username2, password2, transmittalData, data);
 		
 		
 		logsObj.log(" after test of "+testcaseName+"-testresult"+isTestPass);
