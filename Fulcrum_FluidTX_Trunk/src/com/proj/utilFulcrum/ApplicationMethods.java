@@ -92,6 +92,7 @@ public class ApplicationMethods extends TestBase{
 			commonMethods.navigateURL(driver,url);
 			Dialogs.userAuthentication(driver,browser,url, CONFIG.getProperty("userDomain")+"\\"+userName, password);
 			//Dialogs.userAuth(CONFIG.getProperty("userDomain"),userName,password);
+			Reporting.logStep(driver, refID, url, "IE-Log into the application -User Authenication", "Successfully able to log into the application with user credentials "+CONFIG.getProperty("userDomain")+"\\"+userName+"--"+password, Constants_FRMWRK.Pass);
 		}
 
 		PageLoadWaitUtil.waitForPageToLoad(driver);
