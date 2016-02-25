@@ -161,7 +161,7 @@ public class Transmittals_New_ConsultantAdvice extends TestSuiteBase{
 				MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data);
 				
 				
-				Transmittals_EntryPage.forwardAndSendTransmittalRecord(ApplicationMethods.getSiteName(url),driver_TRANS, worflow_l2, data);
+				Transmittals_EntryPage.forwardAndSendTransmittalRecord(ApplicationMethods.getSiteName(url),driver_TRANS,testcaseName, worflow_l2, data);
 				getResult=MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data.get("Action-Level2"));
 				if(getResult.equalsIgnoreCase(Constants_FRMWRK.False)){
 					CustomExceptions.Exit(testcaseName, worflow_l2+"- Failure", "Unable to continue the test due to above error ");
