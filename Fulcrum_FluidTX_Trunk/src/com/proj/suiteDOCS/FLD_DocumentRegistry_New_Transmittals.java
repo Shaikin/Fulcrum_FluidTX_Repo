@@ -12,6 +12,7 @@ import com.frw.Constants.Constants_FRMWRK;
 import com.proj.Constants.Constants;
 import com.proj.Constants.Constants_Workflow;
 import com.proj.library.LocalDriverManager;
+import com.proj.suiteTRANSMITTALS.pages.Transmittals_EntryPage;
 import com.proj.suiteTRANSMITTALS.workflows.Workflows;
 import com.proj.util.CustomExceptions;
 import com.proj.util.TestExecutionUtil;
@@ -30,8 +31,7 @@ public class FLD_DocumentRegistry_New_Transmittals extends TestSuiteBase{
 	private static String url;
 	private static String username1;
 	private static String password1;
-	private static String username2;
-	private static String password2;
+
 
 	private static boolean isBeforeTestPass=Constants_FRMWRK.TrueB;
 	private static boolean isBeforeMethodPass=Constants_FRMWRK.TrueB;
@@ -50,8 +50,7 @@ public class FLD_DocumentRegistry_New_Transmittals extends TestSuiteBase{
 		url=CONFIG.getProperty("testSiteName");
 		username1=CONFIG.getProperty("userUserName");
 		password1=CONFIG.getProperty("userpassword");
-		username2=CONFIG.getProperty("userUserName2");
-		password2=CONFIG.getProperty("userpassword2");
+		
 		
 		try{
 
@@ -103,7 +102,11 @@ public class FLD_DocumentRegistry_New_Transmittals extends TestSuiteBase{
 		
 		transmittalData=Workflows.Level1_Initaite_Transmittal_FromDocumentRegister(driver_DOCS, url, workflow_l1, data);
 		//************************************** LEVEL 2 *****************************************************************************		
-		driver_DOCS=Workflows.Level2_Validate_OR_Submit_OR_ApproveOrReject_OR_Forward_OR_ReplyAll_Transmittal(siteName,Constants_Workflow.page_actionRequired,driver_DOCS,refID,testcaseName, workflow_l2, condition, workflow_end, url, browserName, username2, password2, transmittalData, data);
+		for (int userIteration=1 ;userIteration<= Transmittals_EntryPage.getRecieverUserCount(data);userIteration++){
+			String username=CONFIG.getProperty("userUserName"+String.valueOf(userIteration));
+			String password=CONFIG.getProperty("userpassword"+String.valueOf(userIteration));
+			driver_DOCS=Workflows.Level2_Validate_OR_Submit_OR_ApproveOrReject_OR_Forward_OR_ReplyAll_Transmittal(siteName,Constants_Workflow.page_myInbox,driver_DOCS,refID,testcaseName, workflow_l2, condition, workflow_end, url, browserName, username, password, transmittalData, data,userIteration);
+		}
 		
 		
 		logsObj.log(" after test of "+testcaseName+"-testresult"+isTestPass);
