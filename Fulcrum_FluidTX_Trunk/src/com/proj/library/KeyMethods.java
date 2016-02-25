@@ -64,10 +64,10 @@ public class KeyMethods extends TestBase{
 				return flag; 
 
 			case TEXTBOX_AUTOSUGGEST_SELECT:
-				KeysUtil.enter_autoSuggestAndSelect(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
+				flag=KeysUtil.enter_autoSuggestAndSelect(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
 				break;
 			case TEXTBOX_AUTOSUGGEST_CHOICE:
-				KeyMethodsUtil.enter_autoSuggestAndSelectChoice(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
+				flag=KeyMethodsUtil.enter_autoSuggestAndSelectChoice(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
 				break;
 			case TEXTBOX_AUTOSUGGEST_BROWSE:			
 				flag=KeyMethodsUtil.enter_autosuggest_browse(driver,testcaseName, workFlow, Step, input, element);
@@ -106,7 +106,7 @@ public class KeyMethods extends TestBase{
 				flag=KeysUtil.click(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
 				break;
 			case TITLE:	
-				KeysUtil.getText(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);				
+				flag=KeysUtil.getText(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);				
 				break;
 			case DATE:
 				flag=KeysUtil.enter(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
@@ -224,10 +224,10 @@ public class KeyMethods extends TestBase{
 				return flag; 
 
 			case TEXTBOX_AUTOSUGGEST_SELECT:
-				KeysUtil.enter_autoSuggestAndSelect(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
+				flag=KeysUtil.enter_autoSuggestAndSelect(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
 				break;
 			case TEXTBOX_AUTOSUGGEST_CHOICE:
-				KeyMethodsUtil.enter_autoSuggestAndSelectChoice(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
+				flag=KeyMethodsUtil.enter_autoSuggestAndSelectChoice(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
 				break;
 			case TEXTBOX_AUTOSUGGEST_BROWSE:			
 				flag=KeyMethodsUtil.enter_autosuggest_browse(driver,testcaseName, workFlow, Step, input, element);
@@ -266,7 +266,7 @@ public class KeyMethods extends TestBase{
 				flag=KeysUtil.click(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
 				break;
 			case TITLE:	
-				KeysUtil.getText(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);				
+				flag=KeysUtil.getText(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);				
 				break;
 			case DATE:
 				flag=KeysUtil.enter(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
