@@ -54,8 +54,8 @@ public class Workflows extends TestSuiteBase{
 
 
 
-	public static WebDriver Level2_Validate_OR_Submit_OR_ApproveOrReject_OR_Forward_OR_ReplyAll_Transmittal(String siteName,String validationPage,WebDriver driver,String refid,String testcasename,String workflow_l2,String condition,String workflow_end,String url,String browsername,String username2,String password2,Hashtable<String,String>transmittalData,Hashtable<String,String>testData ) throws Throwable{
-
+	public static WebDriver Level2_Validate_OR_Submit_OR_ApproveOrReject_OR_Forward_OR_ReplyAll_Transmittal(String siteName,String validationPage,WebDriver driver,String refid,String testcasename,String workflow_l2,String condition,String workflow_end,String url,String browsername,String username2,String password2,Hashtable<String,String>transmittalData,Hashtable<String,String>testData,int userIteration ) throws Throwable{
+		transmittalData.put("Tramsmittals-Level2-Reciever", String.valueOf(userIteration));
 		if(testData.get(Constants_Workflow.FluidTX_WorkFlow_Data_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForInformation)){
 			workflow_l2=workflow_l2+condition+" & validate"+workflow_end;
 			ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver,refid,testcasename);
@@ -119,7 +119,7 @@ public class Workflows extends TestSuiteBase{
 
 			Transmittals_EntryPage.verifyAttachedFiles(siteName,driver, workflow_l2, refID, workflow_l2, testData);
 
-			Transmittals_EntryPage.forwardAndSendTransmittalRecord(ApplicationMethods.getSiteName(url),driver, workflow_l2, testData);
+			Transmittals_EntryPage.forwardAndSendTransmittalRecord(ApplicationMethods.getSiteName(url),driver,testcasename, workflow_l2, testData);
 
 			validateRecordinActionRequiredPageAfterSubmission(driver, validationPage, workflow_l2, transmittalData.get("Tramsmittals-Subject"));
 
