@@ -97,8 +97,8 @@ public class FLD_Transmittals_ActionRequired_CaC_IssuedForApproval extends TestS
 				username2=CONFIG.getProperty("userUserName2");
 				password2=CONFIG.getProperty("userpassword2");				
 			}else{
-				username2=CONFIG.getProperty("normalUserName");
-				password2=CONFIG.getProperty("normalpassword");
+				username2=CONFIG.getProperty("userUserName3");
+				password2=CONFIG.getProperty("userpassword3");
 			}
 
 			if(isBeforeMethodPass==Constants_FRMWRK.FalseB){
