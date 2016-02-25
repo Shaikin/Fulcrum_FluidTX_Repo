@@ -85,4 +85,7 @@ public class Constants {
 	//common buttons
 	public static final String ok="OK";
 	public static final String cancel="Cancel";
+	
+	//Delimiters
+	public static final String delimiter_data="@@";
 }
