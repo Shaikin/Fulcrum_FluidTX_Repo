@@ -7,9 +7,10 @@ import org.openqa.selenium.interactions.Actions;
 
 import com.frw.util.WaitUtil;
 import com.proj.Constants.Constants_TimeOuts;
+import com.proj.base.TestBase;
 import com.proj.library.commonMethods;
 
-public class WorkArounds {
+public class WorkArounds extends TestBase{
 
 	public static void deFocusCursor(WebDriver driver){
 		Actions action =new Actions (driver);
@@ -17,7 +18,7 @@ public class WorkArounds {
 		action.keyUp(Keys.SHIFT).build().perform();
 		
 		WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);
-
+		logsObj.log("WorkArounds:- Defocussed with Shift & Tab");
 		System.out.println("Defocussed....");
 	}
 
@@ -25,8 +26,10 @@ public class WorkArounds {
 		commonMethods.switchToDefaultPage(driver);
 		WaitUtil.pause(2);
 		driver.findElement(By.tagName("body")).sendKeys(Keys.F12);
+		logsObj.log("WorkArounds:- getViewPortOfPage with F12 .. 1 st");
 		WaitUtil.pause(Constants_TimeOuts.Save_TimeOut);
 		driver.findElement(By.tagName("body")).sendKeys(Keys.F12);
+		logsObj.log("WorkArounds:- getViewPortOfPage with F12 .. 2 nd");
 	}
 
 
