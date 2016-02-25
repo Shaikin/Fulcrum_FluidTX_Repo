@@ -12,6 +12,7 @@ import com.frw.Constants.Constants_FRMWRK;
 import com.proj.Constants.Constants;
 import com.proj.Constants.Constants_Workflow;
 import com.proj.library.LocalDriverManager;
+import com.proj.suiteTRANSMITTALS.pages.Transmittals_EntryPage;
 import com.proj.suiteTRANSMITTALS.workflows.Workflows;
 import com.proj.util.CustomExceptions;
 import com.proj.util.TestExecutionUtil;
@@ -52,8 +53,8 @@ public class FLD_Transmittals_New_IssuedForApproval extends TestSuiteBase{
 		url=CONFIG.getProperty("testSiteName");
 		username1=CONFIG.getProperty("userUserName");
 		password1=CONFIG.getProperty("userpassword");
-		username2=CONFIG.getProperty("userUserName2");
-		password2=CONFIG.getProperty("userpassword2");
+		username2=CONFIG.getProperty("userUserName1");
+		password2=CONFIG.getProperty("userpassword1");
 		try{
 
 			TestExecutionUtil.initialiseTestFlags(testcaseName);
@@ -111,9 +112,14 @@ public class FLD_Transmittals_New_IssuedForApproval extends TestSuiteBase{
 			transmittalData=Workflows.Level1_Initaite_Transmittal(driver_TRANS, url, workflow_lvl1, data);
 
 			//************************************** LEVEL 2 *****************************************************************************		
-			driver_TRANS=Workflows.Level2_Validate_OR_Submit_OR_ApproveOrReject_OR_Forward_OR_ReplyAll_Transmittal(siteName,Constants_Workflow.page_myInbox,driver_TRANS,refID,testcaseName, workflow_l2, condition, workflow_end, url, browserName, username2, password2, transmittalData, data);
+			for (int userIteration=1 ;userIteration<= Transmittals_EntryPage.getRecieverUserCount(data);userIteration++){
+				String username=CONFIG.getProperty("userUserName"+String.valueOf(userIteration));
+				String password=CONFIG.getProperty("userpassword"+String.valueOf(userIteration));
+				driver_TRANS=Workflows.Level2_Validate_OR_Submit_OR_ApproveOrReject_OR_Forward_OR_ReplyAll_Transmittal(siteName,Constants_Workflow.page_myInbox,driver_TRANS,refID,testcaseName, workflow_l2, condition, workflow_end, url, browserName, username, password, transmittalData, data,userIteration);
+			}
+			
 			//************************************** LEVEL 3 *****************************************************************************
-			driver_TRANS=Workflows.Level3_ValidateForwarded_OR_ValidateReplyAll_And_ApproveOrReject_Transmittal(siteName,Constants_Workflow.page_myInbox,driver_TRANS,refID,testcaseName, workflow_l3, condition, workflow_end, url, browserName, username1, password1, transmittalData, data);
+			driver_TRANS=Workflows.Level3_ValidateForwarded_OR_ValidateReplyAll_And_ApproveOrReject_Transmittal(siteName,Constants_Workflow.page_myInbox,driver_TRANS,refID,testcaseName, workflow_l3, condition, workflow_end, url, browserName, username2, password2, transmittalData, data);
 			
 			
 			logsObj.log(" after test of "+testcaseName+"-testresult"+isTestPass);
