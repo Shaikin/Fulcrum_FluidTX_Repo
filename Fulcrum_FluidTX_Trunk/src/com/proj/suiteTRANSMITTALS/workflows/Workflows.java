@@ -54,7 +54,7 @@ public class Workflows extends TestSuiteBase{
 
 
 
-	public static WebDriver Level2_Validate_OR_Submit_OR_ApproveOrReject_OR_Forward_Transmittal(String siteName,String validationPage,WebDriver driver,String refid,String testcasename,String workflow_l2,String condition,String workflow_end,String url,String browsername,String username2,String password2,Hashtable<String,String>transmittalData,Hashtable<String,String>testData ) throws Throwable{
+	public static WebDriver Level2_Validate_OR_Submit_OR_ApproveOrReject_OR_Forward_OR_ReplyAll_Transmittal(String siteName,String validationPage,WebDriver driver,String refid,String testcasename,String workflow_l2,String condition,String workflow_end,String url,String browsername,String username2,String password2,Hashtable<String,String>transmittalData,Hashtable<String,String>testData ) throws Throwable{
 
 		if(testData.get(Constants_Workflow.FluidTX_WorkFlow_Data_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForInformation)){
 			workflow_l2=workflow_l2+condition+" & validate"+workflow_end;
@@ -129,10 +129,31 @@ public class Workflows extends TestSuiteBase{
 			}
 
 		}
+		else if((!testData.get(Constants_Workflow.FluidTX_WorkFlow_Data_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForInformation)) && (testData.get("Action-Level2").equals("ReplyAll"))){
+			workflow_l2=workflow_l2+" "+condition+" & "+testData.get("Action-Level2")+workflow_end;
+			ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver,refid,testcasename);
+
+			driver=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, url, username2, password2,refID);
+
+			MyInboxAndActionRequiredPage_FluidTx.validate_TxComplete_StatusAndStatus(driver,validationPage, workflow_l2, transmittalData,testData);
+
+			//Transmittals_EntryPage.verifyAttachedFiles(siteName,driver, workflow_l2, refID, workflow_l2, testData);
+
+			Transmittals_EntryPage.replyAllAndSendTransmittalRecord(ApplicationMethods.getSiteName(url),driver, workflow_l2, testData);
+
+			validateRecordinActionRequiredPageAfterSubmission(driver, validationPage, workflow_l2, transmittalData.get("Tramsmittals-Subject"));
+
+			getResult=MyInboxAndActionRequiredPage_FluidTx.validate_TxComplete_StatusAndStatus(driver,Constants_Workflow.page_myInbox, workflow_l2, transmittalData,testData.get("Action-Level2"));
+			if(getResult.equalsIgnoreCase(Constants_FRMWRK.False)){
+				CustomExceptions.Exit(testcaseName, workflow_l2+"- Failure", "Unable to continue the test due to above error ");
+			}
+
+		}
+
 		return driver;
 	}
 
-	public static WebDriver Level3_ValidateForwarded_And_ApproveOrReject_Transmittal(String siteName,String validationPage,WebDriver driver,String refid,String testcasename,String workflow_l3,String condition,String workflow_end,String url,String browsername,String username1,String password1,Hashtable<String,String>transmittalData,Hashtable<String,String>testData ) throws Throwable{
+	public static WebDriver Level3_ValidateForwarded_OR_ValidateReplyAll_And_ApproveOrReject_Transmittal(String siteName,String validationPage,WebDriver driver,String refid,String testcasename,String workflow_l3,String condition,String workflow_end,String url,String browsername,String username1,String password1,Hashtable<String,String>transmittalData,Hashtable<String,String>testData ) throws Throwable{
 
 		if(!testData.get("Action-Level2").isEmpty()&& testData.get("Action-Level2").equalsIgnoreCase("Forward")){
 			workflow_l3=workflow_l3+condition+" & Submit"+workflow_end;
@@ -153,7 +174,25 @@ public class Workflows extends TestSuiteBase{
 			}
 
 		}
+		else if(!testData.get("Action-Level2").isEmpty()&& testData.get("Action-Level2").equalsIgnoreCase("ReplyAll")){
+			workflow_l3=workflow_l3+condition+" & Submit"+workflow_end;
+			ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver,refid,testcasename);
+			driver=ApplicationMethods.launchBrowserAndlogIntoApplication(browsername, url, username1, password1,refID);
+			String subj=transmittalData.get("Tramsmittals-Subject");
+			subj="RE: "+subj;
+			transmittalData.put("Tramsmittals-Subject", subj);
+			MyInboxAndActionRequiredPage_FluidTx.validate_TxComplete_StatusAndStatus(driver,validationPage ,workflow_l3, transmittalData,testData);
+			//Transmittals_EntryPage.verifyAttachedFiles(siteName,driver, workflow_l3, refID, workflow_l3, testData);
 
+			Transmittals_EntryPage.switchToTramsmittalEditFrame(driver, refID, testcaseName, workflow_l3);
+			Transmittals_EntryPage.clickCompleteAction(driver, workflow_l3);
+			Transmittals_EntryPage.editAndSubmitTransmittalRecord(ApplicationMethods.getSiteName(url),driver, refID, testcaseName, workflow_l3, transmittalData,testData.get("Action-Level3"));
+			getResult=MyInboxAndActionRequiredPage_FluidTx.validate_TxComplete_StatusAndStatus(driver, Constants_Workflow.page_myInbox,workflow_l3, transmittalData,testData.get("Action-Level3"));
+			if(getResult.equalsIgnoreCase(Constants_FRMWRK.False)){
+				CustomExceptions.Exit(testcaseName, workflow_l3+"- Failure", "Unable to continue the test due to above error ");
+			}
+
+		}
 		return driver;
 	}
 
