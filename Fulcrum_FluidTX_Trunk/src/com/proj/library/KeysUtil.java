@@ -14,6 +14,7 @@ import com.frw.Constants.Constants_FRMWRK;
 import com.frw.util.FetchWebElement;
 import com.frw.util.PageLoadWaitUtil;
 import com.frw.util.WaitUtil;
+import com.proj.Constants.Constants;
 import com.proj.Constants.Constants_TimeOuts;
 import com.proj.objectRepository.ObjRepository;
 import com.proj.utilFulcrum.KeyMethodsUtil;
@@ -49,8 +50,8 @@ public class KeysUtil extends KeyMethods{
 		Step=workFlow+generic_Step+Step;
 
 		try{
-			element.clear();					    					
-			element.sendKeys(input);					    					
+			element.clear();		
+			element.sendKeys(input);								    					
 			logsObj.log(testcaseName+"--> "+objectLocator+" exists and the value entered is "+input);
 			Reporting.logStep(driver, refID, Step, objectType+": "+objectLocator+" exists and the value entered is "+input, Constants_FRMWRK.Pass);
 			flag=element.getAttribute("value");
@@ -130,7 +131,7 @@ public class KeysUtil extends KeyMethods{
 	 * @throws Throwable
 	 */
 	protected static String enter_autoSuggestAndSelect(WebDriver driver,String refID,String testcaseName,String workFlow,String Step,String locatorType, String objectType, String objectLocator,String input,WebElement element) throws Throwable{
-		String flag=Constants_FRMWRK.False;		
+		String flag=Constants_FRMWRK.True;		
 		String generic_autosuggest_step="Enter Suggestion for ";
 		generic_autosuggest_step=workFlow+generic_autosuggest_step+Step;
 		if(!input.equalsIgnoreCase("") ){
@@ -139,21 +140,62 @@ public class KeysUtil extends KeyMethods{
 				element.sendKeys(Keys.SPACE);
 				element.sendKeys(Keys.BACK_SPACE);
 				Reporting.logStep(driver, refID, generic_autosuggest_step, objectType+": "+objectLocator+" exists and the input value is Any hence entered Space & BackSpace to list all items available", Constants_FRMWRK.Pass);
+			
+				logsObj.log(testcaseName+"--> "+objectLocator+" exists and the value entered is "+input);
+				Reporting.logStep(driver, refID, generic_autosuggest_step, objectType+": "+objectLocator+" exists and the value entered is "+input, Constants_FRMWRK.Pass);
+
+				objectLocator=objectLocator+ObjRepository.js_autosuggest_items;
+				PageLoadWaitUtil.waitForAjax(driver);
+				PageLoadWaitUtil.waitForPageToLoad(driver);
+				WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);
+				String flag_js=KeyMethodsUtil.js_selectItem(driver, workFlow, Step, objectLocator, input);
+				if(flag_js.equalsIgnoreCase(Constants_FRMWRK.False)){
+					flag=Constants_FRMWRK.False;
+				}
+			
 			}else{
 				objectLocator=objectLocator+ObjRepository.js_autosuggest_input;
 				element=FetchWebElement.waitForElement(driver,locatorType, objectLocator, Constants_TimeOuts.Element_TimeOut) ;
 				element.click();
-				element.sendKeys(input);
-				WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);					
-			}									    					
-			logsObj.log(testcaseName+"--> "+objectLocator+" exists and the value entered is "+input);
-			Reporting.logStep(driver, refID, generic_autosuggest_step, objectType+": "+objectLocator+" exists and the value entered is "+input, Constants_FRMWRK.Pass);
+				if(input.contains("@@")){
+					String[] ip=commonMethods.splitString(input, Constants.delimiter_data);
+					for (int i=0;i<ip.length;i++){
+						element.sendKeys(ip[i]);
 
-			objectLocator=objectLocator+ObjRepository.js_autosuggest_items;
-			PageLoadWaitUtil.waitForAjax(driver);
-			PageLoadWaitUtil.waitForPageToLoad(driver);
-			WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);
-			flag=KeyMethodsUtil.js_selectItem(driver, workFlow, Step, objectLocator, input);
+						WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);	
+
+						logsObj.log(testcaseName+"--> "+objectLocator+" exists and the value entered is "+ip[i]);
+						Reporting.logStep(driver, refID, generic_autosuggest_step, objectType+": "+objectLocator+" exists and the value entered is "+ip[i], Constants_FRMWRK.Pass);
+
+						String objectLocator_jsitems=objectLocator+ObjRepository.js_autosuggest_items;
+						PageLoadWaitUtil.waitForAjax(driver);
+						PageLoadWaitUtil.waitForPageToLoad(driver);
+						WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);
+						String flag_js=KeyMethodsUtil.js_selectItem(driver, workFlow, Step, objectLocator_jsitems, ip[i]);
+						if(flag_js.equalsIgnoreCase(Constants_FRMWRK.False)){
+							flag=Constants_FRMWRK.False;
+						}
+
+					}
+				}else{
+					element.sendKeys(input);
+
+					WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);	
+
+					logsObj.log(testcaseName+"--> "+objectLocator+" exists and the value entered is "+input);
+					Reporting.logStep(driver, refID, generic_autosuggest_step, objectType+": "+objectLocator+" exists and the value entered is "+input, Constants_FRMWRK.Pass);
+
+					String objectLocator_jsitems=objectLocator+ObjRepository.js_autosuggest_items;
+					PageLoadWaitUtil.waitForAjax(driver);
+					PageLoadWaitUtil.waitForPageToLoad(driver);
+					WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);
+					String flag_js=KeyMethodsUtil.js_selectItem(driver, workFlow, Step, objectLocator_jsitems, input);
+					if(flag_js.equalsIgnoreCase(Constants_FRMWRK.False)){
+						flag=Constants_FRMWRK.False;
+					}
+				}
+			}									    					
+			
 		}else{
 			flag=Constants_FRMWRK.True;	
 		}
