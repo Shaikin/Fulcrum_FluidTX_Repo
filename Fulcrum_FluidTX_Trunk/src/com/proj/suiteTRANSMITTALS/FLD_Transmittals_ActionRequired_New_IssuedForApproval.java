@@ -111,7 +111,7 @@ public class FLD_Transmittals_ActionRequired_New_IssuedForApproval extends TestS
 			transmittalData=Workflows.Level1_Initaite_Transmittal(driver_TRANS, url, workflow_lvl1, data);
 
 			//************************************** LEVEL 2 *****************************************************************************		
-			driver_TRANS=Workflows.Level2_Validate_OR_Submit_OR_ApproveOrReject_OR_Forward_OR_ReplyAll_Transmittal(siteName,Constants_Workflow.page_actionRequired,driver_TRANS,refID,testcaseName, workflow_l2, condition, workflow_end, url, browserName, username2, password2, transmittalData, data);
+			driver_TRANS=Workflows.Level2_Validate_OR_Submit_OR_ApproveOrReject_OR_Forward_OR_ReplyAll_Transmittal(siteName,Constants_Workflow.page_actionRequired,driver_TRANS,refID,testcaseName, workflow_l2, condition, workflow_end, url, browserName, username2, password2, transmittalData, data,1);
 			//************************************** LEVEL 3 *****************************************************************************
 			driver_TRANS=Workflows.Level3_ValidateForwarded_OR_ValidateReplyAll_And_ApproveOrReject_Transmittal(siteName,Constants_Workflow.page_actionRequired,driver_TRANS,refID,testcaseName, workflow_l3, condition, workflow_end, url, browserName, username1, password1, transmittalData, data);
 			
