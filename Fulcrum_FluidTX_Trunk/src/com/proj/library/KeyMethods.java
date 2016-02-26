@@ -162,7 +162,7 @@ public class KeyMethods extends TestBase{
 			System.out.println("Unable to locate the element "+objectLocator+" due to -->"+commonMethods.getStackTrace(e));
 			logsObj.log(testcaseName+":-Unable to locate the element "+objectLocator+" due to -->"+commonMethods.getStackTrace(e));
 
-			Reporting.logStep(driver, refID, Step,   objectType+": "+objectLocator+" ,Unable to locate the element due to -->"+commonMethods.getStackTrace(e), Constants_FRMWRK.Fail);
+			Reporting.logStep(driver, refID, workFlow+Step,   objectType+": "+objectLocator+" ,Unable to locate the element due to -->"+commonMethods.getStackTrace(e), Constants_FRMWRK.Fail);
 			flag=Constants_FRMWRK.False;
 
 
@@ -322,7 +322,7 @@ public class KeyMethods extends TestBase{
 			System.out.println("Unable to locate the element "+objectLocator+" due to -->"+commonMethods.getStackTrace(e));
 			logsObj.log(testcaseName+":-Unable to locate the element "+objectLocator+" due to -->"+commonMethods.getStackTrace(e));
 
-			Reporting.logStep(driver, refID, Step,   objectType+": "+objectLocator+" ,Unable to locate the element due to -->"+commonMethods.getStackTrace(e), Constants_FRMWRK.Fail);
+			Reporting.logStep(driver, refID, workFlow+Step,   objectType+": "+objectLocator+" ,Unable to locate the element due to -->"+commonMethods.getStackTrace(e), Constants_FRMWRK.Fail);
 			flag=Constants_FRMWRK.False;
 
 
