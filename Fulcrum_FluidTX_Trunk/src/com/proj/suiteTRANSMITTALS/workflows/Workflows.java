@@ -73,8 +73,10 @@ public class Workflows extends TestSuiteBase{
 
 			driver=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, url, username2, password2,refID);
 
-			MyInboxAndActionRequiredPage_FluidTx.validate_TxComplete_StatusAndStatus(driver, validationPage,workflow_l2, transmittalData,testData);
-
+			getResult=MyInboxAndActionRequiredPage_FluidTx.validate_TxComplete_StatusAndStatus(driver, validationPage,workflow_l2, transmittalData,testData);
+			if(getResult.equalsIgnoreCase(Constants_FRMWRK.False)){
+				CustomExceptions.Exit(testcaseName, workflow_l2+"- Failure", "Unable to continue the test due to above error ");
+			}
 			Transmittals_EntryPage.verifyAttachedFiles(siteName,driver, workflow_l2, refID, workflow_l2, testData);
 
 			Transmittals_EntryPage.clickCompleteAction(driver, workflow_l2);
