@@ -102,7 +102,12 @@ public class FLD_Transmittals_ActionRequired_New_RequestForInformation extends T
 			}
 			String siteName=ApplicationMethods.getSiteName(url);
 			String condition="";
-			condition=" ["+data.get("IssueReason")+"]";
+			if(data.get("To").contains(Constants.delimiter_data)){
+				condition=" ["+data.get("IssueReason")+"]-[Multi User]";
+				CustomExceptions.Exit(testcaseName, condition, "Multi User not implemented from Action Required");
+			}else{
+				condition=" ["+data.get("IssueReason")+"]";
+			}
 
 			//************************************** LEVEL 1 *****************************************************************************
 			workflow_l1=workflow_l1+condition+workflow_end;		
