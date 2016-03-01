@@ -53,8 +53,7 @@ public class FLD_Transmittals_New_IssuedForApproval extends TestSuiteBase{
 		url=CONFIG.getProperty("testSiteName");
 		username1=CONFIG.getProperty("userUserName");
 		password1=CONFIG.getProperty("userpassword");
-		username2=CONFIG.getProperty("userUserName1");
-		password2=CONFIG.getProperty("userpassword1");
+		
 		try{
 
 			TestExecutionUtil.initialiseTestFlags(testcaseName);
@@ -104,7 +103,12 @@ public class FLD_Transmittals_New_IssuedForApproval extends TestSuiteBase{
 			}
 			String siteName=ApplicationMethods.getSiteName(url);
 			String condition="";
-			condition=" ["+data.get("IssueReason")+"]";
+			if(data.get("To").contains(Constants.delimiter_data)){
+				condition=" ["+data.get("IssueReason")+"]-[Multi User]";
+			}else{
+				condition=" ["+data.get("IssueReason")+"-"+data.get("Action-Level2")+"]";
+			}
+			
 
 			//************************************** LEVEL 1 *****************************************************************************
 			String workflow_lvl1=workflow_l1+condition+workflow_end;		
@@ -119,6 +123,13 @@ public class FLD_Transmittals_New_IssuedForApproval extends TestSuiteBase{
 			}
 			
 			//************************************** LEVEL 3 *****************************************************************************
+			if(data.get("Action-Level2").equalsIgnoreCase("ReplyAll")){
+				username2=CONFIG.getProperty("userUserName");
+				password2=CONFIG.getProperty("userpassword");
+			}else{
+				username2=CONFIG.getProperty("userUserName2");
+				password2=CONFIG.getProperty("userpassword2");
+			}
 			driver_TRANS=Workflows.Level3_ValidateForwarded_OR_ValidateReplyAll_And_ApproveOrReject_Transmittal(siteName,Constants_Workflow.page_myInbox,driver_TRANS,refID,testcaseName, workflow_l3, condition, workflow_end, url, browserName, username2, password2, transmittalData, data);
 			
 			
