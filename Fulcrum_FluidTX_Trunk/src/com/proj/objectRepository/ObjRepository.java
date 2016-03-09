@@ -18,7 +18,8 @@ public class ObjRepository {
 
 
 	//logout objects
-	public static String link_user="zz5_Menu";
+	//public static String link_user="zz5_Menu";
+	public static String link_user="//*[@title='Open Menu']";
 	public static String link_signOut="//*[@class='ms-core-menu-title' and text()='Sign Out']";
 
 	//frame objects	
@@ -46,6 +47,8 @@ public class ObjRepository {
 	public static String container_transmittalFiles="transmittalFiles";
 	public static String container_supportingDocumentFiles="supportingDocumentFiles";
 	
+	//close
+	public static String icon_close="//*[@title='Close dialog']";
 	//Cookies popup
 	
 
