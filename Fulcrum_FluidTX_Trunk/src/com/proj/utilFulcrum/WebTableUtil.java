@@ -201,11 +201,12 @@ public class WebTableUtil extends TestBase{
 
 
 	public static String searchforDataInsearchColumnAndValidateDataInactionableColumn(WebDriver driver,String testcaseName,String Step,String containerName,String searchData,String actionData,int colToSearch,int actionPerformCol){
-		String flag=Constants_FRMWRK.False;
-
+		String flag=Constants_FRMWRK.False;		
+		String actual_actionData = "";
 		String rowNumber="row";
 		int rowCount=0;
-
+		boolean retrieved=Constants_FRMWRK.FalseB;
+		
 		WebElement webtableElement=FetchWebElement.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, "//table[@summary='"+containerName+"']",Constants_TimeOuts.Element_TimeOut);
 		if(webtableElement==null){
 			Reporting.logStep(driver, Step, "Webtable-"+ containerName+" is not displayed on the page", Constants_FRMWRK.Fail);
@@ -239,12 +240,11 @@ public class WebTableUtil extends TestBase{
 				if(rowSearch.getText().trim().equals(searchData.trim())){
 					WaitUtil.pause(100L);					
 					int counter=0;
-					@SuppressWarnings("unused")
-					boolean retrieved;
+					
 					try{							
 						while (counter< 5){
 							try{
-								String actual_actionData=rows_action.get(rowCount).getText();
+								actual_actionData=rows_action.get(rowCount).getText();
 								WaitUtil.pause(100L);							
 								if(actual_actionData.equals(actionData)){
 									retrieved=Constants_FRMWRK.TrueB;
@@ -266,14 +266,10 @@ public class WebTableUtil extends TestBase{
 						Reporting.logStep(driver, Step, "Unable to retrieve data from the required column data after successfully matching the expected data from search coloumn in the table"+colXpath_search+" due to error-->"+e+ "and stack is "+commonMethods.getStackTrace(e), Constants_FRMWRK.Fail);
 
 					} 	
-					if(retrieved=Constants_FRMWRK.TrueB){
+					if(retrieved==Constants_FRMWRK.TrueB){
 						flag=Constants_FRMWRK.True;
-						Reporting.logStep(driver, Step, "Successfully retrieved data from the required column and  the expected data:-"+actionData+" matches with actual data:-"+actionData+" in the table "+colXpath_search, Constants_FRMWRK.Pass);
-					}else{
-						Reporting.logStep(driver, Step, "Retrieved data from the required column but  the expected data:-"+actionData+" does not match with actual data:-"+actionData+" in the table "+colXpath_search, Constants_FRMWRK.Fail);
-						flag=Constants_FRMWRK.False;
+						Reporting.logStep(driver, Step, "Successfully retrieved data from the required column and  the expected data:-"+actionData+" matches with actual data:-"+actual_actionData+" in the table "+colXpath_search, Constants_FRMWRK.Pass);
 					}
-
 					break;
 				}
 				rowCount++;
@@ -284,8 +280,10 @@ public class WebTableUtil extends TestBase{
 			Reporting.logStep(driver, Step, "Could not locate the required search data "+searchData+" in the table "+colXpath_search+" due to error-->"+e+ "and stack is "+commonMethods.getStackTrace(e), Constants_FRMWRK.Fail);
 			return flag;		
 		}
-
-		if(flag.equalsIgnoreCase(Constants_FRMWRK.False)){
+		if(retrieved==Constants_FRMWRK.FalseB){
+			Reporting.logStep(driver, Step, "Retrieved data from the required column but the expected data:-"+actionData+" does not match with actual data:-"+actual_actionData+" in the table "+colXpath_search+" for the search record "+searchData, Constants_FRMWRK.Fail);			
+		}
+		else if(flag.equalsIgnoreCase(Constants_FRMWRK.False)){
 			isTestPass=Constants_FRMWRK.FalseB;
 			Reporting.logStep(driver, Step, "Unable to list the required search data "+searchData+" in the table "+colXpath_search+ " the complete table data available is: "+tableData, Constants_FRMWRK.Fail);
 		}
@@ -294,10 +292,11 @@ public class WebTableUtil extends TestBase{
 
 
 	public static String searchforDataInsearchColumnAndValidateDataInactionableLinkColumn(WebDriver driver,String testcaseName,String Step,String containerName,String searchData,String actionData,int colToSearch,int actionPerformCol){
-		String flag=Constants_FRMWRK.False;
-
+		String flag=Constants_FRMWRK.False;		
+		String actual_actionData = "";
 		String rowNumber="row";
 		int rowCount=0;
+		boolean retrieved=Constants_FRMWRK.FalseB;
 
 		WebElement webtableElement=ElementMethods.fetchElement(driver, Constants_FRMWRK.FindElementByXPATH, "//table[@summary='"+containerName+"']");
 		if(webtableElement==null){
@@ -332,9 +331,6 @@ public class WebTableUtil extends TestBase{
 				if(rowSearch.getText().trim().equals(searchData.trim())){
 					WaitUtil.pause(100L);					
 					int counter=0;
-					String actual_actionData = "";
-					@SuppressWarnings("unused")
-					boolean retrieved;
 					try{							
 						while (counter< 5){
 							try{
@@ -360,12 +356,9 @@ public class WebTableUtil extends TestBase{
 						Reporting.logStep(driver, Step, "Unable to retrieve data from the required column data after successfully matching the expected data from search coloumn in the table"+colXpath_search+" due to error-->"+e+ "and stack is "+commonMethods.getStackTrace(e), Constants_FRMWRK.Fail);
 
 					} 	
-					if(retrieved=Constants_FRMWRK.TrueB){
+					if(retrieved==Constants_FRMWRK.TrueB){
 						flag=Constants_FRMWRK.True;
 						Reporting.logStep(driver, Step, "Successfully retrieved data from the required column and  the expected data:-"+actionData+" matches with actual data:-"+actual_actionData+" in the table "+colXpath_search, Constants_FRMWRK.Pass);
-					}else{
-						Reporting.logStep(driver, Step, "Retrieved data from the required column but  the expected data:-"+actionData+" does not match with actual data:-"+actual_actionData+" in the table "+colXpath_search, Constants_FRMWRK.Fail);
-						flag=Constants_FRMWRK.False;
 					}
 
 					break;
@@ -378,8 +371,10 @@ public class WebTableUtil extends TestBase{
 			Reporting.logStep(driver, Step, "Could not locate the required search data "+searchData+" in the table "+colXpath_search+" due to error-->"+e+ "and stack is "+commonMethods.getStackTrace(e), Constants_FRMWRK.Fail);
 			return flag;		
 		}
-
-		if(flag.equalsIgnoreCase(Constants_FRMWRK.False)){
+		if(retrieved==Constants_FRMWRK.FalseB){
+			Reporting.logStep(driver, Step, "Retrieved data from the required column but the expected data:-"+actionData+" does not match with actual data:-"+actual_actionData+" in the table "+colXpath_search+" for the search record "+searchData, Constants_FRMWRK.Fail);			
+		}
+		else if(flag.equalsIgnoreCase(Constants_FRMWRK.False)){
 			isTestPass=Constants_FRMWRK.FalseB;
 			Reporting.logStep(driver, Step, "Unable to list the required search data "+searchData+" in the table "+colXpath_search+ " the complete table data available is: "+tableData, Constants_FRMWRK.Fail);
 		}
@@ -404,6 +399,8 @@ public class WebTableUtil extends TestBase{
 		String colXpath_action;
 		String rowNumber="row";
 		int rowCount=0;
+		String actual_actionData = "";
+		boolean clicked=Constants_FRMWRK.FalseB;
 
 		WebElement webtableElement=ElementMethods.fetchElement(driver, Constants_FRMWRK.FindElementByXPATH, "//table[@summary='"+containerName+"']");
 		if(webtableElement==null){
@@ -443,18 +440,14 @@ public class WebTableUtil extends TestBase{
 				if(rowSearch.getText().trim().equals(searchData.trim())){
 					WaitUtil.pause(100L);				
 					int counter=0;
-					String actual_actionData = "";
-					@SuppressWarnings("unused")
-					boolean clicked;
+					
 					try{							
 						while (counter< 5){
 							try{
 								rows_action.get(rowCount).click();
 								WaitUtil.pause(1);
 								clicked=Constants_FRMWRK.TrueB;
-
 								logsObj.log("searchforDataInColumnAndClickInAcionableColumn:Successfully clicked the record from required column in the table") ;
-
 								break;
 							}catch(StaleElementReferenceException ex){
 								counter=counter+1;
@@ -470,12 +463,9 @@ public class WebTableUtil extends TestBase{
 						Reporting.logStep(driver, Step, "Unable to click the record from the required column after successfully matching the expected data from search coloumn in the table"+colXpath_search+" due to error-->"+e+ "and stack is "+commonMethods.getStackTrace(e), Constants_FRMWRK.Fail);
 
 					} 	
-					if(clicked=Constants_FRMWRK.TrueB){
+					if(clicked==Constants_FRMWRK.TrueB){
 						flag=Constants_FRMWRK.True;
 						Reporting.logStep(driver, Step, "Successfully clicked the record  from the required column after matching the expected data:-"+actionData+" with actual data:-"+actual_actionData+" in the table "+colXpath_search, Constants_FRMWRK.Pass);
-					}else{
-						Reporting.logStep(driver, Step, "Unable to click the record from the required column after matching the expected data:-"+actionData+" with actual data:-"+actual_actionData+" in the table "+colXpath_search, Constants_FRMWRK.Fail);
-						flag=Constants_FRMWRK.False;
 					}
 
 					break;
@@ -489,7 +479,11 @@ public class WebTableUtil extends TestBase{
 			return flag;		
 		}
 
-		if(flag.equalsIgnoreCase(Constants_FRMWRK.False)){
+		if(clicked==Constants_FRMWRK.FalseB){
+			Reporting.logStep(driver, Step, "Unable to click the record from the required column after matching the expected data:-"+actionData+" with actual data:-"+actual_actionData+" in the table "+colXpath_search+" for the search record "+searchData, Constants_FRMWRK.Fail);
+			flag=Constants_FRMWRK.False;
+		}
+		else if(flag.equalsIgnoreCase(Constants_FRMWRK.False)){
 			isTestPass=Constants_FRMWRK.FalseB;
 			Reporting.logStep(driver, Step, "Unable to list the required search data "+searchData+" in the table "+colXpath_search+ " the complete table data available is: "+tableData, Constants_FRMWRK.Fail);
 		}
