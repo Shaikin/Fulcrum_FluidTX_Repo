@@ -157,7 +157,7 @@ public class KeysUtil extends KeyMethods{
 				objectLocator=objectLocator+ObjRepository.js_autosuggest_input;
 				element=FetchWebElement.waitForElement(driver,locatorType, objectLocator, Constants_TimeOuts.Element_TimeOut) ;
 				element.click();
-				if(input.contains("@@")){
+				if(input.contains(Constants.delimiter_data)){
 					String[] ip=commonMethods.splitString(input, Constants.delimiter_data);
 					for (int i=0;i<ip.length;i++){
 						element.sendKeys(ip[i]);
@@ -198,6 +198,9 @@ public class KeysUtil extends KeyMethods{
 			
 		}else{
 			flag=Constants_FRMWRK.True;	
+		}
+		if(flag==Constants_FRMWRK.True){
+			flag=input;
 		}
 		return flag;
 	}
@@ -579,12 +582,12 @@ public class KeysUtil extends KeyMethods{
 	 * @param data
 	 * @return
 	 */
-	protected static String selectItemByTextFromList(WebDriver driver,String Step,String listLocatorType,String listLocator,String data){
+	protected static String selectItemByTextFromList(WebDriver driver,String refid,String testcasename,String workflow,String Step,String listLocatorType,String listLocator,String data){
 		String flag=Constants_FRMWRK.False;
 		String actual_actionData = "";
 		String rowNumber="row";
 		int rowCount=0;
-
+		Step=workflow+Step;
 		LinkedHashMap<String,String> tableData=new LinkedHashMap<String,String>();		
 
 		try{
@@ -625,14 +628,13 @@ public class KeysUtil extends KeyMethods{
 
 					}catch (ElementNotVisibleException e){
 						isTestPass=Constants_FRMWRK.FalseB;
-						Reporting.logStep(driver, Step, "Unable to click the record from the List after successfully matching the expected data "+listLocator+" due to error-->"+e+ "and stack is "+commonMethods.getStackTrace(e), Constants_FRMWRK.Fail);
-
+						Reporting.logStep(driver, refid,testcasename,Step,"Unable to click the record from the List after successfully matching the expected data "+listLocator+" due to error-->"+e+ "and stack is "+commonMethods.getStackTrace(e), Constants_FRMWRK.Fail);
 					} 	
 					if(clicked=Constants_FRMWRK.TrueB){
 						flag=Constants_FRMWRK.True;
-						Reporting.logStep(driver, Step, "Successfully clicked the record  from the List after matching the expected data:-"+data+" with actual data:-"+actual_actionData+" in the List "+listLocator, Constants_FRMWRK.Pass);
+						Reporting.logStep(driver,refid,testcasename, Step, "Successfully clicked the record  from the List after matching the expected data:-"+data+" with actual data:-"+actual_actionData+" in the List "+listLocator, Constants_FRMWRK.Pass);
 					}else{
-						Reporting.logStep(driver, Step, "Unable to click the record from the List after matching the expected data:-"+data+" with actual data:-"+actual_actionData+" in the List "+listLocator, Constants_FRMWRK.Fail);
+						Reporting.logStep(driver, refid,testcasename,Step,"Unable to click the record from the List after matching the expected data:-"+data+" with actual data:-"+actual_actionData+" in the List "+listLocator, Constants_FRMWRK.Fail);
 						flag=Constants_FRMWRK.False;
 					}
 
