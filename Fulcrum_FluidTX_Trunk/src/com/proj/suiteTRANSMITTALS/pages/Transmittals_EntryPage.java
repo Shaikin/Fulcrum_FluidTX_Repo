@@ -284,8 +284,10 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 		String dueDate = null;
 		if(appName.equals(Constants.App_Fulcrum)){
 			dueDate=DateUtil.getCurrentDateInRequiredDateFormat("dd/MM/yyyy");
+			dueDate=DateUtil.dateIncremter(dueDate, 2);
 		}else{
 			dueDate=DateUtil.getCurrentDateInRequiredDateFormat("MM/dd/yyyy");
+			dueDate=DateUtil.dateIncremter(dueDate, 2);
 		}
 		res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-DueDate", objects_locatorType_Transmittals, objects_objectType_Transmittals, objects_objectLocator_Transmittals, dueDate);
 		returnData.put("Tramsmittals-DueDate", res);
