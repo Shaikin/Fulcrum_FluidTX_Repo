@@ -94,11 +94,11 @@ public class FLD_Transmittals_ActionRequired_CaC_IssuedForReview extends TestSui
 
 		try{
 			if(data.get("RecieverRole").equalsIgnoreCase(Constants_Workflow.role_admin)){
-				username2=CONFIG.getProperty("userUserName2");
-				password2=CONFIG.getProperty("userpassword2");				
+				username2=CONFIG.getProperty("userUserName1");
+				password2=CONFIG.getProperty("userpassword1");				
 			}else{
-				username2=CONFIG.getProperty("userUserName3");
-				password2=CONFIG.getProperty("userpassword3");
+				username2=CONFIG.getProperty("userUserName2");
+				password2=CONFIG.getProperty("userpassword2");
 			}
 
 			if(isBeforeMethodPass==Constants_FRMWRK.FalseB){
