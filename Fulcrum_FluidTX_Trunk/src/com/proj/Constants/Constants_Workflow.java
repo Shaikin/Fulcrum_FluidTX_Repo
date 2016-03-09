@@ -25,6 +25,7 @@ public class Constants_Workflow {
 	public static final String FluidTX_WorkFlow_RequestForInformation="Request for Information";
 	
 	
-	
+	//Counters
+	public static final String level2_reciever_first_count="1";
 
 }
