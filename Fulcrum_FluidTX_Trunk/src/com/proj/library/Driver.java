@@ -64,9 +64,12 @@ public class Driver extends TestBase{
 		}
 		else if(browserType.equalsIgnoreCase(Constants.browserie)) {
 			isRemoteDriver=Constants_FRMWRK.False;
-			isMobile=Constants_FRMWRK.False;			
+			isMobile=Constants_FRMWRK.False;		
+			logsObj.log("Browser to launch is ie..");
 			System.setProperty("webdriver.ie.driver", (System.getProperty("user.dir")+"\\src\\com\\proj\\drivers\\IEDriverServer.exe"));
+			logsObj.log("ie webdriver set for browser..");
 			driver=new InternetExplorerDriver(cap);
+			logsObj.log("ie driver initialized..");
 			bak_ie=driver;
 			driver.manage().window().maximize();					
 			logsObj.log("launching the "+browserType+" browser");
