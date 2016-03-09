@@ -4,6 +4,7 @@ import java.util.Hashtable;
 
 import org.openqa.selenium.WebDriver;
 
+import com.proj.Constants.Constants;
 import com.proj.Constants.Constants_Workflow;
 import com.proj.navigations.Navigations_FluidTX;
 import com.proj.suiteTRANSMITTALS.TestSuiteBase;
@@ -29,14 +30,22 @@ public class MyInboxAndActionRequiredPage_FluidTx extends TestSuiteBase{
 		String TxComplete_Status = null;
 
 		if(returnData.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForInformation)){
-			status="Closed";
-			TxComplete_Status="Completed";
+			status="Completed";
+			TxComplete_Status="Closed";
 			subject=returnData.get("Tramsmittals-Subject");
 		}
 		else if(returnData.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForInformation)|| returnData.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForReview)||returnData.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForApproval)||returnData.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_RequestForInformation)){
-			status="Open";
-			TxComplete_Status="Outstanding";
-			subject=returnData.get("Tramsmittals-Subject");			
+			//
+			if(data.get("To").contains(Constants.delimiter_data)&& !returnData.get("Tramsmittals-Level2-Reciever").equalsIgnoreCase(Constants_Workflow.level2_reciever_first_count)&& data.get("Action-Level2").equalsIgnoreCase("Rejected")){
+				status="Rejected";
+				TxComplete_Status="Closed";
+				subject=returnData.get("Tramsmittals-Subject");
+			}else{
+				status="Outstanding";
+				TxComplete_Status="Open";
+				subject=returnData.get("Tramsmittals-Subject");	
+			}
+
 		}
 		if(validationPage.equalsIgnoreCase(Constants_Workflow.page_myInbox)){
 			Navigations_FluidTX.Transmittals.navigateToMyinbox(driver);
@@ -46,7 +55,7 @@ public class MyInboxAndActionRequiredPage_FluidTx extends TestSuiteBase{
 
 		TransmittalsGridUtil.searchSubjectAndCheck_TxComplete_Status(driver,validationPage, workflow, subject, TxComplete_Status);
 		TransmittalsGridUtil.searchSubjectAndCheck_Status(driver,validationPage, workflow, subject, status);
-		if(!status.equalsIgnoreCase("Completed") && !status.equalsIgnoreCase("Closed")){
+		if(!status.equalsIgnoreCase("Completed") && !status.equalsIgnoreCase("Closed")&& !status.equalsIgnoreCase("Rejected")){
 			TransmittalsGridUtil.searchSubjectAndOpenRecord(driver,validationPage, workflow, subject);
 			Transmittals_EntryPage.waitInvisiblilityofWorkingTitle(driver);
 		}
@@ -69,20 +78,8 @@ public class MyInboxAndActionRequiredPage_FluidTx extends TestSuiteBase{
 		String status = null;
 		String TxComplete_Status = null;
 
-		if(data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForReview)||data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_RequestForInformation)){
-			if(!data.get("Tramsmittals-Level2-Reciever").equalsIgnoreCase(data.get("Tramsmittals-ToCount"))){
-				status="Outstanding";
-				TxComplete_Status="Open";
-				subject=data.get("Tramsmittals-Subject");
-			}else{
-				status="Completed";
-				TxComplete_Status="Closed";
-				subject=data.get("Tramsmittals-Subject");
 
-			}
-
-		}
-		else if((data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForApproval))&& action.equals("Approved")){
+		if((data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForApproval))&& action.equals("Approved")){
 			if(!data.get("Tramsmittals-Level2-Reciever").equalsIgnoreCase(data.get("Tramsmittals-ToCount"))){
 				status="Outstanding";
 				TxComplete_Status="Open";
@@ -102,7 +99,33 @@ public class MyInboxAndActionRequiredPage_FluidTx extends TestSuiteBase{
 			status="Outstanding";
 			TxComplete_Status="Open";
 			subject=data.get("Tramsmittals-Subject");
-		}			
+
+		}	
+		else if(data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForReview)||data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_RequestForInformation)){
+			//if(data.get("Tramsmittals-Level2-Reciever").equalsIgnoreCase(Constants_Workflow.level2_reciever_first_count)){
+			if(!data.get("Tramsmittals-To").contains(Constants.delimiter_data)){
+				status="Completed";
+				TxComplete_Status="Closed";
+				subject=data.get("Tramsmittals-Subject");
+			}			
+			else if(data.get("Tramsmittals-To").contains(Constants.delimiter_data)&& data.get("Tramsmittals-Level2-Reciever").equalsIgnoreCase(Constants_Workflow.level2_reciever_first_count)){
+				status="Outstanding";
+				TxComplete_Status="Open";
+				subject=data.get("Tramsmittals-Subject");
+			}
+			else if(data.get("Tramsmittals-To").contains(Constants.delimiter_data)&& data.get("Tramsmittals-Level2-Reciever").equalsIgnoreCase(data.get("Tramsmittals-ToCount"))){
+				status="Completed";
+				TxComplete_Status="Closed";
+				subject=data.get("Tramsmittals-Subject");
+			}
+			else{
+				status="";
+				TxComplete_Status="";
+				subject=data.get("Tramsmittals-Subject");
+
+			}
+
+		}
 		if(validationPage.equalsIgnoreCase(Constants_Workflow.page_myInbox)){
 			Navigations_FluidTX.Transmittals.navigateToMyinbox(driver);
 		}else{
@@ -129,12 +152,14 @@ public class MyInboxAndActionRequiredPage_FluidTx extends TestSuiteBase{
 		String status = null;
 		String TxComplete_Status = null;
 
-		if(data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForReview)||data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_RequestForInformation)||data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForApproval)&& action.equalsIgnoreCase("CANCEL")){
+		//if(data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForReview)||data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_RequestForInformation)||data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForApproval)&& action.equalsIgnoreCase("CANCEL")){
+		if(!data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForInformation)&& action.equalsIgnoreCase("CANCEL")){
 			status="Cancelling from Initiator";
 			TxComplete_Status="Open";
 			subject=data.get("Tramsmittals-Subject");
 		}
-		else if(data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForReview)||data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_RequestForInformation)&& action.equalsIgnoreCase("CLOSE")){
+		//else if(data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForReview)||data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_RequestForInformation)&& action.equalsIgnoreCase("CLOSE")){
+		else if(!data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForInformation)&& action.equalsIgnoreCase("CLOSE")){
 			status="Completed";
 			TxComplete_Status="Closed";
 			subject=data.get("Tramsmittals-Subject");
