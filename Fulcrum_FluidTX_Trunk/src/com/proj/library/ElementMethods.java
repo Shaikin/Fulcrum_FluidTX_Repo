@@ -156,7 +156,42 @@ public class ElementMethods extends TestBase{
 	}	
 
 	
-	
+	public static int fetchElementsSize(WebDriver driver,String locatorType, String locator){
+		int listElement = 0;
+		try{
+
+			LocatorType str= LocatorType.valueOf(locatorType.toUpperCase());
+
+			switch (str){
+
+			case XPATH:
+				listElement=driver.findElements(By.xpath(locator)).size();
+				break;
+			case ID:
+				listElement=driver.findElements(By.id(locator)).size();
+				break;
+			case NAME:
+				listElement= driver.findElements(By.name(locator)).size();						 
+				break;
+			}
+			
+		}				 
+
+		catch (ElementNotVisibleException env) 
+		{
+			logsObj.logError("fetchElementsSize:Element "+locator+" is not visible..due to -->",env);
+			throw env;
+		}
+
+		catch (Exception genException)
+		{
+			logsObj.logError("fetchElementsSize: General Exception error .."+"while fecth element "+locator+" due to -->  ",genException);
+		}
+
+		logsObj.log("fetchElementsSize-Successfully returned the Object "+locator);
+		return listElement; //return the webelement
+
+	}
 	
 	
 	
