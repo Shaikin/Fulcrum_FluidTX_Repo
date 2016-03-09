@@ -92,7 +92,7 @@ public class ApplicationMethods extends TestBase{
 			commonMethods.navigateURL(driver,url);
 			Dialogs.userAuthentication(driver,browser,url, CONFIG.getProperty("userDomain")+"\\"+userName, password);
 			//Dialogs.userAuth(CONFIG.getProperty("userDomain"),userName,password);
-			Reporting.logStep(driver, refID, url, "IE-Log into the application -User Authenication", "Successfully able to log into the application with user credentials "+CONFIG.getProperty("userDomain")+"\\"+userName+"--"+password, Constants_FRMWRK.Pass);
+			Reporting.logStep(driver, refID, "IE-Log into the application -User Authenication","Successfully able to log into the application with user credentials "+CONFIG.getProperty("userDomain")+"\\"+userName+"--"+password, Constants_FRMWRK.Pass);
 		}
 
 		PageLoadWaitUtil.waitForPageToLoad(driver);
@@ -112,7 +112,7 @@ public class ApplicationMethods extends TestBase{
 		WebElement element;
 		//closeAllDialogs(driver, refID, testcaseName);
 		commonMethods.switchToDefaultPage(driver);
-		element=FetchWebElement.waitForElement(driver, Constants_FRMWRK.FindElementByID, ObjRepository.link_user, Constants_TimeOuts.Element_TimeOut);
+		element=FetchWebElement.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.link_user, Constants_TimeOuts.Element_TimeOut);
 
 		if(element!=null){
 			try{
@@ -173,9 +173,10 @@ public class ApplicationMethods extends TestBase{
 	public static void closeAllDialogs(WebDriver driver,String refID,String testcaseName){
 		int counter=1;
 		commonMethods.switchToDefaultPage(driver);
-		List <WebElement> elements=ElementMethods.fetchElements(driver, Constants_FRMWRK.FindElementByXPATH, "//*[@title='Close dialog']");
+		int closeIcons=ElementMethods.fetchElementsSize(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.icon_close);
 		WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);		
-		if(elements.size()!=0 && counter <10){
+		if(closeIcons!=0 && counter <10){
+			List <WebElement> elements=ElementMethods.fetchElements(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.icon_close);
 			System.out.println("Number of Close icons are "+elements.size());
 			for (WebElement element :elements){
 				WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);	
@@ -190,10 +191,9 @@ public class ApplicationMethods extends TestBase{
 				//WaitUtil.pause(3);		
 				WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);	
 			}
-			elements=ElementMethods.fetchElements(driver, Constants_FRMWRK.FindElementByXPATH, "//*[@title='Close dialog']");
-			//WaitUtil.pause(3);	
+			closeIcons=ElementMethods.fetchElementsSize(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.icon_close);	
 			WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);	
-			if(elements.size()!=0 && counter <10){
+			if(closeIcons!=0 && counter <10){
 				counter=counter+1;
 				System.out.println("Number of Close icons are still "+elements.size());
 				closeAllDialogs(driver, refID, testcaseName);
