@@ -1,8 +1,10 @@
 package com.proj.navigations;
 
 import java.util.Hashtable;
+import java.util.List;
 
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 
 import com.frw.Constants.Constants_FRMWRK;
 import com.frw.util.WaitUtil;
@@ -13,6 +15,7 @@ import com.proj.library.commonMethods;
 import com.proj.suiteTRANSMITTALS.TestSuiteBase;
 import com.proj.util.CustomExceptions;
 import com.proj.util.fetchObjectRepository;
+import com.proj.utilFulcrum.WebTableUtil;
 import com.report.reporter.Reporting;
 
 public class Navigations_FluidTX extends TestSuiteBase{
@@ -134,7 +137,43 @@ public class Navigations_FluidTX extends TestSuiteBase{
 		}
 	}
 
+	public static void validate_MenuItem(WebDriver driver,String refID,String data){
+        String flag=Constants_FRMWRK.False;
+        List<WebElement> menuList= WebTableUtil.waitUntilAllVisible(driver, objects_objectLocator_Navigation.get("Fluid Menu List"));
+            
+            for(WebElement element : menuList){
+            if (element.getText().equalsIgnoreCase(data)){
+                Reporting.logStep(driver, refID, "Menu Verification", "Able to Locate the menu "+data, Constants_FRMWRK.Pass);
+                flag=Constants_FRMWRK.True;
+                break;
+            }
+        }
+        
+        if(flag.equalsIgnoreCase(Constants_FRMWRK.False)){
+            isTestPass=Constants_FRMWRK.FalseB;
+        	Reporting.logStep(driver, refID, "Menu Verification", "Not able to Locate the menu "+data, Constants_FRMWRK.Fail);
+        }
+    }
 
+	public static void verify_menu(WebDriver driver,String ApplicationName, Hashtable<String,String>data)
+	{
+		
+		int j = Integer.valueOf(data.get(ApplicationName+"_MenuCount"));
+		
+		
+			for(int i=1;i<=j; i++)
+			{
+				String MenuName = ApplicationName+"_Menu"+String.valueOf(i);
+				
+				validate_MenuItem(driver, refID, data.get(MenuName));
+				
+				
+		
+	}
+
+
+
+}
 
 
 }
