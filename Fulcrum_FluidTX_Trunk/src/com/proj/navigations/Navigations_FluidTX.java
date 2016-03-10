@@ -137,23 +137,6 @@ public class Navigations_FluidTX extends TestSuiteBase{
 		}
 	}
 
-	public static void validate_MenuItem(WebDriver driver,String refID,String data){
-        String flag=Constants_FRMWRK.False;
-        List<WebElement> menuList= WebTableUtil.waitUntilAllVisible(driver, objects_objectLocator_Navigation.get("Fluid Menu List"));
-            
-            for(WebElement element : menuList){
-            if (element.getText().equalsIgnoreCase(data)){
-                Reporting.logStep(driver, refID, "Menu Verification", "Able to Locate the menu "+data, Constants_FRMWRK.Pass);
-                flag=Constants_FRMWRK.True;
-                break;
-            }
-        }
-        
-        if(flag.equalsIgnoreCase(Constants_FRMWRK.False)){
-            isTestPass=Constants_FRMWRK.FalseB;
-        	Reporting.logStep(driver, refID, "Menu Verification", "Not able to Locate the menu "+data, Constants_FRMWRK.Fail);
-        }
-    }
 
 	public static void verify_menu(WebDriver driver,String ApplicationName, Hashtable<String,String>data)
 	{
@@ -165,15 +148,22 @@ public class Navigations_FluidTX extends TestSuiteBase{
 			{
 				String MenuName = ApplicationName+"_Menu"+String.valueOf(i);
 				
-				validate_MenuItem(driver, refID, data.get(MenuName));
+				System.out.println(MenuName);
 				
+				commonMethods.switchToDefaultPage(driver);
+			
+			
 				
+				res=KeyMethods.f_performAction(driver, refID, testcaseName, "","Fluid Menu List",objects_locatorType_Navigation ,objects_objectType_Navigation,objects_objectLocator_Navigation, data.get(MenuName));
+				
+			}
 		
 	}
-
-
-
-}
+	
 
 
 }
+
+	
+
+
