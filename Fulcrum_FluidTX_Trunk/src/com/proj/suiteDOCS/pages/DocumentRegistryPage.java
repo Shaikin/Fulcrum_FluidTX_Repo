@@ -4,6 +4,7 @@ import java.util.Hashtable;
 
 import org.openqa.selenium.WebDriver;
 
+import com.frw.util.PageLoadWaitUtil;
 import com.proj.navigations.Navigations_FluidTX;
 import com.proj.suiteDOCS.TestSuiteBase;
 import com.proj.suiteDOCS.reusables.DocumentRegisterGridUtil;
@@ -17,7 +18,12 @@ public class DocumentRegistryPage extends TestSuiteBase{
 	}
 
 	
-	public static void sendTransmittal(WebDriver driver,String workFlow){
+	public static void sendTransmittal(WebDriver driver,String workFlow) throws Throwable{
+		try{
+			PageLoadWaitUtil.waitForPageToLoad(driver);
+		}catch (Exception ex){
+			
+		}		
 		ToolbarsUtil.clickItems(driver, workFlow);
 		ToolbarsUtil.Items.clickSendTranmittals(driver, workFlow);
 	}
