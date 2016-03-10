@@ -12,7 +12,7 @@ import com.proj.utilFulcrum.ToolbarsUtil;
 public class DocumentRegistryPage extends TestSuiteBase{
 	
 	public static void selectADocument(WebDriver driver,String workflow,Hashtable<String,String>data) throws Exception{
-		Navigations_FluidTX.navigateToDocumentRegister(driver_DOCS);
+		Navigations_FluidTX.navigateToDocumentRegister(driver);
 		DocumentRegisterGridUtil.searchDocumentAndTickRecord(driver_DOCS, workflow, data.get("AttachDocumentName"));		
 	}
 
