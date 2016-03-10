@@ -9,6 +9,7 @@ import com.frw.util.Xls_Reader;
 import com.proj.Constants.Constants;
 import com.proj.base.TestBase;
 import com.proj.library.KeyMethods;
+import com.proj.library.commonMethods;
 import com.proj.util.fetchObjectRepository;
 import com.report.reporter.Reporting;
 
@@ -39,6 +40,7 @@ public class ToolbarsUtil extends TestBase{
 	}
 	
 		public static void clickItems(WebDriver driver,String workFlow){
+			commonMethods.switchToDefaultPage(driver);
 			KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Toolbar - Items", objects_locatorType_Toolbar, objects_objectType_Toolbar, objects_objectLocator_Toolbar, input);
 		}
 	public static class Items {
