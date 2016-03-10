@@ -32,14 +32,10 @@ public class FLD_DocumentRegistry_New_Transmittals extends TestSuiteBase{
 	private static String username1;
 	private static String password1;
 
-
 	private static boolean isBeforeTestPass=Constants_FRMWRK.TrueB;
 	private static boolean isBeforeMethodPass=Constants_FRMWRK.TrueB;
-	
-
 
 	@BeforeTest
-
 	public void testPrerequisite() throws Throwable{
 		refID=local_refID;
 		logsObj.log("starting before test of "+local_testcaseName);
@@ -50,12 +46,8 @@ public class FLD_DocumentRegistry_New_Transmittals extends TestSuiteBase{
 		url=CONFIG.getProperty("testSiteName");
 		username1=CONFIG.getProperty("userUserName");
 		password1=CONFIG.getProperty("userpassword");
-		
-		
 		try{
-
 			TestExecutionUtil.initialiseTestFlags(testcaseName);
-
 		}catch (Throwable t){
 			isBeforeTestPass=Constants_FRMWRK.FalseB;
 		}
@@ -65,7 +57,6 @@ public class FLD_DocumentRegistry_New_Transmittals extends TestSuiteBase{
 	@BeforeMethod
 	public static void befMethod() throws Throwable{
 		try {
-
 			if(!isBeforeTestPass ==Constants_FRMWRK.FalseB){				
 				driver_DOCS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, url, username1, password1, refID);
 				logsObj.log("Before method success for "+testcaseName);
@@ -96,10 +87,10 @@ public class FLD_DocumentRegistry_New_Transmittals extends TestSuiteBase{
 		String siteName=ApplicationMethods.getSiteName(url);
 		String condition="";
 		condition=" ["+data.get("IssueReason")+"]";
-			
+
 		//************************************** LEVEL 1 *****************************************************************************
 		workflow_l1=workflow_l1+condition+workflow_end;		
-		
+
 		transmittalData=Workflows.Level1_Initaite_Transmittal_FromDocumentRegister(driver_DOCS, url, workflow_l1, data);
 		//************************************** LEVEL 2 *****************************************************************************		
 		for (int userIteration=1 ;userIteration<= Transmittals_EntryPage.getRecieverUserCount(data);userIteration++){
@@ -107,11 +98,8 @@ public class FLD_DocumentRegistry_New_Transmittals extends TestSuiteBase{
 			String password=CONFIG.getProperty("userpassword"+String.valueOf(userIteration));
 			driver_DOCS=Workflows.Level2_Validate_OR_Submit_OR_ApproveOrReject_OR_Forward_OR_ReplyAll_Transmittal(siteName,Constants_Workflow.page_myInbox,driver_DOCS,refID,testcaseName, workflow_l2, condition, workflow_end, url, browserName, username, password, transmittalData, data,userIteration);
 		}
-		
-		
 		logsObj.log(" after test of "+testcaseName+"-testresult"+isTestPass);
 	}
-
 
 
 	@AfterMethod
@@ -126,7 +114,6 @@ public class FLD_DocumentRegistry_New_Transmittals extends TestSuiteBase{
 
 		}
 	}
-
 
 	@AfterTest
 	public void Report_TestResult() throws Throwable{
