@@ -89,9 +89,9 @@ public class FLD_DocumentRegistry_New_Transmittals extends TestSuiteBase{
 		condition=" ["+data.get("IssueReason")+"]";
 
 		//************************************** LEVEL 1 *****************************************************************************
-		workflow_l1=workflow_l1+condition+workflow_end;		
+		String workflow_lvl1=workflow_l1+condition+workflow_end;		
 
-		transmittalData=Workflows.Level1_Initaite_Transmittal_FromDocumentRegister(driver_DOCS, url, workflow_l1, data);
+		transmittalData=Workflows.Level1_Initaite_Transmittal_FromDocumentRegister(driver_DOCS, url, workflow_lvl1, data);
 		//************************************** LEVEL 2 *****************************************************************************		
 		for (int userIteration=1 ;userIteration<= Transmittals_EntryPage.getRecieverUserCount(data);userIteration++){
 			String username=CONFIG.getProperty("userUserName"+String.valueOf(userIteration));
