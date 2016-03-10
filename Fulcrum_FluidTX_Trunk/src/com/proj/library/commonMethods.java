@@ -19,6 +19,7 @@ import org.testng.Reporter;
 
 import com.frw.Constants.Constants_FRMWRK;
 import com.frw.util.WaitUtil;
+import com.google.common.base.Throwables;
 import com.proj.base.TestBase;
 import com.proj.util.CustomExceptions;
 import com.proj.util.ErrorUtil;
@@ -278,6 +279,61 @@ public class commonMethods extends TestBase{
 	public static String getSelectedOptionFromDropdown(WebElement element){
 		Select dropdown = new Select(element);
 		return dropdown.getFirstSelectedOption().getText();	    
+	}
+	public static String getBrowserName(WebDriver driver){
+		String browsername = ((RemoteWebDriver) driver).getCapabilities().getBrowserName();
+		return browsername;
+	}
+	
+	public static String getOS () {
+		String os = System.getProperty("os.name").toLowerCase();
+		if (os.contains("win")) {
+			return "Windows";
+		} else if (os.contains("nux") || os.contains("nix")) {
+			return "Linux";
+		}else if (os.contains("mac")) {
+			return "Mac";
+		}else if (os.contains("sunos")) {
+			return "Solaris";
+		}else {
+			return "Other";
+		}
+	}
+	public static String getOSVersion () {
+		String os = System.getProperty("os.name").toLowerCase();
+		String[] osversion=os.split(" ");
+		return osversion[1];
+	}
+	public static void killIEProcess(WebDriver driver){
+		try {			
+			String browsername=getBrowserName(driver);
+			if(browsername.equalsIgnoreCase("internet explorer")){
+				String version =getOSVersion();
+				
+				if(version.contains(".")){
+					if(Double.valueOf(version)>=8){
+						Runtime.getRuntime().exec("taskkill /F /IM iexplore.exe");
+					}else{
+						Runtime.getRuntime().exec("taskkill /F /IM IEDriverServer.exe");
+					}
+				}
+				else{
+					if(Integer.valueOf(version)>=8){
+						Runtime.getRuntime().exec("taskkill /F /IM iexplore.exe");
+					}else{
+						Runtime.getRuntime().exec("taskkill /F /IM IEDriverServer.exe");
+					}
+				}
+								
+				//Runtime.getRuntime().exec("taskkill /F /IM conhost.exe");
+				logsObj.log("IE listed processes have been killed..");
+				System.out.println("Killed IE processes..");
+			}
+		   
+		} catch (Exception e) {
+		    e.printStackTrace();		    
+		    logsObj.log("Unable to kill IE listed processes have been killed.. due to "+Throwables.getStackTraceAsString(e));
+		}
 	}
 }
 
