@@ -142,8 +142,10 @@ public class Driver extends TestBase{
 				driver.quit();
 				logsObj.log("Closing the browser for second attempt");
 			}
-
-
+			
+				commonMethods.killIEProcess(driver);
+			
+			
 		}
 
 	}
