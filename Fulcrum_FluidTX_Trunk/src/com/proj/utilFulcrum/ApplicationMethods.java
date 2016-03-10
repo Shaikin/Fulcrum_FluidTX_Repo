@@ -86,7 +86,7 @@ public class ApplicationMethods extends TestBase{
 			PopUpUtil.checkDefaultPopup(driver, "Login User Authentication popup-Confirmation", "ok");			
 			commonMethods.navigateURL(driver,url);
 			Reporting.logStep("Launch and Log into the application", "Launched & logged into the application "+url, Constants_FRMWRK.Pass);
-			
+
 		}else if (browser.equalsIgnoreCase("ie")){
 			url="http://"+url;
 			commonMethods.navigateURL(driver,url);
@@ -94,8 +94,12 @@ public class ApplicationMethods extends TestBase{
 			//Dialogs.userAuth(CONFIG.getProperty("userDomain"),userName,password);
 			Reporting.logStep(driver, refID, "IE-Log into the application -User Authenication","Successfully able to log into the application with user credentials "+CONFIG.getProperty("userDomain")+"\\"+userName+"--"+password, Constants_FRMWRK.Pass);
 		}
+		try{
+			PageLoadWaitUtil.waitForPageToLoad(driver);
+		}catch (Exception ex){
 
-		PageLoadWaitUtil.waitForPageToLoad(driver);
+		}
+
 		return driver;
 	}
 	/**
@@ -205,7 +209,7 @@ public class ApplicationMethods extends TestBase{
 			}
 		}		
 	}
-	
+
 	public static int getApplicationFrameCount(WebDriver driver){
 		int flag=0;
 		commonMethods.switchToDefaultPage(driver);
@@ -228,10 +232,10 @@ public class ApplicationMethods extends TestBase{
 		}catch (Throwable t ){
 			CustomExceptions.Exit(testcasename, "Switch to latest frame -Failure", "Unable to switch the latest frame expected due to error-"+commonMethods.getStackTrace(t));
 		}
-		
-		
+
+
 	}
-	
+
 	public static String getSiteName(String url){
 		String flag;
 		if(url.contains(Constants.App_Fluid)){
@@ -241,7 +245,7 @@ public class ApplicationMethods extends TestBase{
 		}
 		return flag;	
 	}
-	
+
 	public static void waitForOverlayToDisappear(WebDriver driver){
 		commonMethods.switchToDefaultPage(driver);
 		boolean tt=ExplicitWaitUtil.waitUntilInvisibilityOfElement(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.overlay_working, Constants_TimeOuts.Overlay_disappear);
