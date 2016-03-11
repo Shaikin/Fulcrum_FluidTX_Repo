@@ -104,6 +104,21 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 		res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-Submit", objects_locatorType_Transmittals, objects_objectType_Transmittals, objects_objectLocator_Transmittals, input);
 		WaitUtil.pause(6);
 	}
+	
+	/**
+	 * Clicks on Delegate button of a Transmittal
+	 * @author Anupama
+	 * @param driver
+	 * @param workFlow
+	 * @throws Throwable 
+	 */
+	public static void clickDelegate(WebDriver driver,String testcasename, String workFlow) throws Throwable{
+		ApplicationMethods.switchToLatestDLGframe(driver, testcasename);
+		res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-Delegate", objects_locatorType_Transmittals, objects_objectType_Transmittals, objects_objectLocator_Transmittals, input);
+		WaitUtil.pause(6);
+	}
+	
+	
 	/**
 	 * Clicks on Cancel button of a View Transmittal
 	 * @author shaikka
@@ -399,6 +414,28 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 		}
 		clickSend(driver, workFlow);
 		WorkArounds.getViewPortOfPage(driver);
+		ApplicationMethods.closeAllDialogs(driver, refID, testcaseName);
+	}
+	
+	/**
+	 * Delegate and send transmittal to a user
+	 * @param appName
+	 * @param driver
+	 * @param workFlow
+	 * @param data
+	 * @throws Throwable
+	 */
+	public static void delegateAndSendTransmittalRecord(String appName,WebDriver driver,String testcasename,String workFlow,Hashtable<String,String>data) throws Throwable{		
+		clickDelegate(driver, testcasename, workFlow);
+		
+		
+		System.out.println(data.get("DelegateTo"));
+		ApplicationMethods.switchToLatestDLGframe(driver, testcasename);
+		WorkArounds.deFocusCursor(driver);
+		WaitUtil.pause(3);
+		res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-DelegateTo", objects_locatorType_Transmittals, objects_objectType_Transmittals, objects_objectLocator_Transmittals, data.get("DelegateTo"));
+
+		clickSubmit(driver, workFlow);
 		ApplicationMethods.closeAllDialogs(driver, refID, testcaseName);
 	}
 	
