@@ -251,4 +251,10 @@ public class ApplicationMethods extends TestBase{
 		boolean tt=ExplicitWaitUtil.waitUntilInvisibilityOfElement(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.overlay_working, Constants_TimeOuts.Overlay_disappear);
 		System.out.println("Overlay Working on it.. invisibility.."+tt);
 	}
+	
+	public static String getSubsite(String mainSite,String subsiteName){
+		String patternSubsite="/SitePages";
+		return mainSite.replaceAll(patternSubsite, "/"+subsiteName+patternSubsite);
+		
+	}
 }
