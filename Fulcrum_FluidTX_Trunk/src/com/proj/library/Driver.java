@@ -33,6 +33,7 @@ public class Driver extends TestBase{
 	 */
 	public static WebDriver launchBrowser(String browserType){
 		DesiredCapabilities cap=new DesiredCapabilities();
+		cap.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
 		cap.setCapability(CapabilityType.TAKES_SCREENSHOT, true);
 		
 		if (browserType.equalsIgnoreCase(Constants.browserfirefox)){
@@ -141,12 +142,9 @@ public class Driver extends TestBase{
 			if (!driver.toString().contains("null")){
 				driver.quit();
 				logsObj.log("Closing the browser for second attempt");
-			}
-			
-				commonMethods.killIEProcess(driver);
-			
-			
+			}			
 		}
+		commonMethods.killIEProcess(driver);
 
 	}
 
