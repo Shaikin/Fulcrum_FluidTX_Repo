@@ -51,8 +51,8 @@ public class FLD_Transmittals_New_IssuedForInformation extends TestSuiteBase{
 		url=CONFIG.getProperty("testSiteName");
 		username1=CONFIG.getProperty("userUserName");
 		password1=CONFIG.getProperty("userpassword");
-		username2=CONFIG.getProperty("userUserName2");
-		password2=CONFIG.getProperty("userpassword2");
+		username2=CONFIG.getProperty("userUserName1");
+		password2=CONFIG.getProperty("userpassword1");
 		try{
 
 			TestExecutionUtil.initialiseTestFlags(testcaseName);
