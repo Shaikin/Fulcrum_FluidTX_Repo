@@ -66,6 +66,7 @@ public class Workflows extends TestSuiteBase{
 			if(getResult.equalsIgnoreCase(Constants_FRMWRK.False)){
 				CustomExceptions.Exit(testcaseName, workflow_l2+"- Failure", "Unable to continue the test due to above error ");
 			}
+			MyInboxAndActionRequiredPage_FluidTx.validate_TransmittalID(driver, validationPage, workflow_l2, transmittalData);
 		}
 
 
