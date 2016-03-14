@@ -4,11 +4,13 @@ import java.util.Hashtable;
 
 import org.openqa.selenium.WebDriver;
 
+import com.frw.Constants.Constants_FRMWRK;
 import com.proj.Constants.Constants;
 import com.proj.Constants.Constants_Workflow;
 import com.proj.navigations.Navigations_FluidTX;
 import com.proj.suiteTRANSMITTALS.TestSuiteBase;
 import com.proj.suiteTRANSMITTALS.reusables.TransmittalsGridUtil;
+import com.report.reporter.Reporting;
 
 public class MyInboxAndActionRequiredPage_FluidTx extends TestSuiteBase{
 
@@ -175,5 +177,17 @@ public class MyInboxAndActionRequiredPage_FluidTx extends TestSuiteBase{
 		TransmittalsGridUtil.searchSubjectAndCheck_Status(driver,validationPage, workflow, subject, status);
 
 		return status;
+	}
+	
+	public static void validate_TransmittalID(WebDriver driver,String page,String workflow,Hashtable<String,String> data) throws Exception{
+		String subject=data.get("Tramsmittals-Subject");
+		String res=TransmittalsGridUtil.searchSubjectAndGetTransmittalID(driver, page, workflow, subject);
+		if(!res.equalsIgnoreCase(Constants_FRMWRK.Error)||!res.equalsIgnoreCase(Constants_FRMWRK.False)){
+			 if(!res.equalsIgnoreCase("")){
+				 Reporting.logStep(driver, workflow+" "+page+" - Transmittal ID", "Transmittal ID :-"+res+" is displayed for the record "+subject, Constants_FRMWRK.Pass);
+			 }else{
+				 Reporting.logStep(driver, workflow+" "+page+" - Transmittal ID", "Transmittal ID :-"+res+" is not displayed for the record "+subject, Constants_FRMWRK.Fail);
+			 }
+		 }
 	}
 }
