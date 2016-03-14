@@ -199,7 +199,9 @@ System.out.println();
 			ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver,refid,testcasename);
 			driver=ApplicationMethods.launchBrowserAndlogIntoApplication(browsername, url, username1, password1,refID);
 			String subj=transmittalData.get("Tramsmittals-Subject");
-			subj="FW: "+subj;
+			if (testData.get("Action-Level2").equalsIgnoreCase("Forward")){
+                subj="FW: "+subj;
+            }
 			transmittalData.put("Tramsmittals-Subject", subj);
 			MyInboxAndActionRequiredPage_FluidTx.validate_TxComplete_StatusAndStatus(driver,validationPage ,workflow_l3, transmittalData,testData);
 			Transmittals_EntryPage.verifyAttachedFiles(siteName,driver, workflow_l3, refID, workflow_l3, testData);
