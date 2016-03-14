@@ -53,7 +53,9 @@ public class ApplicationMethods extends TestBase{
 		}else if (browser.equalsIgnoreCase("ie")){
 			url="http://"+url;
 			commonMethods.navigateURL(driver,url);
-			Dialogs.userAuthentication(driver,browser,url, userName, password);
+			String title=driver.getTitle();
+			commonMethods.ie_Certification(driver);
+			Dialogs.userAuthentication(driver,browser,url,title, userName, password);
 			//Dialogs.userAuth(CONFIG.getProperty("userDomain"),userName,password);
 		}
 
@@ -77,20 +79,23 @@ public class ApplicationMethods extends TestBase{
 	public static WebDriver launchBrowserAndlogIntoApplication(String browser,String url,String userName,String password,String refID) throws Throwable{
 		WebDriver driver = null;
 		browserName=browser;
+		String httpProtocol="https://";
 		//driver=Driver.launchBrowser(browser);
 		driver=Driver.launchBrowser(browser);
 		LocalDriverManager.setWebDriver(driver);
 		driver=LocalDriverManager.getDriver();
 		if(browser.equalsIgnoreCase("Chrome")||browser.equalsIgnoreCase("firefox") ){
-			url="http://"+userName+":"+password+"@"+url;			
+			url=httpProtocol+userName+":"+password+"@"+url;			
 			PopUpUtil.checkDefaultPopup(driver, "Login User Authentication popup-Confirmation", "ok");			
 			commonMethods.navigateURL(driver,url);
 			Reporting.logStep("Launch and Log into the application", "Launched & logged into the application "+url, Constants_FRMWRK.Pass);
 
 		}else if (browser.equalsIgnoreCase("ie")){
-			url="http://"+url;
+			url=httpProtocol+url;
 			commonMethods.navigateURL(driver,url);
-			Dialogs.userAuthentication(driver,browser,url, CONFIG.getProperty("userDomain")+"\\"+userName, password);
+			String title=driver.getTitle();
+			commonMethods.ie_Certification(driver);
+			Dialogs.userAuthentication(driver,browser,url,title, CONFIG.getProperty("userDomain")+"\\"+userName, password);
 			//Dialogs.userAuth(CONFIG.getProperty("userDomain"),userName,password);
 			Reporting.logStep(driver, refID, "IE-Log into the application -User Authenication","Successfully able to log into the application with user credentials "+CONFIG.getProperty("userDomain")+"\\"+userName+"--"+password, Constants_FRMWRK.Pass);
 		}
