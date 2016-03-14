@@ -395,7 +395,7 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 		clickReplyAll(driver, workFlow);
 		ApplicationMethods.waitForOverlayToDisappear(driver);
 		Transmittals_EntryPage.switchToTramsmittalEditFrame(driver, refID, testcaseName, workFlow);
-		
+		WaitUtil.pause(Constants_TimeOuts.Save_TimeOut);
 		Hashtable<String,String>returnData = new Hashtable<String,String>();
 		res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-ReplyAll", objects_locatorType_Transmittals, objects_objectType_Transmittals, objects_objectLocator_Transmittals, input);
 		if (res.isEmpty())

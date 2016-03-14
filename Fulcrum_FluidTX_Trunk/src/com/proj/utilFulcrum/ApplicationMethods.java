@@ -2,10 +2,10 @@ package com.proj.utilFulcrum;
 
 import java.util.List;
 
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 
 import com.frw.Constants.Constants_FRMWRK;
 import com.frw.util.FetchWebElement;
@@ -121,9 +121,8 @@ public class ApplicationMethods extends TestBase{
 		if(element!=null){
 			try{
 				WaitUtil.pause(1);
-				((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
-				Thread.sleep(500); 
-				element.click();
+				Actions act= new Actions(driver);
+				act.moveToElement(element).click().build().perform();
 				Reporting.logStep(driver, refID, "Logout- Click on Open Menu in the Home Page", "Open Menu exists and Clicked", Constants_FRMWRK.Pass);
 			}catch(Throwable t){
 				isTestPass=false;
@@ -250,5 +249,11 @@ public class ApplicationMethods extends TestBase{
 		commonMethods.switchToDefaultPage(driver);
 		boolean tt=ExplicitWaitUtil.waitUntilInvisibilityOfElement(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.overlay_working, Constants_TimeOuts.Overlay_disappear);
 		System.out.println("Overlay Working on it.. invisibility.."+tt);
+	}
+	
+	public static String getSubsite(String mainSite,String subsiteName){
+		String patternSubsite="/SitePages";
+		return mainSite.replaceAll(patternSubsite, "/"+subsiteName+patternSubsite);
+		
 	}
 }

@@ -45,6 +45,7 @@ public class ToolbarsUtil extends TestBase{
 		}
 	public static class Items {
 		public static void clickSendTranmittals(WebDriver driver,String workFlow){
+			commonMethods.switchToDefaultPage(driver);
 			KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Toolbar - Items - Start New Tranmittal", objects_locatorType_Toolbar, objects_objectType_Toolbar, objects_objectLocator_Toolbar, input);
 		}
 	}
