@@ -72,5 +72,10 @@ public class TransmittalsGridUtil extends TestSuiteBase{
 		return WebTableUtil.searchforDataInsearchColumn_WOR(driver, testcaseName, workflow+" "+page+" - Subject", ObjRepository.container_transmittals, subject, 4);
 		
 	}
+	public static String searchSubjectAndGetTransmittalID(WebDriver driver,String page,String workflow,String subject) throws Exception{
+		return WebTableUtil.searchforDataInsearchColumnAndFetchDataInactionableColumn_WOR(driver, testcaseName, workflow+" "+page+" - Transmittal ID", ObjRepository.container_transmittals, subject, "text", 4, 3);
+		 
+	}
+	
 
 }
