@@ -95,7 +95,8 @@ public class MyInboxAndActionRequiredPage_FluidTx extends TestSuiteBase{
 			TxComplete_Status="Closed";
 			subject=data.get("Tramsmittals-Subject");
 		}
-		else if((!data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForInformation)) && (action.equals("Forward")||(action.equals("ReplyAll")))){
+		
+			else if((!data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForInformation)) && (action.equals("Forward")||(action.equals("ReplyAll")||(action.equals("Delegate"))))){
 			status="Outstanding";
 			TxComplete_Status="Open";
 			subject=data.get("Tramsmittals-Subject");
