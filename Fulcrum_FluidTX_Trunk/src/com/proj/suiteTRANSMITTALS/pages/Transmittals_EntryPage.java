@@ -427,12 +427,10 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 	 */
 	public static void delegateAndSendTransmittalRecord(String appName,WebDriver driver,String testcasename,String workFlow,Hashtable<String,String>data) throws Throwable{		
 		clickDelegate(driver, testcasename, workFlow);
-		
-		
 		System.out.println(data.get("DelegateTo"));
 		ApplicationMethods.switchToLatestDLGframe(driver, testcasename);
 		WorkArounds.deFocusCursor(driver);
-		WaitUtil.pause(3);
+		WaitUtil.pause(Constants_TimeOuts.Save_TimeOut);
 		res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-DelegateTo", objects_locatorType_Transmittals, objects_objectType_Transmittals, objects_objectLocator_Transmittals, data.get("DelegateTo"));
 
 		clickSubmit(driver, workFlow);
