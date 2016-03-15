@@ -5,8 +5,10 @@ import java.util.Hashtable;
 import org.openqa.selenium.WebDriver;
 
 import com.frw.Constants.Constants_FRMWRK;
+import com.frw.util.WaitUtil;
 import com.proj.Constants.Constants;
 import com.proj.Constants.Constants_Messages;
+import com.proj.Constants.Constants_TimeOuts;
 import com.proj.Constants.Constants_Workflow;
 import com.proj.navigations.Navigations_FluidTX;
 import com.proj.suiteDOCS.pages.DocumentRegistryPage;
@@ -256,6 +258,7 @@ System.out.println();
 		ApplicationMethods.waitForOverlayToDisappear(driver);
 		DocumentRegistryPage.sendTransmittal(driver, worflow_l1);
 		ApplicationMethods.waitForOverlayToDisappear(driver);
+		WaitUtil.pause(Constants_TimeOuts.Save_TimeOut);
 		Transmittals_EntryPage.attachdocument(ApplicationMethods.getSiteName(url),driver, testcaseName, refID, worflow_l1, data);
 
 		transmittalData=Transmittals_EntryPage.createAndSendTransmittalRecord(ApplicationMethods.getSiteName(url),driver, refID,testcaseName,worflow_l1,  data);
