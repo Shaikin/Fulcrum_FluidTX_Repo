@@ -259,7 +259,7 @@ System.out.println();
 		DocumentRegistryPage.sendTransmittal(driver, worflow_l1);
 		ApplicationMethods.waitForOverlayToDisappear(driver);
 		WaitUtil.pause(Constants_TimeOuts.Save_TimeOut);
-		Transmittals_EntryPage.attachdocument(ApplicationMethods.getSiteName(url),driver, testcaseName, refID, worflow_l1, data);
+		Transmittals_EntryPage.attachdocument(ApplicationMethods.getSiteName(url),driver, refID,testcaseName, worflow_l1, data);
 
 		transmittalData=Transmittals_EntryPage.createAndSendTransmittalRecord(ApplicationMethods.getSiteName(url),driver, refID,testcaseName,worflow_l1,  data);
 		System.out.println("Done.."+transmittalData);
