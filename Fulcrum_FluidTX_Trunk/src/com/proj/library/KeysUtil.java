@@ -8,6 +8,7 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.Select;
 
 import com.frw.Constants.Constants_FRMWRK;
@@ -898,6 +899,34 @@ public class KeysUtil extends KeyMethods{
 				logsObj.log(testcaseName+"--> "+objectLocator+" exists and disabled status is "+String.valueOf(isEnabled));
 				Reporting.logStep(driver, refID, Step,  objectType+": "+objectLocator+" exists and disabled status is "+String.valueOf(isEnabled), Constants_FRMWRK.Fail);
 			}
+		}
+		return flag;
+	}
+	
+	protected static String moveToElement(WebDriver driver,String refID,String testcaseName,String workFlow,String Step,String locatorType, String objectType, String objectLocator,String input,WebElement element){
+		String flag=Constants_FRMWRK.False;
+		String generic_Step="Move To Element & Click on ";
+		Step=workFlow+generic_Step+Step;
+
+		try{
+			Actions act=new Actions(driver);
+			act.moveToElement(element).click().build().perform();
+			logsObj.log(testcaseName+"-->"+objectLocator+" exists and clicked ");
+			Reporting.logStep(driver, refID, Step,  objectType+": "+objectLocator+" exists and clicked  ", Constants_FRMWRK.Pass);
+			flag=Constants_FRMWRK.True;
+		}catch(StaleElementReferenceException ex){
+			logsObj.log("Button-Encountered stale exception for "+objectLocator+" So trying for recovery..");
+			/*int count=StaleElementHandleAndClick(driver,identifyBy,objectLocator);
+			if(count<4){
+				Reporting.logStep(driver, refID, Step,  objectType+": "+objectLocator+" exists and clicked after recovering stale exception ", Constants_FRMWRK.Warning);
+			}*/
+			flag=KeyMethods.staleRecovery_Click(driver, Step, locatorType, objectLocator, Constants_TimeOuts.StaleElement_TimeOut);
+		}
+
+		try {
+			PageLoadWaitUtil.waitForPageToLoad(driver);
+		} catch (Throwable e) {				
+			//e.printStackTrace();
 		}
 		return flag;
 	}
