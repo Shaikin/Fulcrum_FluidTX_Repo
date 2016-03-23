@@ -366,8 +366,11 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 	 * @throws Throwable
 	 */
 	public static void forwardAndSendTransmittalRecord(String appName,WebDriver driver,String testcasename,String workFlow,Hashtable<String,String>data) throws Throwable{		
-		clickForward(driver, workFlow);
 		Hashtable<String,String>returnData = new Hashtable<String,String>();
+		clickForward(driver, workFlow);
+		ApplicationMethods.waitForOverlayToDisappear(driver);
+		Transmittals_EntryPage.switchToTramsmittalEditFrame(driver, refID, testcaseName, workFlow);
+		WaitUtil.pause(Constants_TimeOuts.Save_TimeOut);		
 		res=enterTo(appName, driver,testcasename, workFlow, data.get("ForwardTo"));
 		returnData.put("Tramsmittals-ForwardTo", res);
 		if(appName.equals(Constants.App_Fluid)){
