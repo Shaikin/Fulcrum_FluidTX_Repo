@@ -256,6 +256,7 @@ System.out.println();
 		Hashtable<String,String>transmittalData=new Hashtable<String,String>();
 		DocumentRegistryPage.selectADocument(driver, worflow_l1, data);
 		ApplicationMethods.waitForOverlayToDisappear(driver);
+		WaitUtil.pause(Constants_TimeOuts.Save_TimeOut);
 		DocumentRegistryPage.sendTransmittal(driver, worflow_l1);
 		ApplicationMethods.waitForOverlayToDisappear(driver);
 		WaitUtil.pause(Constants_TimeOuts.Save_TimeOut);
