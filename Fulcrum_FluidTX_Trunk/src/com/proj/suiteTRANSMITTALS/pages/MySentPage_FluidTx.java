@@ -4,6 +4,8 @@ import java.util.Hashtable;
 
 import org.openqa.selenium.WebDriver;
 
+import com.frw.util.WaitUtil;
+import com.proj.Constants.Constants_TimeOuts;
 import com.proj.Constants.Constants_Workflow;
 import com.proj.navigations.Navigations_FluidTX;
 import com.proj.suiteTRANSMITTALS.TestSuiteBase;
@@ -29,6 +31,7 @@ public class MySentPage_FluidTx extends TestSuiteBase{
 			status="Completed";
 			TxComplete_Status="Closed";
 			subject=data.get("Tramsmittals-Subject");
+			WaitUtil.pause(Constants_TimeOuts.Overlay_disappear);
 		}
 		else if (data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForReview)||data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_RequestForInformation)|| data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForApproval)){
 			status="Outstanding";
