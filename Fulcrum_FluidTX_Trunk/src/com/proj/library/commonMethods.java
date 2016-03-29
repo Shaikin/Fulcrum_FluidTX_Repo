@@ -313,6 +313,7 @@ public class commonMethods extends TestBase{
 				if(version.contains(".")){
 					if(Double.valueOf(version)>=8){
 						Runtime.getRuntime().exec("taskkill /F /IM iexplore.exe");
+						Runtime.getRuntime().exec("taskkill /F /IM IEDriverServer.exe");
 					}else{
 						Runtime.getRuntime().exec("taskkill /F /IM IEDriverServer.exe");
 					}
