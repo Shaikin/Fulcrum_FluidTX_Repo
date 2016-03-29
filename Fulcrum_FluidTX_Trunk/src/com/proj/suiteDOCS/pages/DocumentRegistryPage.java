@@ -5,6 +5,8 @@ import java.util.Hashtable;
 import org.openqa.selenium.WebDriver;
 
 import com.frw.util.PageLoadWaitUtil;
+import com.frw.util.WaitUtil;
+import com.proj.Constants.Constants_TimeOuts;
 import com.proj.navigations.Navigations_FluidTX;
 import com.proj.suiteDOCS.TestSuiteBase;
 import com.proj.suiteDOCS.reusables.DocumentRegisterGridUtil;
@@ -25,6 +27,7 @@ public class DocumentRegistryPage extends TestSuiteBase{
 			
 		}		
 		ToolbarsUtil.clickItems(driver, workFlow);
+		WaitUtil.pause(Constants_TimeOuts.Save_TimeOut);
 		ToolbarsUtil.Items.clickSendTranmittals(driver, workFlow);
 	}
 }
