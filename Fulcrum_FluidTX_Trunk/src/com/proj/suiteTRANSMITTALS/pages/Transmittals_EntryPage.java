@@ -297,13 +297,7 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 			returnData.put("Tramsmittals-Issue Reason", res);
 		}
 		String dueDate = null;
-		if(appName.equals(Constants.App_Fulcrum)){
-			dueDate=DateUtil.getCurrentDateInRequiredDateFormat("dd/MM/yyyy");
-			dueDate=DateUtil.dateIncremter(dueDate, 2);
-		}else{
-			dueDate=DateUtil.getCurrentDateInRequiredDateFormat("MM/dd/yyyy");
-			dueDate=DateUtil.dateIncremter(dueDate, 2);
-		}
+		dueDate=getDueDate(appName);
 		res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-DueDate", objects_locatorType_Transmittals, objects_objectType_Transmittals, objects_objectLocator_Transmittals, dueDate);
 		returnData.put("Tramsmittals-DueDate", res);
 		res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-Message", objects_locatorType_Transmittals, objects_objectType_Transmittals, objects_objectLocator_Transmittals, data.get("Message"));
@@ -529,5 +523,30 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 			objects_objectLocator_Transmittals.put("Tramsmittals-View -Supporting Document Files", locator);
 			KeyMethods.f_fetchElementDetails(driver, refid, testcasename, workflow, "Tramsmittals-View -Supporting Document Files", objects_locatorType_Transmittals, objects_objectType_Transmittals, objects_objectLocator_Transmittals, data.get("AttachSupportDocumentName"));
 		}
+	}
+	
+	private static String getDueDateInUS(){
+		String dueDate;		
+		dueDate=DateUtil.getCurrentDateInRequiredDateFormat("MM/dd/yyyy");
+		dueDate=DateUtil.dateIncremterInUSFormat(dueDate, 2);
+
+		return dueDate;
+	}
+	private static String getDueDateInNZ(){
+		String dueDate;		
+		dueDate=DateUtil.getCurrentDateInRequiredDateFormat("dd/MM/yyyy");
+		dueDate=DateUtil.dateIncremterInNonUSFormat(dueDate, 2);
+
+		return dueDate;
+	}
+	
+	public static String getDueDate(String appName){
+		String duedate;
+		if(appName.equalsIgnoreCase(Constants.App_Fulcrum)){
+			duedate=getDueDateInNZ();
+		}else{
+			duedate=getDueDateInUS();
+		}
+		return duedate;
 	}
 }
