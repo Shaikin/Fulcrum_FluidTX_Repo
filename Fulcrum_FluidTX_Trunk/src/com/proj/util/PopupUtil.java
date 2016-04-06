@@ -56,6 +56,19 @@ public class PopupUtil extends TestBase{
 			return true;
 		}
 	}	
+	public static boolean waitUntilDialogDisappears(WebDriver driver) throws InterruptedException {
+		boolean flag=Constants_FRMWRK.FalseB;
+		int counter=0;
+		do {
+			counter++;
+			flag=isDialogPresent(driver);
+			Thread.sleep(100L);
+			if(counter>20){
+				break;
+			}
+		}while (flag==false);
+		return flag;
+	}	
 	
 	/**
 	 * Verification of Field Level Validation message(s) displayed in the form
