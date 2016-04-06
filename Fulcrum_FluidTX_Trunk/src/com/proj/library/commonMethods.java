@@ -327,6 +327,7 @@ public class commonMethods extends TestBase{
 				}
 								
 				//Runtime.getRuntime().exec("taskkill /F /IM conhost.exe");
+				Thread.sleep(500L);
 				logsObj.log("IE listed processes have been killed..");
 				System.out.println("Killed IE processes..");
 			}
