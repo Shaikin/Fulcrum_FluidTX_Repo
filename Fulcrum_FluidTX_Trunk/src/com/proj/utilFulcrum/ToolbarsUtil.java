@@ -6,7 +6,9 @@ import org.openqa.selenium.WebDriver;
 
 import com.frw.Constants.Constants_FRMWRK;
 import com.frw.util.Xls_Reader;
+import com.frw.wait.ExplicitWaitUtil;
 import com.proj.Constants.Constants;
+import com.proj.Constants.Constants_TimeOuts;
 import com.proj.base.TestBase;
 import com.proj.library.KeyMethods;
 import com.proj.library.commonMethods;
@@ -41,11 +43,13 @@ public class ToolbarsUtil extends TestBase{
 	
 		public static void clickItems(WebDriver driver,String workFlow){
 			commonMethods.switchToDefaultPage(driver);
+			ExplicitWaitUtil.waitForElementTobeActionable(driver, objects_locatorType_Toolbar.get("Toolbar - Items"), objects_objectLocator_Toolbar.get("Toolbar - Items"), Constants_TimeOuts.Element_TimeOut);
 			KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Toolbar - Items", objects_locatorType_Toolbar, objects_objectType_Toolbar, objects_objectLocator_Toolbar, input);
 		}
 	public static class Items {
 		public static void clickSendTranmittals(WebDriver driver,String workFlow){
 			commonMethods.switchToDefaultPage(driver);
+			ExplicitWaitUtil.waitForElementTobeActionable(driver, objects_locatorType_Toolbar.get("Toolbar - Items - Start New Tranmittal"), objects_objectLocator_Toolbar.get("Toolbar - Items - Start New Tranmittal"), Constants_TimeOuts.Element_TimeOut);
 			KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Toolbar - Items - Start New Tranmittal", objects_locatorType_Toolbar, objects_objectType_Toolbar, objects_objectLocator_Toolbar, input);
 		}
 	}
