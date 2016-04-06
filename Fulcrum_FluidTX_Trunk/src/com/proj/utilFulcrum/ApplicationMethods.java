@@ -91,10 +91,16 @@ public class ApplicationMethods extends TestBase{
 			Reporting.logStep("Launch and Log into the application", "Launched & logged into the application "+url, Constants_FRMWRK.Pass);
 
 		}else if (browser.equalsIgnoreCase("ie")){
+			String title;
 			url=httpProtocol+url;
 			commonMethods.navigateURL(driver,url);
-			String title=driver.getTitle();
-			commonMethods.ie_Certification(driver);
+			boolean isDisplayed=com.proj.util.PopupUtil.isDialogPresent(driver);
+			if(isDisplayed==false){
+				title=driver.getTitle();
+				commonMethods.ie_Certification(driver);
+			}else{
+				title="WebDriver";
+			}	
 			Dialogs.userAuthentication(driver,browser,url,title, CONFIG.getProperty("userDomain")+"\\"+userName, password);
 			//Dialogs.userAuth(CONFIG.getProperty("userDomain"),userName,password);
 			Reporting.logStep(driver, refID, "IE-Log into the application -User Authenication","Successfully able to log into the application with user credentials "+CONFIG.getProperty("userDomain")+"\\"+userName+"--"+password, Constants_FRMWRK.Pass);
