@@ -102,7 +102,6 @@ public class ApplicationMethods extends TestBase{
 				title="WebDriver";
 			}	
 			Dialogs.userAuthentication(driver,browser,url,title, CONFIG.getProperty("userDomain")+"\\"+userName, password);
-			//Dialogs.userAuth(CONFIG.getProperty("userDomain"),userName,password);
 			Reporting.logStep(driver, refID, "IE-Log into the application -User Authenication","Successfully able to log into the application with user credentials "+CONFIG.getProperty("userDomain")+"\\"+userName+"--"+password, Constants_FRMWRK.Pass);
 		}
 		try{
