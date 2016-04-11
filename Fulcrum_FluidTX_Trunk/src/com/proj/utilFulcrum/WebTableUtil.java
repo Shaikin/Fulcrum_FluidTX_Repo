@@ -12,10 +12,12 @@ import org.openqa.selenium.WebElement;
 import com.frw.Constants.Constants_FRMWRK;
 import com.frw.util.FetchWebElement;
 import com.frw.util.WaitUtil;
+import com.frw.wait.ExplicitWaitUtil;
 import com.proj.Constants.Constants_TimeOuts;
 import com.proj.base.TestBase;
 import com.proj.library.ElementMethods;
 import com.proj.library.commonMethods;
+import com.proj.objectRepository.ObjRepository;
 import com.report.reporter.Reporting;
 
 public class WebTableUtil extends TestBase{
@@ -398,9 +400,11 @@ public class WebTableUtil extends TestBase{
 		String flag=Constants_FRMWRK.False;
 		String colXpath_action;
 		String rowNumber="row";
-		int rowCount=0;
+		String pageNumber="page";
+		int pageCount=1;
 		String actual_actionData = "";
 		boolean clicked=Constants_FRMWRK.FalseB;
+		boolean isNextDisplayed;
 
 		WebElement webtableElement=ElementMethods.fetchElement(driver, Constants_FRMWRK.FindElementByXPATH, "//table[@summary='"+containerName+"']");
 		if(webtableElement==null){
@@ -423,6 +427,9 @@ public class WebTableUtil extends TestBase{
 		colXpath_action=commonMethods.replaceString("actionPerformCol",colXpath_action,Integer.toString(actionPerformCol));
 
 		LinkedHashMap<String,String> tableData=new LinkedHashMap<String,String>();
+//
+do{
+	int rowCount=0;
 
 		try{
 			logsObj.log("Get Grid row count for column under search");
@@ -434,8 +441,8 @@ public class WebTableUtil extends TestBase{
 
 			for (WebElement rowSearch : rows_search) { 
 
-				tableData.put(rowNumber+Integer.toString(rowCount), rowSearch.getText());
-				logsObj.log("Table- RowNumber-"+rowNumber+" Data:-"+rowSearch.getText().trim()+" Input Data:-"+searchData.trim());
+				tableData.put(pageNumber+Integer.toString(pageCount)+" "+rowNumber+Integer.toString(rowCount), rowSearch.getText());
+				logsObj.log("Table- "+"Page-"+pageCount+" ,RowNumber-"+rowNumber+" Data:-"+rowSearch.getText().trim()+" Input Data:-"+searchData.trim());
 
 				if(rowSearch.getText().trim().equals(searchData.trim())){
 					WaitUtil.pause(100L);				
@@ -478,7 +485,15 @@ public class WebTableUtil extends TestBase{
 			Reporting.logStep(driver, Step, "Could not locate the required search data "+searchData+" in the table "+colXpath_search+" due to error-->"+e+ "and stack is "+commonMethods.getStackTrace(e), Constants_FRMWRK.Fail);
 			return flag;		
 		}
-
+		if(clicked==Constants_FRMWRK.TrueB){
+			break;
+		}else{
+			pageCount++;
+			isNextDisplayed=clicknextPage(driver);
+		}
+		
+}while (isNextDisplayed==Constants_FRMWRK.TrueB && clicked==Constants_FRMWRK.FalseB);
+//
 		if(clicked==Constants_FRMWRK.FalseB){
 			Reporting.logStep(driver, Step, "Unable to click the record from the required column after matching the expected data:-"+actionData+" with actual data:-"+actual_actionData+" in the table "+colXpath_search+" for the search record "+searchData, Constants_FRMWRK.Fail);
 			flag=Constants_FRMWRK.False;
@@ -682,6 +697,28 @@ public class WebTableUtil extends TestBase{
 			return flag;		
 		}
 
+		return flag;
+	}
+	
+	
+	private static boolean clicknextPage(WebDriver driver){
+		boolean flag=Constants_FRMWRK.FalseB;
+		try{
+			WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);
+			WebElement element=ExplicitWaitUtil.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.grid_nextButton, Constants_TimeOuts.Element_TimeOut);
+			element.click();
+			WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);
+			flag=Constants_FRMWRK.TrueB;
+			logsObj.log("Click next page of Webtable");
+		}
+		
+		catch(StaleElementReferenceException st){
+			logsObj.log("Click next page of Webtable occured stale..need to recover..");
+			clicknextPage(driver);
+		}		
+		catch (Exception ex){
+			logsObj.log("Unable to click the next page from webtable due to "+commonMethods.getStackTrace(ex));
+		}
 		return flag;
 	}
 }
