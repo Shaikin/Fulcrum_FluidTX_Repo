@@ -119,7 +119,8 @@ public class TestBase extends Base{
 			isRemoteDriverExecution=true;
 		}
 		resultsFileLoc=System.getProperty("user.dir")+"\\Results";
-		screenshotsFileLoc=System.getProperty("user.dir")+"\\Screenshots\\";
+		//screenshotsFileLoc=System.getProperty("user.dir")+"\\Screenshots\\";
+		screenshotsFileLoc=resultsFileLoc+"\\Screenshots\\";
 		dateObj=DateUtil.getDateUtilObject();
 		
 		//**************  Excel reporting initialization  *********************************************
