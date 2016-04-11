@@ -51,7 +51,9 @@ public class KeyMethodsUtil extends TestBase{
 						try{
 							WaitUtil.pause(1);
 							element.click();
+							logsObj.log("js_selectItem:- actual item text-"+actualtext+"matches with expected item text-"+input+" and clicked..");
 							flag=actualtext;
+							logsObj.log("js_selectItem:- actual item text-"+actualtext+"matches with expected item text-"+input+" and gettext is "+flag);
 							Reporting.logStep(driver, refID, step, "js_selectItem:- Item "+actualtext+" is located and clicked", Constants_FRMWRK.Pass);
 							break;
 						}catch (StaleElementReferenceException st){
