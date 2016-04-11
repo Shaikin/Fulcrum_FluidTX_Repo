@@ -2,23 +2,19 @@ package com.proj.objectRepository;
 
 public class ObjRepository {
 
-	public static String backToHR="backToHR";
-
 	// Login page objects	
 	public static String textbox_login_UserName="logon:username:input";
 	public static String textbox_login_Password="logon:userPassword:input";	
 	public static String button_login_LoginBeforeCredentials=".//*[@class='realme_button_padding']";
-	public static String button_login_Login="logon:logon";
-
-
-	public static String menu_logout="zz5_Menu";
+	public static String button_login_Login="logon:logon";	
+	
+	//Overlays
 	public static String heading_working=".//*[@title='Working on it...']";
 	public static String overlay_working=".//*[text()='Working on it...']";
 
-
-
 	//logout objects
 	//public static String link_user="zz5_Menu";
+	public static String menu_logout="zz5_Menu";
 	public static String link_user="//*[@title='Open Menu']";
 	public static String link_signOut="//*[@class='ms-core-menu-title' and text()='Sign Out']";
 
@@ -46,6 +42,7 @@ public class ObjRepository {
 	public static String container_documentRegister="Document Register";
 	public static String container_transmittalFiles="transmittalFiles";
 	public static String container_supportingDocumentFiles="supportingDocumentFiles";
+	public static String grid_nextButton=".//*[@id='pagingWPQ2next']/a";
 	
 	//close
 	public static String icon_close="//*[@title='Close dialog']";
