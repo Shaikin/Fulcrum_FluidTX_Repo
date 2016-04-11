@@ -16,6 +16,7 @@ import com.proj.util.EmailResults;
 
 public class Reporting extends TestBase{
 	static int current_suite=0;
+	private static String testResultsFolder_sharedRepo="";
 	
 	private static void excelStep(WebDriver driver,String suiteSheetName,String module,String scenarioName,String refID,String testcaseName,String browser,String browVersion,String environ,String Step, String stepDescription,String status){
 		excelReportingObj.Reporter(driver, suiteSheetName, module, scenarioName, refID, testcaseName,browser,browVersion,environ, Step, stepDescription, status);
@@ -199,6 +200,7 @@ public class Reporting extends TestBase{
 	public static void  closeTagsForHTMLReportingEmail(BufferedWriter currentSuite_bfw,String resultsFolder,String sourceFolder,String From,String User,String Password,String Recepients,String Subject,String Mailmessage ) throws Throwable{
 		htmlReportingObj.closingTags(currentSuite_bfw);	
 		String dropboxSourceLocation = "";
+		String testResultsLocationForShare="";
 		if(current_suiteCounter==suites_size){
 			htmlReportingObj.closingTags(htmlsummary_bfw);	
 			htmlReportingObj.UpdateHTMLTestSummary(testSummaryFilePath);
@@ -214,17 +216,21 @@ public class Reporting extends TestBase{
 				dropboxSourceLocation=sourceFolder;
 			}
 			
+			if(CONFIG.getProperty("excelReporting").equalsIgnoreCase("YES")||CONFIG.getProperty("htmlReporting").equalsIgnoreCase("YES") && CONFIG.getProperty("email").equalsIgnoreCase("YES")){
+				testResultsLocationForShare=CreateTestResutlsFolderinSharedRepo(dropboxSourceLocation);
+			}
+			
 			if (CONFIG.getProperty("excelReporting").equalsIgnoreCase("YES") && CONFIG.getProperty("email").equalsIgnoreCase("YES")){
-				CopyHTMLReports_TomcatServer(resultsFolder, dropboxSourceLocation);
+				CopyExcelReports_TomcatServer_TestResults(resultsFolder, testResultsLocationForShare);
 			}
 			if (CONFIG.getProperty("htmlReporting").equalsIgnoreCase("YES") && CONFIG.getProperty("email").equalsIgnoreCase("YES")){
-				String link=CopyHTMLReports_TomcatServer(resultsFolder, dropboxSourceLocation);
+				String link=CopyHTMLReports_TomcatServer_TestResults(resultsFolder, testResultsLocationForShare);
 				String confLink=CONFIG.getProperty("publishedResultsOpenLocation");
 				WaitUtil.pause(1);
 				
-					confLink=commonMethods.replaceString("fileName", confLink, link);
+					confLink=commonMethods.replaceString("fileName", confLink, testResultsFolder_sharedRepo);
 				
-				
+				FileUtil.copyFolders(TestBase.screenshotsFileLoc, link+"\\Screenshots\\");
 				EmailResults.publish(From, User, Password, Recepients, Subject, Mailmessage, confLink, CONFIG.getProperty("emailSignature"));
 				
 			}
@@ -243,8 +249,7 @@ public class Reporting extends TestBase{
 		source=source+"\\ExcelResults\\";
 		String destFile=strDate+"-ExcelResults/";
 		dest=dest+destFile;
-		FileUtil fileObj=FileUtil.getFileUtilObject();
-		fileObj.copyFolders(source, dest);
+		FileUtil.copyFolders(source, dest);
 		return destFile;
 		
 	}
@@ -257,8 +262,7 @@ public class Reporting extends TestBase{
 		source=source+"\\HTMLReporting\\";
 		String destFile=strDate+"-HTMLReporting/";
 		dest=dest+destFile;
-		FileUtil fileObj=FileUtil.getFileUtilObject();
-		fileObj.copyFolders(source, dest);
+		FileUtil.copyFolders(source, dest);
 		return destFile;
 	}
 	
@@ -271,8 +275,7 @@ public class Reporting extends TestBase{
 		source=source+"\\ExcelResults\\";
 		String destFile=strDate+"-ExcelResults/";
 		dest=dest+destFile;
-		FileUtil fileObj=FileUtil.getFileUtilObject();
-		fileObj.copyFolders(source, dest);
+		FileUtil.copyFolders(source, dest);
 		return destFile;
 		
 	}
@@ -286,9 +289,61 @@ public class Reporting extends TestBase{
 		String destFile=strDate+"-HTMLReporting/";
 		dest=dest.replaceAll("fileName", destFile);
 		//dest=dest+destFile;
-		FileUtil fileObj=FileUtil.getFileUtilObject();
-		fileObj.copyFolders(source, dest);
+		FileUtil.copyFolders(source, dest);
 		return destFile;
+	}
+	/**
+	 * Copy HTML Reports to the Test Results of shared repository
+	 * @author shaikka
+	 * @date Apr 7 2016
+	 * @param source
+	 * @param dest
+	 * @return
+	 */
+	public static String CopyHTMLReports_TomcatServer_TestResults(String source,String dest){
+		
+		source=source+"\\HTMLReporting\\";
+		
+		String destFile=dest+"HTMLReporting";
+		
+		FileUtil.copyFolders(source, destFile);
+		return dest;
+	}
+	/**
+	 * Copy Excel Reports into the shared repository
+	 * @author shaikka
+	 * @date Apr 7 2016
+	 * @param source
+	 * @param dest
+	 * @return
+	 */
+	public static String CopyExcelReports_TomcatServer_TestResults(String source,String dest){
+		
+		source=source+"\\ExcelResults\\";
+		
+		String destFile=dest+"ExcelResults";		
+		
+		FileUtil.copyFolders(source, destFile);
+		return dest;		
+	}
+	
+	
+	/**
+	 * Create a Test Results folder in shared Repository to store results
+	 * @author shaikka
+	 * @date Apr 7 2016
+	 * @param dest
+	 * @return
+	 */
+	public static String CreateTestResutlsFolderinSharedRepo(String dest){
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd h-mm-ss");
+		Date now = new Date();
+		String strDate = dateFormat.format(now);
+		
+		testResultsFolder_sharedRepo=strDate+"-TestResults/";
+		dest=dest.replaceAll("fileName", testResultsFolder_sharedRepo);
+		FileUtil.createFolder(dest);
+		return dest;
 	}
 
 }
