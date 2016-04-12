@@ -336,6 +336,11 @@ a:hover, a:active {
   transform: rotate(45deg);
   -webkit-transform: rotate(45deg);
 }
+.wrappable { 
+overflow: hidden;
+ max-width: 100px; 
+ word-wrap: break-word;
+}
 nav {
   background-color: #14B9FF;
   width: 100%;
