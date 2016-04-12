@@ -14,4 +14,5 @@ public class Constants_TimeOuts {
 	final public static int StaleElement_TimeOut=50;
 	final public static int Uploading_timeOut=40;
 	final public static int Overlay_disappear=40;
+	final public static int processToComplete=30;
 }
