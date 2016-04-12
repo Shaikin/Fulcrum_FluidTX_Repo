@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.openqa.selenium.ElementNotVisibleException;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
@@ -927,6 +928,23 @@ public class KeysUtil extends KeyMethods{
 			PageLoadWaitUtil.waitForPageToLoad(driver);
 		} catch (Throwable e) {				
 			//e.printStackTrace();
+		}
+		return flag;
+	}
+	protected static String scrollAndClick(WebDriver driver,String refID,String testcaseName,String workFlow,String Step,String locatorType, String objectType, String objectLocator,String input,WebElement element){
+		String flag=Constants_FRMWRK.False;
+		String generic_Step="Scroll To & Click on ";
+		Step=workFlow+generic_Step+Step;
+		try{
+			JavascriptExecutor js=(JavascriptExecutor) driver;
+			js.executeScript("arguments[0].scrollIntoView(true)", element);
+			logsObj.log(testcaseName+"-->"+objectLocator+" exists and Scroll");
+			element.click();
+			logsObj.log(testcaseName+"-->"+objectLocator+" exists Scroll and clicked ");
+			Reporting.logStep(driver, refID, Step,  objectType+": "+objectLocator+" exists and clicked  ", Constants_FRMWRK.Pass);
+			flag=Constants_FRMWRK.True;
+		}catch(Exception ex){
+			Reporting.logStep(driver, refID, Step,  objectType+": "+objectLocator+" not able to scroll and click due to "+commonMethods.getStackTrace(ex), Constants_FRMWRK.Fail);
 		}
 		return flag;
 	}
