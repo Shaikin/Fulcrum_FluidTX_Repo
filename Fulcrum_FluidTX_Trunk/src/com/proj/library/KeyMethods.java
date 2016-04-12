@@ -148,6 +148,10 @@ public class KeyMethods extends TestBase{
 				break;
 			case ELEMENT_DISABLE_ATTRIBUTE:
 				flag=KeyMethodsUtil.isDisabledWithAttr(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
+			case MOVETOELEMENT:
+				flag=KeysUtil.moveToElement(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
+			
+			
 			}
 
 
@@ -310,7 +314,8 @@ public class KeyMethods extends TestBase{
 				flag=KeyMethodsUtil.isDisabledWithAttr(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
 			case MOVETOELEMENT:
 				flag=KeysUtil.moveToElement(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
-			
+			case BUTTON_SCROLLABLE :
+				flag=KeysUtil.scrollAndClick(driver, refID, testcaseName, workFlow, Step, identifyBy, objectType, objectLocator, input, element);
 			}
 
 
