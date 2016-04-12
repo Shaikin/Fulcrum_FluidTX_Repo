@@ -30,20 +30,19 @@ public class MySentPage_FluidTx extends TestSuiteBase{
 		if(data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForInformation)){
 			status="Completed";
 			TxComplete_Status="Closed";
-			subject=data.get("Tramsmittals-Subject");
-			WaitUtil.pause(Constants_TimeOuts.Overlay_disappear);
+			subject=data.get("Tramsmittals-Subject");			
 		}
 		else if (data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForReview)||data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_RequestForInformation)|| data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForApproval)){
 			status="Outstanding";
 			TxComplete_Status="Open";
-			subject=data.get("Tramsmittals-Subject");
+			subject=data.get("Tramsmittals-Subject");			
 		}
 		else if((!data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForInformation))&& data.get("Action-Level2").equalsIgnoreCase("Forward")){
 			status="Open";
 			TxComplete_Status="Outstanding";
 			subject="FW:"+data.get("Tramsmittals-Subject");
 		}
-		
+		WaitUtil.pause(Constants_TimeOuts.processToComplete);
 		Navigations_FluidTX.Transmittals.navigateToMysent(driver);
 		TransmittalsGridUtil.searchSubjectAndCheck_TxComplete_Status(driver,page, workflow, subject, TxComplete_Status);
 		TransmittalsGridUtil.searchSubjectAndCheck_Status(driver, workflow,page, subject, status);
