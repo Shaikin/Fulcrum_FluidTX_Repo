@@ -17,7 +17,6 @@ import com.proj.Constants.Constants;
 import com.proj.Constants.Constants_TimeOuts;
 import com.proj.base.TestBase;
 import com.proj.library.Driver;
-import com.proj.library.ElementMethods;
 import com.proj.library.LocalDriverManager;
 import com.proj.library.commonMethods;
 import com.proj.objectRepository.ObjRepository;
@@ -186,10 +185,10 @@ public class ApplicationMethods extends TestBase{
 	public static void closeAllDialogs(WebDriver driver,String refID,String testcaseName){
 		int counter=1;
 		commonMethods.switchToDefaultPage(driver);
-		int closeIcons=ElementMethods.fetchElementsSize(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.icon_close);
+		int closeIcons=ExplicitWaitUtil.getVisibleElementsSize(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.icon_close, Constants_TimeOuts.Save_TimeOut);
 		WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);		
 		if(closeIcons!=0 && counter <10){
-			List <WebElement> elements=ElementMethods.fetchElements(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.icon_close);
+			List <WebElement> elements=ExplicitWaitUtil.waitForVisibilityOfElements(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.icon_close,Constants_TimeOuts.Element_TimeOut);
 			System.out.println("Number of Close icons are "+elements.size());
 			for (WebElement element :elements){
 				WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);	
@@ -204,7 +203,7 @@ public class ApplicationMethods extends TestBase{
 				//WaitUtil.pause(3);		
 				WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);	
 			}
-			closeIcons=ElementMethods.fetchElementsSize(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.icon_close);	
+			closeIcons=ExplicitWaitUtil.getVisibleElementsSize(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.icon_close,Constants_TimeOuts.Save_TimeOut);	
 			WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);	
 			if(closeIcons!=0 && counter <10){
 				counter=counter+1;
