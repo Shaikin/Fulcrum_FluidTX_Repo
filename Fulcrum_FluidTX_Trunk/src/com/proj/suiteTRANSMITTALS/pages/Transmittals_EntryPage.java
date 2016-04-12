@@ -289,6 +289,7 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 		}else{			
 			returnData.put("Tramsmittals-TxType", data.get("TxType"));
 		}
+		WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);
 		if(appName.equals(Constants.App_Fulcrum)){
 			res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-ReasonForIssue", objects_locatorType_Transmittals, objects_objectType_Transmittals, objects_objectLocator_Transmittals, data.get("ReasonForIssue"));
 			returnData.put("Tramsmittals-ReasonForIssue", res);
@@ -306,7 +307,7 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 		Transmittals_EntryPage.attachdocument(appName,driver, refID, testcaseName, workFlow, data);
 
 		clickSend(driver, workFlow);
-		WaitUtil.pause(5);
+		WaitUtil.pause(Constants_TimeOuts.Save_TimeOut);
 		return returnData;
 	}
 
