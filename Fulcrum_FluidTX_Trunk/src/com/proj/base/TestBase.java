@@ -88,7 +88,7 @@ public class TestBase extends Base{
 	 * This is used the initiliazed all the required files 
 	 * @throws IOException
 	 */
-	public void initialize() throws IOException{
+	public static void initialize() throws IOException{
 	
 	if (!isInitiazed)
 	{
@@ -149,7 +149,7 @@ public class TestBase extends Base{
 	 * @throws IOException
 	 */
 	
-	private void initializeExcelReporting(){
+	private static void initializeExcelReporting(){
 		if (CONFIG.getProperty("excelReporting").equalsIgnoreCase("YES")){
 			logsObj.log("Excel reporting is enabled..");
 			//**************  Excel reporting initialization  *********************************************
@@ -168,7 +168,7 @@ public class TestBase extends Base{
 	 * @date Nov 3 2014
 	 * @throws IOException
 	 */
-	private void initializeHTMLReporting() throws IOException{
+	private static void initializeHTMLReporting() throws IOException{
 		if (CONFIG.getProperty("htmlReporting").equalsIgnoreCase("YES")){
 			logsObj.log("HTML reporting is enabled..");
 		//**************  HTML reporting initialization  *********************************************	
