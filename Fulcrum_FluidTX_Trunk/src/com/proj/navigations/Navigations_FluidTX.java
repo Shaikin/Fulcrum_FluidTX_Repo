@@ -1,10 +1,8 @@
 package com.proj.navigations;
 
 import java.util.Hashtable;
-import java.util.List;
 
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 
 import com.frw.Constants.Constants_FRMWRK;
 import com.frw.util.WaitUtil;
@@ -15,7 +13,6 @@ import com.proj.library.commonMethods;
 import com.proj.suiteTRANSMITTALS.TestSuiteBase;
 import com.proj.util.CustomExceptions;
 import com.proj.util.fetchObjectRepository;
-import com.proj.utilFulcrum.WebTableUtil;
 import com.report.reporter.Reporting;
 
 public class Navigations_FluidTX extends TestSuiteBase{
@@ -49,10 +46,11 @@ public class Navigations_FluidTX extends TestSuiteBase{
 	 * Navigates to Transmittals Menu
 	 * @author shaikka
 	 * @param driver
-	 * @throws Exception
+	 * @throws Throwable 
 	 */
-	public static void navigateToTramsmittals(WebDriver driver) throws Exception{
+	public static void navigateToTramsmittals(WebDriver driver) throws Throwable{
 		commonMethods.switchToDefaultPage(driver);
+		commonMethods.pageLoadWait(driver);
 		String key_step="Usersite Menu - Transmittals";
 		String locator=locator_menu_pattern.replaceAll("objectlocator", objects_objectLocator_Navigation.get(key_step));
 		res=KeyMethods.f_performAction(driver, refID, testcaseName, "", objects_step_Navigation.get(key_step), objects_locatorType_Navigation.get(key_step), objects_objectType_Navigation.get(key_step),locator , "");
@@ -61,9 +59,10 @@ public class Navigations_FluidTX extends TestSuiteBase{
 		}
 	}
 
-	public static void navigateToDocumentRegister(WebDriver driver) throws Exception{
+	public static void navigateToDocumentRegister(WebDriver driver) throws Throwable{
 		String Step="Usersite Menu - Document Register";
 		commonMethods.switchToDefaultPage(driver);
+		commonMethods.pageLoadWait(driver);
 		String locator=locator_menu_pattern.replaceAll("objectlocator", objects_objectLocator_Navigation.get(Step));
 		res=KeyMethods.f_performAction(driver, refID, testcaseName, "", objects_step_Navigation.get(Step), objects_locatorType_Navigation.get(Step), objects_objectType_Navigation.get(Step),locator , input);
 		if(res.equals(Constants_FRMWRK.False)){
@@ -76,9 +75,9 @@ public class Navigations_FluidTX extends TestSuiteBase{
 		 * Navigates to New Transmittals sub menu
 		 * @author shaikka
 		 * @param driver
-		 * @throws Exception
+		 * @throws Throwable 
 		 */
-		public static void navigateToNewTransmittal(WebDriver driver) throws Exception{
+		public static void navigateToNewTransmittal(WebDriver driver) throws Throwable{
 			navigateToTramsmittals(driver);
 			WaitUtil.pause(1);
 			String Step="Usersite SubMenu - new Transmittal";
@@ -92,9 +91,9 @@ public class Navigations_FluidTX extends TestSuiteBase{
 		/**
 		 * Navigates to My Sent Sub menu
 		 * @param driver
-		 * @throws Exception
+		 * @throws Throwable 
 		 */
-		public static void navigateToMysent(WebDriver driver) throws Exception{
+		public static void navigateToMysent(WebDriver driver) throws Throwable{
 			navigateToTramsmittals(driver);
 			String key_step="Usersite SubMenu - My Sent";
 			String locator=locator_submenu_pattern.replaceAll("objectlocator", objects_objectLocator_Navigation.get(key_step));
@@ -107,9 +106,9 @@ public class Navigations_FluidTX extends TestSuiteBase{
 		/**
 		 * Navigates to My Inbox
 		 * @param driver
-		 * @throws Exception
+		 * @throws Throwable 
 		 */
-		public static void navigateToMyinbox(WebDriver driver) throws Exception{
+		public static void navigateToMyinbox(WebDriver driver) throws Throwable{
 			navigateToTramsmittals(driver);
 			String key_step="Usersite SubMenu - My Inbox";
 			String locator=locator_submenu_pattern.replaceAll("objectlocator", objects_objectLocator_Navigation.get(key_step));
@@ -123,9 +122,9 @@ public class Navigations_FluidTX extends TestSuiteBase{
 		/**
 		 * Navigates to My Inbox
 		 * @param driver
-		 * @throws Exception
+		 * @throws Throwable 
 		 */
-		public static void navigateToActionRequired(WebDriver driver) throws Exception{
+		public static void navigateToActionRequired(WebDriver driver) throws Throwable{
 			navigateToTramsmittals(driver);
 			String key_step="Usersite Menu - Action Required";
 			String locator=locator_submenu_pattern.replaceAll("objectlocator", objects_objectLocator_Navigation.get(key_step));
