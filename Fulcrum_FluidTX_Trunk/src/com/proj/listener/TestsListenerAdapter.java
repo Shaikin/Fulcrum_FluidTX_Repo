@@ -1,68 +1,199 @@
 package com.proj.listener;
 
-import java.util.List;
+
+
+import java.io.IOException;
 
 import org.testng.IInvokedMethod;
+
 import org.testng.IInvokedMethodListener;
+
+import org.testng.ISuite;
+
+import org.testng.ISuiteListener;
+
+import org.testng.ITestContext;
+
+import org.testng.ITestListener;
+
+import org.testng.ITestNGMethod;
+
 import org.testng.ITestResult;
+
 import org.testng.Reporter;
-import org.testng.internal.Utils;
 
-import com.proj.util.ErrorUtil;
+import com.proj.base.TestBase;
 
+public class TestsListenerAdapter implements ITestListener, ISuiteListener, IInvokedMethodListener {
 
+	// This belongs to ISuiteListener and will execute before the Suite start
 
+	@Override
 
-public class TestsListenerAdapter implements IInvokedMethodListener {
-	
-	@SuppressWarnings("unchecked")
-	public void afterInvocation(IInvokedMethod method, ITestResult result) {
-		Reporter.setCurrentTestResult(result);
-
-		if (method.isTestMethod()) {
-			List<Throwable> verificationFailures = ErrorUtil.getVerificationFailures();
-			//if there are verification failures...
-			if (verificationFailures.size() != 0) {
-				//set the test to failed
-				result.setStatus(ITestResult.FAILURE);
-				
-				//if there is an assertion failure add it to verificationFailures
-				if (result.getThrowable() != null) {
-					verificationFailures.add(result.getThrowable());
-				}
- 
-				int size = verificationFailures.size();
-				//if there's only one failure just set that
-				if (size == 1) {
-					result.setThrowable(verificationFailures.get(0));
-				} else {
-					//create a failure message with all failures and stack traces (except last failure)
-					StringBuffer failureMessage = new StringBuffer("Multiple failures (").append(size).append("):nn");
-					for (int i = 0; i < size-1; i++) {
-						failureMessage.append("Failure ").append(i+1).append(" of ").append(size).append(":n");
-						Throwable t = verificationFailures.get(i);
-						String fullStackTrace = Utils.stackTrace(t, false)[1];
-						failureMessage.append(fullStackTrace).append("nn");
-					}
- 
-					//final failure
-					Throwable last = verificationFailures.get(size-1);
-					failureMessage.append("Failure ").append(size).append(" of ").append(size).append(":n");
-					failureMessage.append(last.toString());
- 
-					//set merged throwable
-					Throwable merged = new Throwable(failureMessage.toString());
-					merged.setStackTrace(last.getStackTrace());
- 
-					result.setThrowable(merged);
-					
-				}
-			}
-		
+	public void onStart(ISuite arg0) {
+		System.out.println("10000000000");
+		try {
+			TestBase.initialize();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		
+		TestBase.logsObj.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+		TestBase.logsObj.log("About to begin executing Suite " + arg0.getName());
+		TestBase.logsObj.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+		Reporter.log("About to begin executing Suite " + arg0.getName(), true);
+
 	}
- 
-	public void beforeInvocation(IInvokedMethod arg0, ITestResult arg1) {}
- 
+
+	// This belongs to ISuiteListener and will execute, once the Suite is finished
+
+	@Override
+
+	public void onFinish(ISuite arg0) {
+		TestBase.logsObj.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+		TestBase.logsObj.log("About to end executing Suite " + arg0.getName());
+		TestBase.logsObj.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+		Reporter.log("About to end executing Suite " + arg0.getName(), true);
+
+	}
+
+	// This belongs to ITestListener and will execute before starting of Test set/batch 
+
+	public void onStart(ITestContext arg0) {
+		TestBase.logsObj.log("================================================");
+		TestBase.logsObj.log("About to begin executing of the test :- " + arg0.getName());
+		TestBase.logsObj.log("================================================");
+		Reporter.log("About to begin executing of the test :-" + arg0.getName(), true);
+
+	}
+
+	// This belongs to ITestListener and will execute, once the Test set/batch is finished
+
+	public void onFinish(ITestContext arg0) {
+		TestBase.logsObj.log("================================================");
+		TestBase.logsObj.log("Completed executing of the test:- " + arg0.getName());
+		TestBase.logsObj.log("================================================");
+		Reporter.log("Completed executing test:- " + arg0.getName(), true);
+
+	}
+
+	// This belongs to ITestListener and will execute only when the test is pass
+
+	public void onTestSuccess(ITestResult arg0) {
+
+		// This is calling the printTestResults method
+
+		//printTestResults(arg0);
+
+	}
+
+	// This belongs to ITestListener and will execute only on the event of fail test
+
+	public void onTestFailure(ITestResult arg0) {
+
+		// This is calling the printTestResults method
+
+		//printTestResults(arg0);
+
+	}
+
+	// This belongs to ITestListener and will execute before the main test start (@Test)
+
+	public void onTestStart(ITestResult arg0) {
+
+		System.out.println("Test method:-"+arg0.getName()+" of the test is started..");
+		TestBase.logsObj.log("Test method:-"+arg0.getName()+" of the test is started..");
+
+	}
+
+	// This belongs to ITestListener and will execute only if any of the main test(@Test) get skipped
+
+	public void onTestSkipped(ITestResult arg0) {
+
+		printTestResults(arg0);
+
+	}
+
+	// This is just a piece of shit, ignore this
+
+	public void onTestFailedButWithinSuccessPercentage(ITestResult arg0) {
+
+	}
+
+	// This is the method which will be executed in case of test pass or fail
+
+	// This will provide the information on the test
+
+	private void printTestResults(ITestResult result) {
+
+		Reporter.log("Test Method resides in " + result.getTestClass().getName(), true);
+
+		if (result.getParameters().length != 0) {
+
+			String params = null;
+
+			for (Object parameter : result.getParameters()) {
+
+				params += parameter.toString() + ",";
+
+			}
+
+			Reporter.log("Test Method had the following parameters : " + params, true);
+
+		}
+
+		String status = null;
+
+		switch (result.getStatus()) {
+
+		case ITestResult.SUCCESS:
+
+			status = "Pass";
+
+			break;
+
+		case ITestResult.FAILURE:
+
+			status = "Failed";
+
+			break;
+
+		case ITestResult.SKIP:
+
+			status = "Skipped";
+
+		}
+
+		Reporter.log("Test Status: " + status, true);
+
+	}
+
+	// This belongs to IInvokedMethodListener and will execute before every method including @Before @After @Test
+
+	public void beforeInvocation(IInvokedMethod arg0, ITestResult arg1) {
+
+		String textMsg = "About to begin executing following method : " + returnMethodName(arg0.getTestMethod());
+
+		Reporter.log(textMsg, true);
+
+	}
+
+	// This belongs to IInvokedMethodListener and will execute after every method including @Before @After @Test
+
+	public void afterInvocation(IInvokedMethod arg0, ITestResult arg1) {
+
+		String textMsg = "Completed executing following method : " + returnMethodName(arg0.getTestMethod());
+
+		Reporter.log(textMsg, true);
+
+	}
+
+	// This will return method names to the calling function
+
+	private String returnMethodName(ITestNGMethod method) {
+
+		return method.getRealClass().getSimpleName() + "." + method.getMethodName();
+
+	}
+
 }
