@@ -18,6 +18,7 @@ import org.testng.ITestResult;
 import org.testng.Reporter;
 
 import com.frw.Constants.Constants_FRMWRK;
+import com.frw.util.PageLoadWaitUtil;
 import com.frw.util.WaitUtil;
 import com.google.common.base.Throwables;
 import com.proj.base.TestBase;
@@ -335,6 +336,16 @@ public class commonMethods extends TestBase{
 		} catch (Exception e) {
 		    e.printStackTrace();		    
 		    logsObj.log("Unable to kill IE listed processes have been killed.. due to "+Throwables.getStackTraceAsString(e));
+		}
+	}
+	
+	
+	public static void pageLoadWait(WebDriver driver) throws Throwable{
+		try{
+			PageLoadWaitUtil.waitForPageToLoad(driver);
+			PageLoadWaitUtil.waitForAjax(driver);
+		}catch (Exception ex){
+			
 		}
 	}
 }
