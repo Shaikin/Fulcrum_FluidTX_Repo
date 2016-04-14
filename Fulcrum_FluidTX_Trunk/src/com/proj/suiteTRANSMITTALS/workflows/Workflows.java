@@ -255,11 +255,11 @@ System.out.println();
 
 		Hashtable<String,String>transmittalData=new Hashtable<String,String>();
 		DocumentRegistryPage.selectADocument(driver, worflow_l1, data);
-		ApplicationMethods.waitForOverlayToDisappear(driver);
 		WaitUtil.pause(Constants_TimeOuts.Save_TimeOut);
+		ApplicationMethods.waitForOverlayToDisappear(driver);		
 		DocumentRegistryPage.sendTransmittal(driver, worflow_l1);
-		ApplicationMethods.waitForOverlayToDisappear(driver);
 		WaitUtil.pause(Constants_TimeOuts.Save_TimeOut);
+		ApplicationMethods.waitForOverlayToDisappear(driver);		
 		Transmittals_EntryPage.attachdocument(ApplicationMethods.getSiteName(url),driver, refID,testcaseName, worflow_l1, data);
 
 		transmittalData=Transmittals_EntryPage.createAndSendTransmittalRecord(ApplicationMethods.getSiteName(url),driver, refID,testcaseName,worflow_l1,  data);
@@ -279,7 +279,7 @@ System.out.println();
 	}
 
 
-	private static void validateRecordinActionRequiredPageAfterSubmission(WebDriver driver,String validationPage,String workflow,String subject) throws Exception{
+	private static void validateRecordinActionRequiredPageAfterSubmission(WebDriver driver,String validationPage,String workflow,String subject) throws Throwable{
 		if(validationPage.equalsIgnoreCase(Constants_Workflow.page_actionRequired)){
 			Navigations_FluidTX.Transmittals.navigateToActionRequired(driver);
 			getResult=TransmittalsGridUtil.searchSubject(driver, validationPage, workflow, subject);
