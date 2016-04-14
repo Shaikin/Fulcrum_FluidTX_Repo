@@ -185,37 +185,48 @@ public class ApplicationMethods extends TestBase{
 	public static void closeAllDialogs(WebDriver driver,String refID,String testcaseName){
 		int counter=1;
 		commonMethods.switchToDefaultPage(driver);
-		int closeIcons=ExplicitWaitUtil.getVisibleElementsSize(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.icon_close, Constants_TimeOuts.Save_TimeOut);
-		WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);		
-		if(closeIcons!=0 && counter <10){
-			List <WebElement> elements=ExplicitWaitUtil.waitForVisibilityOfElements(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.icon_close,Constants_TimeOuts.Element_TimeOut);
-			System.out.println("Number of Close icons are "+elements.size());
-			for (WebElement element :elements){
-				WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);	
-				try{
-					if(element!=null && element.isDisplayed()==true){
-						commonMethods.getViewOfElement(driver, element);					
-						element.click();
+		int frameCount=getApplicationFrameCount(driver);
+		System.out.println("Number of Frame before Close icons are "+frameCount);
+		logsObj.log("Number of Frame before Close icons are "+frameCount);
+		if(frameCount!=0){
+			WorkArounds.getViewPortOfPage(driver);
+			int closeIcons=ExplicitWaitUtil.getVisibleElementsSize(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.icon_close, Constants_TimeOuts.Save_TimeOut);
+			WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);		
+			System.out.println("Number of Close icons displayed are "+closeIcons);
+			logsObj.log("Number of Close icons displayed are "+closeIcons);
+			if(closeIcons!=0 && counter <10){				
+				List <WebElement> elements=ExplicitWaitUtil.waitForVisibilityOfElements(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.icon_close,Constants_TimeOuts.Element_TimeOut);
+				System.out.println("Number of Close icons elements are "+elements.size());
+				logsObj.log("Number of Close icons elements are "+elements.size());
+				for (WebElement element :elements){
+					WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);	
+					try{
+						if(element!=null && element.isDisplayed()==true){
+							commonMethods.getViewOfElement(driver, element);					
+							element.click();
+							Reporting.logStep(driver, "Close popup windows", "Closed all Popup Windows", Constants_FRMWRK.Warning);
+						}
+					}catch(StaleElementReferenceException st){
+						System.out.println("closeAllDialogs :- stale..");
 					}
-				}catch(StaleElementReferenceException st){
-					System.out.println("closeAllDialogs :- stale..");
+					//WaitUtil.pause(3);		
+					WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);	
 				}
-				//WaitUtil.pause(3);		
+				closeIcons=ExplicitWaitUtil.getVisibleElementsSize(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.icon_close,Constants_TimeOuts.Save_TimeOut);	
 				WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);	
+				if(closeIcons!=0 && counter <10){
+					counter=counter+1;
+					System.out.println("Number of Close icons are still "+elements.size());
+					closeAllDialogs(driver, refID, testcaseName);
+				}else if (elements.size()==0 && counter <10){
+					//Reporting.logStep(driver, "Closing the popup dialogs", "All Opened dialogs are closed", Constants_FRMWRK.Pass);
+				}else if (elements.size()!=0 && counter >=10){
+					isTestPass=Constants_FRMWRK.FalseB;
+					Reporting.logStep(driver, "Closing the popup windows", "Unable to close all opened dialogs after 10 attempts", Constants_FRMWRK.Fail);
+				}
 			}
-			closeIcons=ExplicitWaitUtil.getVisibleElementsSize(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.icon_close,Constants_TimeOuts.Save_TimeOut);	
-			WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);	
-			if(closeIcons!=0 && counter <10){
-				counter=counter+1;
-				System.out.println("Number of Close icons are still "+elements.size());
-				closeAllDialogs(driver, refID, testcaseName);
-			}else if (elements.size()==0 && counter <10){
-				//Reporting.logStep(driver, "Closing the popup dialogs", "All Opened dialogs are closed", Constants_FRMWRK.Pass);
-			}else if (elements.size()!=0 && counter >=10){
-				isTestPass=Constants_FRMWRK.FalseB;
-				Reporting.logStep(driver, "Closing the popup dialogs", "Unable to close all opened dialogs after 10 attempts", Constants_FRMWRK.Fail);
-			}
-		}		
+		}
+				
 	}
 
 	public static int getApplicationFrameCount(WebDriver driver){
