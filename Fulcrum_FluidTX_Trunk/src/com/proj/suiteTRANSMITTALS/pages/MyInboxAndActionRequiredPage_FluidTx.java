@@ -24,9 +24,9 @@ public class MyInboxAndActionRequiredPage_FluidTx extends TestSuiteBase{
 	 * @param returnData
 	 * @param data
 	 * @return
-	 * @throws Exception
+	 * @throws Throwable 
 	 */
-	public static String validate_TxComplete_StatusAndStatus(WebDriver driver,String validationPage,String workflow,Hashtable<String,String>returnData,Hashtable<String,String>data) throws Exception{
+	public static String validate_TxComplete_StatusAndStatus(WebDriver driver,String validationPage,String workflow,Hashtable<String,String>returnData,Hashtable<String,String>data) throws Throwable{
 		String subject = null;
 		String status = null;
 		String TxComplete_Status = null;
@@ -73,9 +73,9 @@ public class MyInboxAndActionRequiredPage_FluidTx extends TestSuiteBase{
 	 * @param data
 	 * @param action
 	 * @return
-	 * @throws Exception
+	 * @throws Throwable 
 	 */
-	public static String validate_TxComplete_StatusAndStatus(WebDriver driver,String validationPage,String workflow,Hashtable<String,String>data,String action) throws Exception{
+	public static String validate_TxComplete_StatusAndStatus(WebDriver driver,String validationPage,String workflow,Hashtable<String,String>data,String action) throws Throwable{
 		String subject = null;
 		String status = null;
 		String TxComplete_Status = null;
@@ -148,9 +148,9 @@ public class MyInboxAndActionRequiredPage_FluidTx extends TestSuiteBase{
 	 * @param data
 	 * @param action
 	 * @return
-	 * @throws Exception
+	 * @throws Throwable 
 	 */
-	public static String validate_CaC_TxComplete_StatusAndStatus(WebDriver driver,String validationPage,String workflow,Hashtable<String,String>data,String action) throws Exception{
+	public static String validate_CaC_TxComplete_StatusAndStatus(WebDriver driver,String validationPage,String workflow,Hashtable<String,String>data,String action) throws Throwable{
 		String subject = null;
 		String status = null;
 		String TxComplete_Status = null;
