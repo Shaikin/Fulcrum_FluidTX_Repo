@@ -186,11 +186,16 @@ public class ApplicationMethods extends TestBase{
 		int counter=1;
 		commonMethods.switchToDefaultPage(driver);
 		int frameCount=getApplicationFrameCount(driver);
+		Boolean isView=false;
 		System.out.println("Number of Frame before Close icons are "+frameCount);
 		logsObj.log("Number of Frame before Close icons are "+frameCount);
-		if(frameCount!=0){
+		int closeIcons=ExplicitWaitUtil.getVisibleElementsSize(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.icon_close, Constants_TimeOuts.Save_TimeOut);
+		if(frameCount!=0 && closeIcons==0){
 			WorkArounds.getViewPortOfPage(driver);
-			int closeIcons=ExplicitWaitUtil.getVisibleElementsSize(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.icon_close, Constants_TimeOuts.Save_TimeOut);
+			isView=true;
+		}
+		if(frameCount!=0){			
+			closeIcons=ExplicitWaitUtil.getVisibleElementsSize(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.icon_close, Constants_TimeOuts.Save_TimeOut);
 			WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);		
 			System.out.println("Number of Close icons displayed are "+closeIcons);
 			logsObj.log("Number of Close icons displayed are "+closeIcons);
@@ -204,7 +209,9 @@ public class ApplicationMethods extends TestBase{
 						if(element!=null && element.isDisplayed()==true){
 							commonMethods.getViewOfElement(driver, element);					
 							element.click();
-							Reporting.logStep(driver, "Close popup windows", "Closed all Popup Windows", Constants_FRMWRK.Warning);
+							if(isView==true){
+								Reporting.logStep(driver, "Close popup windows", "Closed all Popup Windows with view port recovery", Constants_FRMWRK.Warning);
+							}							
 						}
 					}catch(StaleElementReferenceException st){
 						System.out.println("closeAllDialogs :- stale..");
