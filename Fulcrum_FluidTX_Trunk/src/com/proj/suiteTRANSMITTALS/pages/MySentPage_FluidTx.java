@@ -21,9 +21,9 @@ public class MySentPage_FluidTx extends TestSuiteBase{
 	 * @param workflow
 	 * @param data
 	 * @return
-	 * @throws Exception
+	 * @throws Throwable 
 	 */
-	public static String validate_TxComplete_StatusAndStatus(WebDriver driver,String workflow,Hashtable<String,String>data) throws Exception{
+	public static String validate_TxComplete_StatusAndStatus(WebDriver driver,String workflow,Hashtable<String,String>data) throws Throwable{
 		String subject = null;
 		String status = null;
 		String TxComplete_Status = null;

@@ -308,6 +308,7 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 
 		clickSend(driver, workFlow);
 		WaitUtil.pause(Constants_TimeOuts.Save_TimeOut);
+		ApplicationMethods.closeAllDialogs(driver, refID, testcaseName);
 		return returnData;
 	}
 
