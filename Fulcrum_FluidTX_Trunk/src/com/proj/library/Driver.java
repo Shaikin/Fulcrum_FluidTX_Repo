@@ -131,7 +131,7 @@ public class Driver extends TestBase{
 	 * @author Shaik
 	 * @param driver
 	 */
-	public static void close(WebDriver driver){
+	public static void close(WebDriver driver,String browserType){
 		if (!driver.toString().contains("null")){
 			WaitUtil.pause(2);
 			driver.quit();
@@ -144,7 +144,7 @@ public class Driver extends TestBase{
 				logsObj.log("Closing the browser for second attempt");
 			}			
 		}
-		commonMethods.killIEProcess(driver);
+		commonMethods.cleanProcess(driver, browserType);
 
 	}
 
