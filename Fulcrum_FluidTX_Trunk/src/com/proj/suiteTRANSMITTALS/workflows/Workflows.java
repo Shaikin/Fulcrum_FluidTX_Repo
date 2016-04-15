@@ -154,6 +154,7 @@ System.out.println();
             //Transmittals_EntryPage.verifyAttachedFiles(siteName,driver, workflow_l2, refID, workflow_l2, testData);
  
             Transmittals_EntryPage.delegateAndSendTransmittalRecord(ApplicationMethods.getSiteName(url),driver,testcasename, workflow_l2, testData);
+            Transmittals_EntryPage.editAndSubmitTransmittalRecord(ApplicationMethods.getSiteName(url),driver, refid, testcasename, workflow_l2, transmittalData,testData.get("Action-Level2"));
             
             validateRecordinActionRequiredPageAfterSubmission(driver, validationPage, workflow_l2, transmittalData.get("Tramsmittals-Subject"));
  
