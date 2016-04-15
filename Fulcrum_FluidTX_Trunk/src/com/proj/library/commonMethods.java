@@ -274,8 +274,11 @@ public class commonMethods extends TestBase{
 		return result.toString();
 	}
 
-	public static void getViewOfElement(WebDriver driver,WebElement element){
-		((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView(true);", element);
+	public static void getViewOfElement(WebDriver driver,WebElement element,String browserType){
+		if(browserType.equalsIgnoreCase(Constants.browserie)){
+			((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView(true);", element);
+		}
+		
 	}
 
 	public static String getSelectedOptionFromDropdown(WebElement element){
