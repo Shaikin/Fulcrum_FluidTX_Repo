@@ -10,6 +10,7 @@ import org.testng.annotations.Test;
 
 import com.frw.Constants.Constants_FRMWRK;
 import com.proj.Constants.Constants;
+import com.proj.Constants.Constants_ConfigProperties;
 import com.proj.Constants.Constants_Workflow;
 import com.proj.library.LocalDriverManager;
 import com.proj.suiteTRANSMITTALS.workflows.Workflows;
@@ -32,11 +33,11 @@ public class FLD_Transmittals_New_IssuedForInformation extends TestSuiteBase{
 	private static String workflow_l1="Level-1:-Initiation of Transmittal";
 	private static String workflow_l2="Level-2:-Recieve Transmittal and ";
 	private static String workflow_end=" || ";
-	private static String url;
-	private static String username1;
-	private static String password1;
-	private static String username2;
-	private static String password2;
+//	private static String url;
+//	private static String username1;
+//	private static String password1;
+//	private static String username2;
+//	private static String password2;
 
 
 	@BeforeTest
@@ -48,11 +49,11 @@ public class FLD_Transmittals_New_IssuedForInformation extends TestSuiteBase{
 		scenarioName=testcaseName;
 		moduleName=Constants.Module_TRANS;
 
-		url=CONFIG.getProperty("testSiteName");
-		username1=CONFIG.getProperty("userUserName");
-		password1=CONFIG.getProperty("userpassword");
-		username2=CONFIG.getProperty("userUserName1");
-		password2=CONFIG.getProperty("userpassword1");
+//		url=CONFIG.getProperty("testSiteName");
+//		username1=CONFIG.getProperty("userUserName");
+//		password1=CONFIG.getProperty("userpassword");	
+//		username2=CONFIG.getProperty("userUserName1");
+//		password2=CONFIG.getProperty("userpassword1");
 		try{
 
 			TestExecutionUtil.initialiseTestFlags(testcaseName);
@@ -68,7 +69,7 @@ public class FLD_Transmittals_New_IssuedForInformation extends TestSuiteBase{
 		try {
 
 			if(!isBeforeTestPass ==Constants_FRMWRK.FalseB){				
-				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, url, username1, password1, refID);
+				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, Constants_ConfigProperties.testSiteName, Constants_ConfigProperties.username_SuperUser, Constants_ConfigProperties.password_SuperUser, refID);
 				logsObj.log("Before method success for "+testcaseName);
 			}else{
 				CustomExceptions.Exit(testcaseName, "Before Method-Failure", "Due to above error in the Before Test cannot execute the test..");
@@ -100,17 +101,17 @@ public class FLD_Transmittals_New_IssuedForInformation extends TestSuiteBase{
 			if(isBeforeMethodPass==Constants_FRMWRK.FalseB){
 				CustomExceptions.Exit(testcaseName, "Before Method-Failure", "Due to above error in the Before Method cannot execute the test..");
 			}
-			String siteName=ApplicationMethods.getSiteName(url);
+			String siteName=ApplicationMethods.getSiteName(Constants_ConfigProperties.testSiteName);
 			String condition="";
 			condition=" ["+data.get("IssueReason")+"]";
 
 			//************************************** LEVEL 1 *****************************************************************************
 			workflow_l1=workflow_l1+condition+workflow_end;		
 			
-			transmittalData=Workflows.Level1_Initaite_Transmittal(driver_TRANS, url, workflow_l1, data);
+			transmittalData=Workflows.Level1_Initaite_Transmittal(driver_TRANS, Constants_ConfigProperties.testSiteName, workflow_l1, data);
 
 			//************************************** LEVEL 2 *****************************************************************************		
-			driver_TRANS=Workflows.Level2_Validate_OR_Submit_OR_ApproveOrReject_OR_Forward_OR_ReplyAll_Transmittal(siteName,Constants_Workflow.page_myInbox,driver_TRANS,refID,testcaseName, workflow_l2, condition, workflow_end, url, browserName, username2, password2, transmittalData, data,1);
+			driver_TRANS=Workflows.Level2_Validate_OR_Submit_OR_ApproveOrReject_OR_Forward_OR_ReplyAll_Transmittal(siteName,Constants_Workflow.page_myInbox,driver_TRANS,refID,testcaseName, workflow_l2, condition, workflow_end, Constants_ConfigProperties.testSiteName, browserName, Constants_ConfigProperties.username_AutoTestAdmin, Constants_ConfigProperties.password_AutoTestAdmin, transmittalData, data,1);
 			
 			
 			logsObj.log(" after test of "+testcaseName+"-testresult"+isTestPass);
