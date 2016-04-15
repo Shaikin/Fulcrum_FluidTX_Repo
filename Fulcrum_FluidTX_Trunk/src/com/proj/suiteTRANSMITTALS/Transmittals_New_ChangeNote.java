@@ -11,6 +11,7 @@ import org.testng.annotations.Test;
 import com.frw.Constants.Constants_FRMWRK;
 import com.frw.util.WaitUtil;
 import com.proj.Constants.Constants;
+import com.proj.Constants.Constants_ConfigProperties;
 import com.proj.navigations.Navigations_Fulcrum;
 import com.proj.suiteTRANSMITTALS.pages.MyInboxPage;
 import com.proj.suiteTRANSMITTALS.pages.MySentPage;
@@ -35,9 +36,9 @@ public class Transmittals_New_ChangeNote extends TestSuiteBase{
 	private static String worflow_l2="Level-2:-Recieve Transmittal and ";
 	private static String worflow_l3="Level-3:-Recieve Transmittal and ";
 	private static String worflow_end=" || ";*/
-	private static String url;
-	private static String username1;
-	private static String password1;
+//	private static String url;
+//	private static String username1;
+//	private static String password1;
 
 
 	@BeforeTest
@@ -50,9 +51,9 @@ public class Transmittals_New_ChangeNote extends TestSuiteBase{
 		scenarioName=testcaseName;
 		moduleName=Constants.Module_TRANS;
 
-		url=CONFIG.getProperty("testSiteName");
-		username1=CONFIG.getProperty("userUserName");
-		password1=CONFIG.getProperty("userpassword");
+//		url=CONFIG.getProperty("testSiteName");
+//		username1=CONFIG.getProperty("userUserName");
+//		password1=CONFIG.getProperty("userpassword");
 		try{
 
 			TestExecutionUtil.initialiseTestFlags(testcaseName);
@@ -68,7 +69,7 @@ public class Transmittals_New_ChangeNote extends TestSuiteBase{
 		try {
 
 			if(!isBeforeTestPass ==Constants_FRMWRK.FalseB){				
-				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, url, username1, password1, refID);
+				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, Constants_ConfigProperties.testSiteName, Constants_ConfigProperties.username_SuperUser, Constants_ConfigProperties.password_SuperUser, refID);
 				logsObj.log("Before method success for "+testcaseName);
 			}else{
 				CustomExceptions.Exit(testcaseName, "Before Method-Failure", "Due to above error in the Before Test cannot execute the test..");
@@ -95,8 +96,8 @@ public class Transmittals_New_ChangeNote extends TestSuiteBase{
 		String worflow_end=" || ";
 		System.out.println("In test");
 
-		String username2=CONFIG.getProperty("userUserName2");
-		String password2=CONFIG.getProperty("userpassword2");
+		String username2=Constants_ConfigProperties.username_AutoTestUser;
+		String password2=Constants_ConfigProperties.password_AutoTestUser;
 
 		logsObj.log("******************************************************");		
 		logsObj.log("Executing the test case: "+testcaseName);
@@ -110,7 +111,7 @@ public class Transmittals_New_ChangeNote extends TestSuiteBase{
 			Navigations_Fulcrum.Transmittals.navigateToNewTransmittal(driver_TRANS);
 			//WaitUtil.pause(2);				
 
-			returnData=Transmittals_EntryPage.createAndSendTransmittalRecord(ApplicationMethods.getSiteName(url),driver_TRANS, refID,testcaseName,worflow_l1,  data);
+			returnData=Transmittals_EntryPage.createAndSendTransmittalRecord(ApplicationMethods.getSiteName(Constants_ConfigProperties.testSiteName),driver_TRANS, refID,testcaseName,worflow_l1,  data);
 			System.out.println("Done.."+returnData);
 
 			if (returnData.size()==0 || returnData.get("Tramsmittals-Subject").equals(Constants_FRMWRK.False)){
@@ -129,7 +130,7 @@ public class Transmittals_New_ChangeNote extends TestSuiteBase{
 				worflow_l2=worflow_l2+" validate"+worflow_end;
 				ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver_TRANS,refID,testcaseName);
 
-				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, url, username2, password2,refID);
+				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, Constants_ConfigProperties.testSiteName, username2, password2,refID);
 
 				getResult=MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data);
 				if(getResult.equalsIgnoreCase(Constants_FRMWRK.False)){
@@ -142,14 +143,14 @@ public class Transmittals_New_ChangeNote extends TestSuiteBase{
 				worflow_l2=worflow_l2+data.get("Action-Level2")+worflow_end;
 				ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver_TRANS,refID,testcaseName);
 
-				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, url, username2, password2,refID);
+				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, Constants_ConfigProperties.testSiteName, username2, password2,refID);
 
 				MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data);
 
 				//Transmittals_EntryPage.switchToTramsmittalEditFrame(driver_TRANS, refID, testcaseName, workFlow_ValidateNewTransmittal);
 				Transmittals_EntryPage.clickCompleteAction(driver_TRANS, worflow_l2);
 
-				Transmittals_EntryPage.editAndSubmitTransmittalRecord(ApplicationMethods.getSiteName(url),driver_TRANS, refID, testcaseName, worflow_l2, returnData,data.get("Action-Level2"));
+				Transmittals_EntryPage.editAndSubmitTransmittalRecord(ApplicationMethods.getSiteName(Constants_ConfigProperties.testSiteName),driver_TRANS, refID, testcaseName, worflow_l2, returnData,data.get("Action-Level2"));
 				getResult=MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data.get("Action-Level2"));
 				if(getResult.equalsIgnoreCase(Constants_FRMWRK.False)){
 					CustomExceptions.Exit(testcaseName, worflow_l2+"- Failure", "Unable to continue the test due to above error ");
@@ -160,11 +161,11 @@ public class Transmittals_New_ChangeNote extends TestSuiteBase{
 				worflow_l2=worflow_l2+data.get("Action-Level2")+worflow_end;
 				ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver_TRANS,refID,testcaseName);
 
-				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, url, username2, password2,refID);
+				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, Constants_ConfigProperties.testSiteName, username2, password2,refID);
 
 				MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data);
 
-				Transmittals_EntryPage.forwardAndSendTransmittalRecord(ApplicationMethods.getSiteName(url),driver_TRANS,testcaseName, worflow_l2, data);
+				Transmittals_EntryPage.forwardAndSendTransmittalRecord(ApplicationMethods.getSiteName(Constants_ConfigProperties.testSiteName),driver_TRANS,testcaseName, worflow_l2, data);
 				getResult=MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data.get("Action-Level2"));
 				if(getResult.equalsIgnoreCase(Constants_FRMWRK.False)){
 					CustomExceptions.Exit(testcaseName, worflow_l2+"- Failure", "Unable to continue the test due to above error ");
@@ -174,14 +175,14 @@ public class Transmittals_New_ChangeNote extends TestSuiteBase{
 				worflow_l2=worflow_l2+" Submit"+worflow_end;
 				ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver_TRANS,refID,testcaseName);
 
-				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, url, username2, password2,refID);
+				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, Constants_ConfigProperties.testSiteName, username2, password2,refID);
 
 				MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data);
 
 				Transmittals_EntryPage.switchToTramsmittalEditFrame(driver_TRANS, refID, testcaseName, worflow_l2);
 				Transmittals_EntryPage.clickCompleteAction(driver_TRANS, worflow_l2);
 				//WaitUtil.pause(3);
-				Transmittals_EntryPage.editAndSubmitTransmittalRecord(ApplicationMethods.getSiteName(url),driver_TRANS, refID, testcaseName, worflow_l2, returnData,data.get("Action-Level2"));
+				Transmittals_EntryPage.editAndSubmitTransmittalRecord(ApplicationMethods.getSiteName(Constants_ConfigProperties.testSiteName),driver_TRANS, refID, testcaseName, worflow_l2, returnData,data.get("Action-Level2"));
 				getResult=MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l2, returnData,data.get("Action-Level2"));
 				if(getResult.equalsIgnoreCase(Constants_FRMWRK.False)){
 					CustomExceptions.Exit(testcaseName, worflow_l2+"- Failure", "Unable to continue the test due to above error ");
@@ -192,7 +193,7 @@ public class Transmittals_New_ChangeNote extends TestSuiteBase{
 			if(!data.get("Action-Level2").isEmpty()&& data.get("Action-Level2").equalsIgnoreCase("Forward")){
 				worflow_l3=worflow_l3+" Submit for "+data.get("Action-Level3")+worflow_end;
 				ApplicationMethods.logOutFromApplicationAndcloseBrowser(driver_TRANS,refID,testcaseName);
-				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, url, username1, password1,refID);
+				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, Constants_ConfigProperties.testSiteName, Constants_ConfigProperties.username_SuperUser, Constants_ConfigProperties.password_SuperUser,refID);
 				String subj=returnData.get("Tramsmittals-Subject");
 				subj="FW: "+subj;
 				returnData.put("Tramsmittals-Subject", subj);
@@ -201,7 +202,7 @@ public class Transmittals_New_ChangeNote extends TestSuiteBase{
 				Transmittals_EntryPage.switchToTramsmittalEditFrame(driver_TRANS, refID, testcaseName, worflow_l3);
 				Transmittals_EntryPage.clickCompleteAction(driver_TRANS, worflow_l3);
 				//WaitUtil.pause(3);
-				Transmittals_EntryPage.editAndSubmitTransmittalRecord(ApplicationMethods.getSiteName(url),driver_TRANS, refID, testcaseName, worflow_l3, returnData,data.get("Action-Level3"));
+				Transmittals_EntryPage.editAndSubmitTransmittalRecord(ApplicationMethods.getSiteName(Constants_ConfigProperties.testSiteName),driver_TRANS, refID, testcaseName, worflow_l3, returnData,data.get("Action-Level3"));
 				getResult=MyInboxPage.validate_TxComplete_StatusAndStatus(driver_TRANS, worflow_l3, returnData,data.get("Action-Level3"));
 				if(getResult.equalsIgnoreCase(Constants_FRMWRK.False)){
 					CustomExceptions.Exit(testcaseName, worflow_l3+"- Failure", "Unable to continue the test due to above error ");
