@@ -21,6 +21,7 @@ import com.frw.Constants.Constants_FRMWRK;
 import com.frw.util.PageLoadWaitUtil;
 import com.frw.util.WaitUtil;
 import com.google.common.base.Throwables;
+import com.proj.Constants.Constants;
 import com.proj.base.TestBase;
 import com.proj.util.CustomExceptions;
 import com.proj.util.ErrorUtil;
@@ -305,7 +306,7 @@ public class commonMethods extends TestBase{
 		String[] osversion=os.split(" ");
 		return osversion[1];
 	}
-	public static void killIEProcess(WebDriver driver){
+	private static void killIEProcess(WebDriver driver){
 		try {			
 			String browsername=getBrowserName(driver);
 			if(browsername.equalsIgnoreCase("internet explorer")){
@@ -347,6 +348,14 @@ public class commonMethods extends TestBase{
 		}catch (Exception ex){
 			
 		}
+	}
+	
+	public static void cleanProcess(WebDriver driver,String browserType){
+		if (browserType.equalsIgnoreCase(Constants.browserie)){
+			killIEProcess(driver);
+		}
+		
+		
 	}
 }
 
