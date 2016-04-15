@@ -32,11 +32,10 @@ public class TestNGRunner extends Base{
 
 
 		try {
-			FileUtil fileObj=FileUtil.getFileUtilObject();
 			logsObj=Logs.getLogsObjAndInitialize();
-			fileObj.deleteFilesinFolder(suitesetupSuitesFolder);
+			FileUtil.deleteFilesinFolder(suitesetupSuitesFolder);
 			System.out.println("*********Suite Folder Files are Deleted ***********");
-			fileObj.deleteFilesinFolder(System.getProperty("user.dir")+"\\test-output");
+			FileUtil.deleteFilesinFolder(System.getProperty("user.dir")+"\\test-output");
 			System.out.println("*********Testoutput Folder Files are Deleted ***********");
 			
 			Properties environmentProperties=baseUtil.loadPropertiesFile(environmentFile);
@@ -50,7 +49,7 @@ public class TestNGRunner extends Base{
 			}else{
 				System.out.println("All Classes under suites are generated..");
 			}
-				XMLUtil.createTestNGXML(xmlFilePath,"conf/TestNG/suites",runnableSuites,"Selenium Automation Suite-MAT-1.0");
+				XMLUtil.createTestNGXML(xmlFilePath,"conf/TestNG/suites",runnableSuites,"Selenium Automation Suite-LAT Fluid TX-1.0");
 
 		} catch (IOException e) {
 			e.printStackTrace();
