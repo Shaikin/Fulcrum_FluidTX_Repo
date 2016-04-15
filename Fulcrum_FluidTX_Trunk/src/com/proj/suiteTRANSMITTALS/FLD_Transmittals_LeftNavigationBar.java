@@ -10,6 +10,7 @@ import org.testng.annotations.Test;
 import com.frw.Constants.Constants_FRMWRK;
 import com.frw.util.WaitUtil;
 import com.proj.Constants.Constants;
+import com.proj.Constants.Constants_ConfigProperties;
 import com.proj.library.LocalDriverManager;
 import com.proj.navigations.Navigations_FluidTX;
 import com.proj.util.CustomExceptions;
@@ -24,9 +25,9 @@ public class FLD_Transmittals_LeftNavigationBar extends TestSuiteBase{
 	private static boolean isBeforeTestPass=Constants_FRMWRK.TrueB;
 	private static boolean isBeforeMethodPass=Constants_FRMWRK.TrueB;
 	private String local_refID="TRAN-00";
-	private static String url;
-	private static String username1;
-	private static String password1;
+//	private static String url;
+//	private static String username1;
+//	private static String password1;
 
 	@BeforeTest
 
@@ -38,9 +39,9 @@ public class FLD_Transmittals_LeftNavigationBar extends TestSuiteBase{
 		scenarioName=testcaseName;
 		moduleName=Constants.Module_TRANS;
 
-		url=CONFIG.getProperty("testSiteName");
-		username1=CONFIG.getProperty("userUserName");
-		password1=CONFIG.getProperty("userpassword");
+//		url=CONFIG.getProperty("testSiteName");
+//		username1=CONFIG.getProperty("userUserName");
+//		password1=CONFIG.getProperty("userpassword");
 		try{
 
 			TestExecutionUtil.initialiseTestFlags(testcaseName);
@@ -56,7 +57,7 @@ public class FLD_Transmittals_LeftNavigationBar extends TestSuiteBase{
 		try {
 
 			if(!isBeforeTestPass ==Constants_FRMWRK.FalseB){				
-				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, url, username1, password1, refID);
+				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, Constants_ConfigProperties.testSiteName, Constants_ConfigProperties.username_SuperUser, Constants_ConfigProperties.password_SuperUser, refID);
 				logsObj.log("Before method success for "+testcaseName);
 			}else{
 				CustomExceptions.Exit(testcaseName, "Before Method-Failure", "Due to above error in the Before Test cannot execute the test..");
@@ -81,7 +82,7 @@ public class FLD_Transmittals_LeftNavigationBar extends TestSuiteBase{
 		logsObj.log("******************************************************");		
 		logsObj.log("Executing the test case: "+testcaseName);
 		try{
-			String appName=ApplicationMethods.getSiteName(url);
+			String appName=ApplicationMethods.getSiteName(Constants_ConfigProperties.testSiteName);
 			if(isBeforeMethodPass==Constants_FRMWRK.FalseB){
 				CustomExceptions.Exit(testcaseName, "Before Method-Failure", "Due to above error in the Before Method cannot execute the test..");
 			}
