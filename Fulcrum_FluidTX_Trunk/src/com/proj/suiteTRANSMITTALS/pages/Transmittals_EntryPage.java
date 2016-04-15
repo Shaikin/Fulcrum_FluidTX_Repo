@@ -431,9 +431,8 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 		WorkArounds.deFocusCursor(driver);
 		WaitUtil.pause(Constants_TimeOuts.Save_TimeOut);
 		res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-DelegateTo", objects_locatorType_Transmittals, objects_objectType_Transmittals, objects_objectLocator_Transmittals, data.get("DelegateTo"));
-
-		clickSubmit(driver, workFlow);
-		ApplicationMethods.closeAllDialogs(driver, refID, testcaseName);
+		WaitUtil.pause(Constants_TimeOuts.Save_TimeOut);
+		
 	}
 	
 	public static void attachdocument(String appName,WebDriver driver,String refid,String testcasename,String workflow,Hashtable<String,String>data) throws Throwable{
