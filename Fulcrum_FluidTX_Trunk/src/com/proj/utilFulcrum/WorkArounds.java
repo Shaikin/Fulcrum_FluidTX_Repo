@@ -6,6 +6,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.interactions.Actions;
 
 import com.frw.util.WaitUtil;
+import com.proj.Constants.Constants;
 import com.proj.Constants.Constants_TimeOuts;
 import com.proj.base.TestBase;
 import com.proj.library.commonMethods;
@@ -22,14 +23,17 @@ public class WorkArounds extends TestBase{
 		System.out.println("Defocussed....");
 	}
 
-	public static void getViewPortOfPage(WebDriver driver){
-		commonMethods.switchToDefaultPage(driver);
-		WaitUtil.pause(2);
-		driver.findElement(By.tagName("body")).sendKeys(Keys.F12);
-		logsObj.log("WorkArounds:- getViewPortOfPage with F12 .. 1 st");
-		WaitUtil.pause(Constants_TimeOuts.Save_TimeOut);
-		driver.findElement(By.tagName("body")).sendKeys(Keys.F12);
-		logsObj.log("WorkArounds:- getViewPortOfPage with F12 .. 2 nd");
+	public static void getViewPortOfPage(WebDriver driver,String browserType){
+		if(browserType.equalsIgnoreCase(Constants.browserie)){
+			commonMethods.switchToDefaultPage(driver);
+			WaitUtil.pause(2);
+			driver.findElement(By.tagName("body")).sendKeys(Keys.F12);
+			logsObj.log("WorkArounds:- getViewPortOfPage with F12 .. 1 st");
+			WaitUtil.pause(Constants_TimeOuts.Save_TimeOut);
+			driver.findElement(By.tagName("body")).sendKeys(Keys.F12);
+			logsObj.log("WorkArounds:- getViewPortOfPage with F12 .. 2 nd");
+		}
+		
 	}
 
 
