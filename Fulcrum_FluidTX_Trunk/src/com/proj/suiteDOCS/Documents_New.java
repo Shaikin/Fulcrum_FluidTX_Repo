@@ -10,6 +10,7 @@ import org.testng.annotations.Test;
 
 import com.frw.Constants.Constants_FRMWRK;
 import com.proj.Constants.Constants;
+import com.proj.Constants.Constants_ConfigProperties;
 import com.proj.navigations.Navigations_Fulcrum;
 import com.proj.util.CustomExceptions;
 import com.proj.util.TestExecutionUtil;
@@ -50,7 +51,7 @@ public class Documents_New extends TestSuiteBase{
 		try {
 
 			if(!isBeforeTestPass ==Constants_FRMWRK.FalseB){				
-				driver_DOCS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, CONFIG.getProperty("testSiteName"), CONFIG.getProperty("userUserName"), CONFIG.getProperty("userpassword"), refID);
+				driver_DOCS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, Constants_ConfigProperties.testSiteName, Constants_ConfigProperties.username_SuperUser, Constants_ConfigProperties.password_SuperUser, refID);
 				logsObj.log("Before method success for "+testcaseName);
 			}else{
 				CustomExceptions.Exit(testcaseName, "Before Method-Failure", "Due to above error in the Before Test cannot execute the test..");
