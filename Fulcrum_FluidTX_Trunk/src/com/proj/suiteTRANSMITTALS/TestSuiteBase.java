@@ -42,7 +42,7 @@ public class TestSuiteBase extends TestBase {
 
 	public void aftSuite() throws Throwable{
 		
-		Driver.close(driver_TRANS);
+		Driver.close(driver_TRANS,browserName);
 		driver_TRANS=null;
 		Reporting.closeTagsForHTMLReportingEmail(currentSuite_bfw, System.getProperty("user.dir")+"//Results", CONFIG.getProperty("publishedResultsLocation"), CONFIG.getProperty("emailFrom"), CONFIG.getProperty("emailUser"), CONFIG.getProperty("emailPassword"), CONFIG.getProperty("emailReceipients"), CONFIG.getProperty("emailSubject"), CONFIG.getProperty("emailMessage"));		
 	}
