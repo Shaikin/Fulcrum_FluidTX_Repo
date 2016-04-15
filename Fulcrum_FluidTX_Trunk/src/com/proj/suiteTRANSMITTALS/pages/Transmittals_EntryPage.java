@@ -379,7 +379,7 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 			returnData.put("Tramsmittals-TxType", data.get("TxType"));
 		}
 		clickSend(driver, workFlow);
-		WorkArounds.getViewPortOfPage(driver);
+		WorkArounds.getViewPortOfPage(driver,browserName);
 		ApplicationMethods.closeAllDialogs(driver, refID, testcaseName);
 	}
 	/**
@@ -412,7 +412,7 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 			returnData.put("Tramsmittals-TxType", data.get("TxType"));
 		}
 		clickSend(driver, workFlow);
-		WorkArounds.getViewPortOfPage(driver);
+		WorkArounds.getViewPortOfPage(driver,browserName);
 		ApplicationMethods.closeAllDialogs(driver, refID, testcaseName);
 	}
 	
