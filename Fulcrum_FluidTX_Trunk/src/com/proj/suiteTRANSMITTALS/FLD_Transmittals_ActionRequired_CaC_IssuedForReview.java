@@ -10,6 +10,7 @@ import org.testng.annotations.Test;
 
 import com.frw.Constants.Constants_FRMWRK;
 import com.proj.Constants.Constants;
+import com.proj.Constants.Constants_ConfigProperties;
 import com.proj.Constants.Constants_Workflow;
 import com.proj.library.LocalDriverManager;
 import com.proj.suiteTRANSMITTALS.workflows.Workflows;
@@ -32,9 +33,9 @@ public class FLD_Transmittals_ActionRequired_CaC_IssuedForReview extends TestSui
 	private static String workflow_l1="Level-1:-Initiation of Transmittal";
 	private static String workflow_l2="Level-2:- ";	
 	private static String workflow_end=" || ";
-	private static String url;
-	private static String username1;
-	private static String password1;
+//	private static String url;
+//	private static String username1;
+//	private static String password1;
 	private static String username2;
 	private static String password2;
 
@@ -48,9 +49,9 @@ public class FLD_Transmittals_ActionRequired_CaC_IssuedForReview extends TestSui
 		scenarioName=testcaseName;
 		moduleName=Constants.Module_TRANS;
 
-		url=CONFIG.getProperty("testSiteName");
-		username1=CONFIG.getProperty("userUserName");
-		password1=CONFIG.getProperty("userpassword");
+//		url=CONFIG.getProperty("testSiteName");
+//		username1=CONFIG.getProperty("userUserName");
+//		password1=CONFIG.getProperty("userpassword");
 
 		try{
 
@@ -67,7 +68,7 @@ public class FLD_Transmittals_ActionRequired_CaC_IssuedForReview extends TestSui
 		try {
 
 			if(!isBeforeTestPass ==Constants_FRMWRK.FalseB){				
-				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, url, username1, password1, refID);
+				driver_TRANS=ApplicationMethods.launchBrowserAndlogIntoApplication(browserName, Constants_ConfigProperties.testSiteName, Constants_ConfigProperties.username_SuperUser, Constants_ConfigProperties.password_SuperUser, refID);
 				logsObj.log("Before method success for "+testcaseName);
 			}else{
 				CustomExceptions.Exit(testcaseName, "Before Method-Failure", "Due to above error in the Before Test cannot execute the test..");
@@ -94,27 +95,27 @@ public class FLD_Transmittals_ActionRequired_CaC_IssuedForReview extends TestSui
 
 		try{
 			if(data.get("RecieverRole").equalsIgnoreCase(Constants_Workflow.role_admin)){
-				username2=CONFIG.getProperty("userUserName1");
-				password2=CONFIG.getProperty("userpassword1");				
+				username2=Constants_ConfigProperties.username_AutoTestAdmin;
+				password2=Constants_ConfigProperties.password_AutoTestAdmin;				
 			}else{
-				username2=CONFIG.getProperty("userUserName2");
-				password2=CONFIG.getProperty("userpassword2");
+				username2=Constants_ConfigProperties.username_AutoTestUser;
+				password2=Constants_ConfigProperties.password_AutoTestUser;
 			}
 
 			if(isBeforeMethodPass==Constants_FRMWRK.FalseB){
 				CustomExceptions.Exit(testcaseName, "Before Method-Failure", "Due to above error in the Before Method cannot execute the test..");
 			}
-			String siteName=ApplicationMethods.getSiteName(url);
+			String siteName=ApplicationMethods.getSiteName(Constants_ConfigProperties.testSiteName);
 			String condition="";
 			condition=" ["+data.get("RecieverRole")+"-"+data.get("Action-Level2")+"]";
 
 			//************************************** LEVEL 1 *****************************************************************************
 			workflow_l1=workflow_l1+condition+workflow_end;		
 
-			transmittalData=Workflows.Level1_Initaite_Transmittal(driver_TRANS, url, workflow_l1, data);
+			transmittalData=Workflows.Level1_Initaite_Transmittal(driver_TRANS, Constants_ConfigProperties.testSiteName, workflow_l1, data);
 
 			//************************************** LEVEL 2 *****************************************************************************		
-			driver_TRANS=Workflows.Level2_Close_Cancel_Transmittal(siteName,Constants_Workflow.page_actionRequired,driver_TRANS,refID,testcaseName,workflow_l2,condition,workflow_end,url,browserName,username2, password2, transmittalData, data);
+			driver_TRANS=Workflows.Level2_Close_Cancel_Transmittal(siteName,Constants_Workflow.page_actionRequired,driver_TRANS,refID,testcaseName,workflow_l2,condition,workflow_end,Constants_ConfigProperties.testSiteName,browserName,username2, password2, transmittalData, data);
 			logsObj.log(" after test of "+testcaseName+"-testresult"+isTestPass);
 
 		}catch(Throwable t){
