@@ -31,11 +31,9 @@ public class TestsListenerAdapter implements ITestListener, ISuiteListener, IInv
 	@Override
 
 	public void onStart(ISuite arg0) {
-		System.out.println("10000000000");
 		try {
 			TestBase.initialize();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		TestBase.logsObj.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
