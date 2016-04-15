@@ -191,7 +191,7 @@ public class ApplicationMethods extends TestBase{
 		logsObj.log("Number of Frame before Close icons are "+frameCount);
 		int closeIcons=ExplicitWaitUtil.getVisibleElementsSize(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.icon_close, Constants_TimeOuts.Save_TimeOut);
 		if(frameCount!=0 && closeIcons==0){
-			WorkArounds.getViewPortOfPage(driver);
+			WorkArounds.getViewPortOfPage(driver,browserName);
 			isView=true;
 		}
 		if(frameCount!=0){			
@@ -207,7 +207,7 @@ public class ApplicationMethods extends TestBase{
 					WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);	
 					try{
 						if(element!=null && element.isDisplayed()==true){
-							commonMethods.getViewOfElement(driver, element);					
+							commonMethods.getViewOfElement(driver, element,browserName);					
 							element.click();
 							if(isView==true){
 								Reporting.logStep(driver, "Close popup windows", "Closed all Popup Windows with view port recovery", Constants_FRMWRK.Warning);
