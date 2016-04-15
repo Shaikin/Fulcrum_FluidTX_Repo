@@ -177,8 +177,8 @@ public class ApplicationMethods extends TestBase{
 			ApplicationMethods.closeAllDialogs(driver, refid, testcasename);
 		}
 		flag=logOutFromApplication(driver);
-		PopUpUtil.checkDefaultPopup(driver, "ok");
-		Driver.close(driver);
+		PopUpUtil.checkDefaultPopup(driver, Constants.ok);
+		Driver.close(driver,browserName);
 		return flag;
 	}
 
