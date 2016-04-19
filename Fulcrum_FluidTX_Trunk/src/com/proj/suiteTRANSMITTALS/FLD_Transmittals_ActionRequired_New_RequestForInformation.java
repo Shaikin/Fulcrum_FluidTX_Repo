@@ -116,7 +116,7 @@ public class FLD_Transmittals_ActionRequired_New_RequestForInformation extends T
 			transmittalData=Workflows.Level1_Initaite_Transmittal(driver_TRANS, Constants_ConfigProperties.testSiteName, workflow_l1, data);
 
 			//************************************** LEVEL 2 *****************************************************************************		
-			driver_TRANS=Workflows.Level2_Validate_OR_Submit_OR_ApproveOrReject_OR_Forward_OR_ReplyAll_Transmittal(siteName,Constants_Workflow.page_actionRequired,driver_TRANS,refID,testcaseName, workflow_l2, condition, workflow_end, Constants_ConfigProperties.testSiteName, browserName, Constants_ConfigProperties.username_AutoTestAdmin, Constants_ConfigProperties.password_SuperUser, transmittalData, data,1);
+			driver_TRANS=Workflows.Level2_Validate_OR_Submit_OR_ApproveOrReject_OR_Forward_OR_ReplyAll_Transmittal(siteName,Constants_Workflow.page_actionRequired,driver_TRANS,refID,testcaseName, workflow_l2, condition, workflow_end, Constants_ConfigProperties.testSiteName, browserName, Constants_ConfigProperties.username_AutoTestAdmin, Constants_ConfigProperties.password_AutoTestAdmin, transmittalData, data,1);
 			
 			
 			logsObj.log(" after test of "+testcaseName+"-testresult"+isTestPass);
