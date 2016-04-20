@@ -16,6 +16,7 @@ import com.frw.Constants.Constants_FRMWRK;
 import com.frw.util.FetchWebElement;
 import com.frw.util.PageLoadWaitUtil;
 import com.frw.util.WaitUtil;
+import com.frw.wait.ExplicitWaitUtil;
 import com.proj.Constants.Constants;
 import com.proj.Constants.Constants_TimeOuts;
 import com.proj.objectRepository.ObjRepository;
@@ -549,7 +550,7 @@ public class KeysUtil extends KeyMethods{
 			Reporting.logStep(driver, refID, Step,  objectType+": "+objectLocator+" does not exists hence cannot select a radiobutton ", Constants_FRMWRK.Fail);
 		}
 		else{
-			element=ElementMethods.fetchRadiobuttonFromGroup(driver,locatorType, objectLocator, input);
+			element=ExplicitWaitUtil.fetchRadiobuttonFromGroup(driver,locatorType, objectLocator, input,Constants_TimeOuts.Element_TimeOut);
 			boolean Rtick=Constants_FRMWRK.TrueB;
 			Rtick=element.isSelected();
 			if(!Rtick){
