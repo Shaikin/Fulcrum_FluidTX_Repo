@@ -15,7 +15,6 @@ import com.frw.util.WaitUtil;
 import com.frw.wait.ExplicitWaitUtil;
 import com.proj.Constants.Constants_TimeOuts;
 import com.proj.base.TestBase;
-import com.proj.library.ElementMethods;
 import com.proj.library.commonMethods;
 import com.proj.objectRepository.ObjRepository;
 import com.report.reporter.Reporting;
@@ -75,7 +74,7 @@ public class WebTableUtil extends TestBase{
 		String rowNumber="row";
 		int rowCount=0;
 
-		WebElement webtableElement=ElementMethods.fetchElement(driver, Constants_FRMWRK.FindElementByXPATH, "//table[@summary='"+containerName+"']");
+		WebElement webtableElement=ExplicitWaitUtil.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, "//table[@summary='"+containerName+"']", Constants_TimeOuts.Element_TimeOut);
 		if(webtableElement==null){
 			Reporting.logStep(driver, Step, "Webtable-"+ containerName+" is not displayed on the page", Constants_FRMWRK.Fail);
 			flag=Constants_FRMWRK.False;
@@ -300,7 +299,7 @@ public class WebTableUtil extends TestBase{
 		int rowCount=0;
 		boolean retrieved=Constants_FRMWRK.FalseB;
 
-		WebElement webtableElement=ElementMethods.fetchElement(driver, Constants_FRMWRK.FindElementByXPATH, "//table[@summary='"+containerName+"']");
+		WebElement webtableElement=ExplicitWaitUtil.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, "//table[@summary='"+containerName+"']",Constants_TimeOuts.Element_TimeOut);
 		if(webtableElement==null){
 			Reporting.logStep(driver, Step, "Webtable-"+ containerName+" is not displayed on the page", Constants_FRMWRK.Fail);
 			flag=Constants_FRMWRK.False;
@@ -406,7 +405,7 @@ public class WebTableUtil extends TestBase{
 		boolean clicked=Constants_FRMWRK.FalseB;
 		boolean isNextDisplayed;
 
-		WebElement webtableElement=ElementMethods.fetchElement(driver, Constants_FRMWRK.FindElementByXPATH, "//table[@summary='"+containerName+"']");
+		WebElement webtableElement=ExplicitWaitUtil.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, "//table[@summary='"+containerName+"']",Constants_TimeOuts.Element_TimeOut);
 		if(webtableElement==null){
 			Reporting.logStep(driver, Step, "Webtable-"+ containerName+" is not displayed on the page", Constants_FRMWRK.Fail);
 			flag=Constants_FRMWRK.False;
@@ -521,7 +520,7 @@ do{
 		String rowNumber="row";
 		int rowCount=0;
 
-		WebElement webtableElement=ElementMethods.fetchElement(driver, Constants_FRMWRK.FindElementByXPATH, "//table[@summary='"+containerName+"']");
+		WebElement webtableElement=ExplicitWaitUtil.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, "//table[@summary='"+containerName+"']",Constants_TimeOuts.Element_TimeOut);
 		if(webtableElement==null){
 			Reporting.logStep(driver, Step, "Webtable-"+ containerName+" is not displayed on the page", Constants_FRMWRK.Fail);
 			flag=Constants_FRMWRK.False;
@@ -581,7 +580,7 @@ do{
 		String rowNumber="row";
 		int rowCount=0;
 
-		WebElement webtableElement=ElementMethods.fetchElement(driver, Constants_FRMWRK.FindElementByXPATH, "//table[@summary='"+containerName+"']");
+		WebElement webtableElement=ExplicitWaitUtil.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, "//table[@summary='"+containerName+"']",Constants_TimeOuts.Element_TimeOut);
 		if(webtableElement==null){
 			Reporting.logStep(driver, Step, "Webtable-"+ containerName+" is not displayed on the page", Constants_FRMWRK.Fail);
 			flag=Constants_FRMWRK.False;
@@ -650,7 +649,7 @@ do{
 		String rowNumber="row";
 		int rowCount=0;		
 
-		WebElement webtableElement=ElementMethods.fetchElement(driver, Constants_FRMWRK.FindElementByXPATH, "//table[@summary='"+containerName+"']");
+		WebElement webtableElement=ExplicitWaitUtil.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, "//table[@summary='"+containerName+"']",Constants_TimeOuts.Element_TimeOut);
 		if(webtableElement==null){
 			Reporting.logStep(driver, Step, "Webtable-"+ containerName+" is not displayed on the page", Constants_FRMWRK.Fail);
 			flag=Constants_FRMWRK.False;
