@@ -34,37 +34,7 @@ import com.report.reporter.Reporting;
 public class ApplicationMethods extends TestBase{
 
 
-	/**
-	 * Logs into the application with the given user credentials
-	 * @param driver
-	 * @param userName
-	 * @param password
-	 * @return
-	 * @throws Throwable
-	 */
-	public static String logIntoApplication(WebDriver driver,String browser,String url,String userName,String password) throws Throwable{
-		String flag=Constants_FRMWRK.False;
-		if(browser.equalsIgnoreCase("Chrome")||browser.equalsIgnoreCase("firefox") ){
-			url="http://"+userName+":"+password+"@"+url;			
-			PopUpUtil.checkDefaultPopup(driver, "Login User Authentication popup-Confirmation", "ok");			
-			commonMethods.navigateURL(driver,url);
-			Reporting.logStep(driver, "Login User credentails", "Successfully entered username and password "+userName+"-"+password, Constants_FRMWRK.Pass);
-		}else if (browser.equalsIgnoreCase("ie")){
-			url="http://"+url;
-			commonMethods.navigateURL(driver,url);
-			String title=driver.getTitle();
-			commonMethods.ie_Certification(driver);
-			Dialogs.userAuthentication(driver,browser,url,title, userName, password);
-			//Dialogs.userAuth(CONFIG.getProperty("userDomain"),userName,password);
-		}
 
-		PageLoadWaitUtil.waitForPageToLoad(driver);
-
-		/*	Dialogs.userAuthentication(browser, userName, password);*/		
-
-		flag=Constants_FRMWRK.True;
-		return flag;
-	}
 	/**
 	 * Launches required browser and logs into the application with given credentails
 	 * @param browserType
@@ -79,7 +49,6 @@ public class ApplicationMethods extends TestBase{
 		WebDriver driver = null;
 		browserName=browser;
 		String httpProtocol="https://";
-		//driver=Driver.launchBrowser(browser);
 		driver=Driver.launchBrowser(browser);
 		LocalDriverManager.setWebDriver(driver);
 		driver=LocalDriverManager.getDriver();
@@ -169,7 +138,15 @@ public class ApplicationMethods extends TestBase{
 		return flag;
 	}
 
-
+	/**
+	 * Logs out from the application , closes the driver instance & kills the processes
+	 * @author shaikk
+	 * @param driver
+	 * @param refid
+	 * @param testcasename
+	 * @return
+	 * @throws Throwable
+	 */
 	public static String logOutFromApplicationAndcloseBrowser(WebDriver driver,String refid,String testcasename) throws Throwable{
 		WaitUtil.pause(2);
 		String flag=Constants_FRMWRK.True;	
@@ -181,7 +158,13 @@ public class ApplicationMethods extends TestBase{
 		Driver.close(driver,browserName);
 		return flag;
 	}
-
+	/**
+	 * closes all pop-up windows displayed
+	 * @author shaikk
+	 * @param driver
+	 * @param refID
+	 * @param testcaseName
+	 */
 	public static void closeAllDialogs(WebDriver driver,String refID,String testcaseName){
 		int counter=1;
 		commonMethods.switchToDefaultPage(driver);
@@ -233,9 +216,14 @@ public class ApplicationMethods extends TestBase{
 				}
 			}
 		}
-				
-	}
 
+	}
+	/**
+	 * fetches the frame count from the page displayed
+	 * @author shaikk
+	 * @param driver
+	 * @return
+	 */
 	public static int getApplicationFrameCount(WebDriver driver){
 		int flag=0;
 		commonMethods.switchToDefaultPage(driver);
@@ -245,6 +233,13 @@ public class ApplicationMethods extends TestBase{
 		}
 		return flag;
 	}
+	/**
+	 * Switches to latest frame displayed
+	 * @author shaikk
+	 * @param driver
+	 * @param testcasename
+	 * @throws Throwable
+	 */
 	public static void switchToLatestDLGframe(WebDriver driver,String testcasename) throws Throwable{
 		String frameName;
 		WaitUtil.pause(2);
@@ -261,7 +256,12 @@ public class ApplicationMethods extends TestBase{
 
 
 	}
-
+	/**
+	 * Fetches the site name
+	 * @author shaikk
+	 * @param url
+	 * @return
+	 */
 	public static String getSiteName(String url){
 		String flag;
 		if(url.contains(Constants.App_Fluid)){
@@ -271,16 +271,26 @@ public class ApplicationMethods extends TestBase{
 		}
 		return flag;	
 	}
-
+	/**
+	 * Waits for Overlay to disappear
+	 * @author shaikk
+	 * @param driver
+	 */
 	public static void waitForOverlayToDisappear(WebDriver driver){
 		commonMethods.switchToDefaultPage(driver);
 		boolean tt=ExplicitWaitUtil.waitUntilInvisibilityOfElement(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.overlay_working, Constants_TimeOuts.Overlay_disappear);
 		System.out.println("Overlay Working on it.. invisibility.."+tt);
 	}
-	
+	/**
+	 * fetches subsite from the url
+	 * @author shaikk
+	 * @param mainSite
+	 * @param subsiteName
+	 * @return
+	 */
 	public static String getSubsite(String mainSite,String subsiteName){
 		String patternSubsite="/SitePages";
 		return mainSite.replaceAll(patternSubsite, "/"+subsiteName+patternSubsite);
-		
+
 	}
 }
