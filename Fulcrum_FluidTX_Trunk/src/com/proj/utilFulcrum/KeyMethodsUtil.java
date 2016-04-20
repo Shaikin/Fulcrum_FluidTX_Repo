@@ -12,6 +12,7 @@ import com.frw.Constants.Constants_FRMWRK;
 import com.frw.util.FetchWebElement;
 import com.frw.util.PageLoadWaitUtil;
 import com.frw.util.WaitUtil;
+import com.frw.wait.ExplicitWaitUtil;
 import com.proj.Constants.Constants_TimeOuts;
 import com.proj.base.TestBase;
 import com.proj.library.commonMethods;
@@ -30,7 +31,7 @@ public class KeyMethodsUtil extends TestBase{
 	 * @param input
 	 * @return input for success , error details for error and false for no item
 	 */
-	
+
 	public static String js_selectItem(WebDriver driver,String workFlow,String step,String itemsXpath,String input){
 		String flag=Constants_FRMWRK.False;
 		step=workFlow+" Select Item from dropdown list for "+step;
@@ -38,7 +39,7 @@ public class KeyMethodsUtil extends TestBase{
 		int rowCount=0;
 		Hashtable<String,String> dropdownItems=new Hashtable<String,String>();
 
-		List<WebElement>elements=FetchWebElement.visibleElementsList(driver, Constants_FRMWRK.FindElementByXPATH, itemsXpath);
+		List<WebElement>elements=ExplicitWaitUtil.waitForVisibilityOfElements(driver, Constants_FRMWRK.FindElementByXPATH, itemsXpath, Constants_TimeOuts.Element_TimeOut);
 
 		if(elements.size()!=0){
 			for (WebElement element:elements){
@@ -58,9 +59,10 @@ public class KeyMethodsUtil extends TestBase{
 							break;
 						}catch (StaleElementReferenceException st){
 							logsObj.log("js_selectItem:- Item "+actualtext+" is located but unable to click due to state error, will rerun again");
-							js_selectItem(driver, workFlow, step, itemsXpath, input);
+							flag=js_selectItem_stale(driver, workFlow, step, itemsXpath, input);
+							return flag;
 						}
-						
+
 					}catch(Throwable t){
 						isTestPass=Constants_FRMWRK.FalseB;
 						logsObj.logError("js_selectItem:- Item "+actualtext+" is located but unable to click due to error", t);
@@ -78,21 +80,21 @@ public class KeyMethodsUtil extends TestBase{
 		}
 		return flag;
 	}
-	
-	
-	
+
+
+
 	public static String js_selectChoice(WebDriver driver,String workFlow,String step,String itemsXpath,String input){
 		String flag=Constants_FRMWRK.False;
 		step=workFlow+" Select Item from dropdown list for "+step;
 		String rowNumber="item-";
 		int rowCount=0;
 		String choiceItemsLocator="/div[1]/div/table/descendant :: tr";
-		
+
 		Hashtable<String,String> dropdownItems=new Hashtable<String,String>();
 		itemsXpath=itemsXpath.replaceAll("containereditableRegion", "containersuggestionsContainer");
 		itemsXpath=itemsXpath+choiceItemsLocator;
-		
-		
+
+
 		List<WebElement>elements=FetchWebElement.visibleElementsList(driver, Constants_FRMWRK.FindElementByXPATH, itemsXpath);
 		if(elements.size()!=0){
 			for (WebElement element:elements){
@@ -102,7 +104,7 @@ public class KeyMethodsUtil extends TestBase{
 					String[] comp_title=actualtext.split("\\[");
 					actualtext=comp_title[0];
 				}
-				
+
 				dropdownItems.put(rowNumber+Integer.toString(rowCount), actualtext);
 				if(actualtext.equals(input)){
 					try{
@@ -130,36 +132,36 @@ public class KeyMethodsUtil extends TestBase{
 
 		return flag;
 	}
-	
+
 	public static String enter_autoSuggestAndSelectChoice(WebDriver driver,String refID,String testcaseName,String workFlow,String Step,String locatorType, String objectType, String objectLocator,String input,WebElement element) throws Throwable{
 		String flag=Constants_FRMWRK.False;			
 		String generic_autosuggest_step="Enter Suggestion for ";
 		generic_autosuggest_step=workFlow+generic_autosuggest_step+Step;
 
-			//element.click();				
-			if(input.equalsIgnoreCase("Any")){
-				element.sendKeys(Keys.SPACE);
-				element.sendKeys(Keys.BACK_SPACE);
-				Reporting.logStep(driver, refID, generic_autosuggest_step, objectType+": "+objectLocator+" exists and the input value is Any hence entered Space & BackSpace to list all items available", Constants_FRMWRK.Pass);
-			}else{
-				element=FetchWebElement.waitForElement(driver,locatorType, objectLocator, Constants_TimeOuts.Element_TimeOut) ;
-				element.click();
-				WaitUtil.pause(300L);
-				element.clear();
-				WaitUtil.pause(300L);
-				element.sendKeys(new String[]{input});					
-				WaitUtil.pause(3);
-			}									    					
-			logsObj.log(testcaseName+"--> "+objectLocator+" exists and the value entered is "+input);
-			Reporting.logStep(driver, refID, generic_autosuggest_step, objectType+": "+objectLocator+" exists and the value entered is "+input, Constants_FRMWRK.Pass);
-			if(!input.equalsIgnoreCase("") ){					
-				PageLoadWaitUtil.waitForAjax(driver);
-				PageLoadWaitUtil.waitForPageToLoad(driver);
-				WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);
-				flag=KeyMethodsUtil.js_selectChoice(driver, workFlow, Step, objectLocator, input);
-			}
-			
-			return flag;
+		//element.click();				
+		if(input.equalsIgnoreCase("Any")){
+			element.sendKeys(Keys.SPACE);
+			element.sendKeys(Keys.BACK_SPACE);
+			Reporting.logStep(driver, refID, generic_autosuggest_step, objectType+": "+objectLocator+" exists and the input value is Any hence entered Space & BackSpace to list all items available", Constants_FRMWRK.Pass);
+		}else{
+			element=FetchWebElement.waitForElement(driver,locatorType, objectLocator, Constants_TimeOuts.Element_TimeOut) ;
+			element.click();
+			WaitUtil.pause(300L);
+			element.clear();
+			WaitUtil.pause(300L);
+			element.sendKeys(new String[]{input});					
+			WaitUtil.pause(3);
+		}									    					
+		logsObj.log(testcaseName+"--> "+objectLocator+" exists and the value entered is "+input);
+		Reporting.logStep(driver, refID, generic_autosuggest_step, objectType+": "+objectLocator+" exists and the value entered is "+input, Constants_FRMWRK.Pass);
+		if(!input.equalsIgnoreCase("") ){					
+			PageLoadWaitUtil.waitForAjax(driver);
+			PageLoadWaitUtil.waitForPageToLoad(driver);
+			WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);
+			flag=KeyMethodsUtil.js_selectChoice(driver, workFlow, Step, objectLocator, input);
+		}
+
+		return flag;
 	}
 	public static String enter_autosuggest_browse(WebDriver driver,String testcasename,String workFlow,String step,String input,WebElement element) throws Throwable{
 		String flag=Constants_FRMWRK.False;
@@ -178,7 +180,7 @@ public class KeyMethodsUtil extends TestBase{
 				WebElement choice=FetchWebElement.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, ".//*[text()='"+input+"']", Constants_TimeOuts.Element_TimeOut);
 				choice.click();				
 				try{
-					
+
 					WebElement select=FetchWebElement.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.choice_select, Constants_TimeOuts.Element_TimeOut);
 					select.click();			
 					WaitUtil.pause(500L);
@@ -191,7 +193,7 @@ public class KeyMethodsUtil extends TestBase{
 						isTestPass=Constants_FRMWRK.FalseB;
 						Reporting.logStep(driver, step, "enter_autosuggest_browse: Unable to click on the ok button due to error"+commonMethods.getStackTrace(tttt), Constants_FRMWRK.Fail);
 					}
-					
+
 				}catch(Throwable ttt){
 					isTestPass=Constants_FRMWRK.FalseB;
 					Reporting.logStep(driver, step, "enter_autosuggest_browse: Unable to click on the select button due to error"+commonMethods.getStackTrace(ttt), Constants_FRMWRK.Fail);
@@ -210,11 +212,11 @@ public class KeyMethodsUtil extends TestBase{
 		}
 		return flag;
 	}
-	
+
 	public static String isDisabledWithAttr(WebDriver driver,String refID,String testcaseName,String workFlow,String Step,String locatorType, String objectType, String objectLocator,String input,WebElement element) throws Throwable{
 		String flag=Constants_FRMWRK.False;
 		String generic_Step="Check Element is disabled ";
-		
+
 		Step=workFlow+generic_Step+Step;
 
 		try{
@@ -228,7 +230,7 @@ public class KeyMethodsUtil extends TestBase{
 				logsObj.log(testcaseName+"--> "+objectLocator+" exists and but not disabled & status is "+isEnabled);
 				Reporting.logStep(driver, refID, Step,  objectType+": "+objectLocator+" exists and but not disabled & status is  "+String.valueOf(isEnabled), Constants_FRMWRK.Fail);
 			}
-			
+
 		}catch (StaleElementReferenceException st)	{
 			logsObj.logError("Stale exits for the element-"+objectLocator,st);
 			String isEnabled=element.getAttribute("class");
@@ -244,6 +246,49 @@ public class KeyMethodsUtil extends TestBase{
 		}
 		return flag;
 	}
-	
+	public static String js_selectItem_stale(WebDriver driver,String workFlow,String step,String itemsXpath,String input){
+		String flag=Constants_FRMWRK.False;
+		step=workFlow+" Select Item from dropdown list for "+step;
+		String rowNumber="item-";
+		int rowCount=0;
+		Hashtable<String,String> dropdownItems=new Hashtable<String,String>();
+
+
+		List<WebElement>elements=ExplicitWaitUtil.waitForVisibilityOfElements(driver, Constants_FRMWRK.FindElementByXPATH, itemsXpath, Constants_TimeOuts.Element_TimeOut);
+		if(elements.size()!=0){
+			for (WebElement element:elements){
+
+				String actualtext=element.getText();
+				dropdownItems.put(rowNumber+Integer.toString(rowCount), actualtext);
+				if(actualtext.equals(input)){
+					try{
+						logsObj.log("js_selectItem_stale:- actual item text-"+actualtext+"matches with expected item text-"+input+" next is click..");
+
+						WaitUtil.pause(1);
+						element.click();
+						logsObj.log("js_selectItem_stale:- actual item text-"+actualtext+"matches with expected item text-"+input+" and clicked..");
+						flag=actualtext;							
+						logsObj.log("js_selectItem_stale:- actual item text-"+actualtext+"matches with expected item text-"+input+" and gettext is "+flag);
+						Reporting.logStep(driver, refID, step, "js_selectItem_stale:- Item "+actualtext+" is located and clicked after recovering stale ", Constants_FRMWRK.Warning);
+						break;
+
+
+					}catch(Throwable t){
+						isTestPass=Constants_FRMWRK.FalseB;
+						logsObj.logError("js_selectItem_stale:- Item "+actualtext+" is located but unable to click due to error", t);
+						Reporting.logStep(driver, refID, step, "js_selectItem_stale:- Item "+actualtext+" is located but unable to click due to error"+ t, Constants_FRMWRK.Fail);
+					}
+
+				}
+			}
+			if (flag.equalsIgnoreCase(Constants_FRMWRK.False)){
+				Reporting.logStep(driver, refID, step, "js_selectItem_stale:- Item "+input+" is not listed , the complete item list available is: "+dropdownItems, Constants_FRMWRK.Fail);
+			}
+		}else{
+			isTestPass=Constants_FRMWRK.FalseB;
+			Reporting.logStep(driver, refID, step, "js_selectItem_stale:- Item "+input+" is not listed as there are no items for the dropdown_jqx", Constants_FRMWRK.Fail);
+		}
+		return flag;
+	}
 
 }
