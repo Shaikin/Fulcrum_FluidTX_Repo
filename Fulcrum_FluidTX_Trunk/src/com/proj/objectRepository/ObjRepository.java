@@ -8,6 +8,9 @@ public class ObjRepository {
 	public static String button_login_LoginBeforeCredentials=".//*[@class='realme_button_padding']";
 	public static String button_login_Login="logon:logon";	
 	
+	//Homepage
+	public static String homePage_element="ms-microbloginputbox";
+	
 	//Overlays
 	public static String heading_working=".//*[@title='Working on it...']";
 	public static String overlay_working=".//*[text()='Working on it...']";
@@ -45,7 +48,7 @@ public class ObjRepository {
 	public static String grid_nextButton=".//*[@id='pagingWPQ2next']/a";
 	
 	//close
-	public static String icon_close="//*[@title='Close dialog']";
+	public static String icon_close="//*[@title='Close dialog']";	
 	//Cookies popup
 	
 
