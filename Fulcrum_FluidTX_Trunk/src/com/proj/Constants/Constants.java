@@ -81,6 +81,7 @@ public class Constants {
 	public static final String objectType_TextboxgetValue="textbox_getvalue";
 	public static final String objectType_Link="link";
 	public static final String objectType_WebElement="webelement";
+	public static final String objectType_element_enable="ELEMENT_ENABLE";
 	
 	//common buttons
 	public static final String ok="OK";
