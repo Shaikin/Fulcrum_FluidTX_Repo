@@ -71,6 +71,7 @@ public class ApplicationMethods extends TestBase{
 			}	
 			Dialogs.userAuthentication(driver,browser,url,title, CONFIG.getProperty("userDomain")+"\\"+userName, password);
 			Reporting.logStep(driver, "LATFLD-32","Login into application", "IE-Log into the application -User Authenication", "Successfully able to log into the application with user credentials "+CONFIG.getProperty("userDomain")+"\\"+userName+"--"+password, Constants_FRMWRK.Pass);
+			waitforHomePage();			
 		}
 		try{
 			PageLoadWaitUtil.waitForPageToLoad(driver);
@@ -292,5 +293,9 @@ public class ApplicationMethods extends TestBase{
 		String patternSubsite="/SitePages";
 		return mainSite.replaceAll(patternSubsite, "/"+subsiteName+patternSubsite);
 
+	}
+
+	private static void waitforHomePage() throws Exception{
+		ExplicitWaitUtil.waitForElementTobeActionable(LocalDriverManager.getDriver(), Constants_FRMWRK.FindElementByID, ObjRepository.homePage_element, Constants_TimeOuts.Page_TimeOut);
 	}
 }
