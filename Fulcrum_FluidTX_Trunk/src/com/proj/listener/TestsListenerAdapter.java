@@ -3,31 +3,26 @@ package com.proj.listener;
 
 
 import java.io.IOException;
+import java.util.Hashtable;
 
 import org.testng.IInvokedMethod;
-
 import org.testng.IInvokedMethodListener;
-
 import org.testng.ISuite;
-
 import org.testng.ISuiteListener;
-
 import org.testng.ITestContext;
-
 import org.testng.ITestListener;
-
 import org.testng.ITestNGMethod;
-
 import org.testng.ITestResult;
-
 import org.testng.Reporter;
 
+import com.frw.Constants.Constants_FRMWRK;
 import com.proj.base.TestBase;
+import com.proj.util.TestExecutionUtil;
 
 public class TestsListenerAdapter implements ITestListener, ISuiteListener, IInvokedMethodListener {
-
-	// This belongs to ISuiteListener and will execute before the Suite start
-
+private String beforeMethodName="befMethod";
+	
+// This belongs to ISuiteListener and will execute before the Suite start
 	@Override
 
 	public void onStart(ISuite arg0) {
@@ -62,7 +57,7 @@ public class TestsListenerAdapter implements ITestListener, ISuiteListener, IInv
 		TestBase.logsObj.log("About to begin executing of the test :- " + arg0.getName());
 		TestBase.logsObj.log("================================================");
 		Reporter.log("About to begin executing of the test :-" + arg0.getName(), true);
-
+		TestBase.scenarioName=arg0.getName();
 	}
 
 	// This belongs to ITestListener and will execute, once the Test set/batch is finished
@@ -97,11 +92,31 @@ public class TestsListenerAdapter implements ITestListener, ISuiteListener, IInv
 
 	// This belongs to ITestListener and will execute before the main test start (@Test)
 
+	@SuppressWarnings("unchecked")
 	public void onTestStart(ITestResult arg0) {
-
+		String tc="";
 		System.out.println("Test method:-"+arg0.getName()+" of the test is started..");
 		TestBase.logsObj.log("Test method:-"+arg0.getName()+" of the test is started..");
-
+		Object[] parms=arg0.getParameters();
+		Hashtable<String,String>data=(Hashtable<String, String>) parms[0];
+		TestBase.refID=data.get("RefID");
+		tc=data.get("IssueReason");
+		
+		if(!data.get("AttachDocumentName").equalsIgnoreCase("")){
+			tc=tc+" with Attachment";
+		}else{
+			tc=tc+" without Attachment";
+		}
+		
+		if(!data.get("Action-Level2").equalsIgnoreCase("")){
+			tc=tc+"-"+data.get("Action-Level2");
+		}
+		
+		if(!data.get("Action-Level3").equalsIgnoreCase("")){
+			tc=tc+"-"+data.get("Action-Level3");
+		}
+		TestBase.testcaseName=tc;
+		//TestBase.testcaseName=data.get("IssueReason")+"-"+data.get("Action-Level2");
 	}
 
 	// This belongs to ITestListener and will execute only if any of the main test(@Test) get skipped
@@ -171,7 +186,11 @@ public class TestsListenerAdapter implements ITestListener, ISuiteListener, IInv
 	public void beforeInvocation(IInvokedMethod arg0, ITestResult arg1) {
 
 		String textMsg = "About to begin executing following method : " + returnMethodName(arg0.getTestMethod());
-
+		
+		if(returnMethodName(arg0.getTestMethod()).contains(beforeMethodName)){
+			TestBase.isTestPass=Constants_FRMWRK.TrueB;
+			TestExecutionUtil.initialiseTestFlags(TestBase.testcaseName);
+		}
 		Reporter.log(textMsg, true);
 
 	}
