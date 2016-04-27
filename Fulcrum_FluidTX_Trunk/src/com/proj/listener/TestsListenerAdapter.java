@@ -21,6 +21,8 @@ import com.proj.util.TestExecutionUtil;
 
 public class TestsListenerAdapter implements ITestListener, ISuiteListener, IInvokedMethodListener {
 private String beforeMethodName="befMethod";
+private String afterMethodName="aftMethod";
+public static boolean isScenarionPass;
 	
 // This belongs to ISuiteListener and will execute before the Suite start
 	@Override
@@ -58,6 +60,7 @@ private String beforeMethodName="befMethod";
 		TestBase.logsObj.log("================================================");
 		Reporter.log("About to begin executing of the test :-" + arg0.getName(), true);
 		TestBase.scenarioName=arg0.getName();
+		isScenarionPass=Constants_FRMWRK.TrueB;
 	}
 
 	// This belongs to ITestListener and will execute, once the Test set/batch is finished
@@ -191,6 +194,13 @@ private String beforeMethodName="befMethod";
 			TestBase.isTestPass=Constants_FRMWRK.TrueB;
 			TestExecutionUtil.initialiseTestFlags(TestBase.testcaseName);
 		}
+		else if(returnMethodName(arg0.getTestMethod()).contains(afterMethodName)){
+			if(TestBase.isTestPass==Constants_FRMWRK.FalseB && isScenarionPass==Constants_FRMWRK.TrueB){
+				isScenarionPass=Constants_FRMWRK.FalseB;
+			}
+		}
+			
+		
 		Reporter.log(textMsg, true);
 
 	}
