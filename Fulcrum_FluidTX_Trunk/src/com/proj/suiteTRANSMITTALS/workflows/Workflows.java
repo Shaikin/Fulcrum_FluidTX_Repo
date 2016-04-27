@@ -208,9 +208,9 @@ System.out.println();
             }
 			transmittalData.put("Tramsmittals-Subject", subj);
 			MyInboxAndActionRequiredPage_FluidTx.validate_TxComplete_StatusAndStatus(driver,validationPage ,workflow_l3, transmittalData,testData);
-			Transmittals_EntryPage.verifyAttachedFiles(siteName,driver, workflow_l3, refID, workflow_l3, testData);
+			Transmittals_EntryPage.verifyAttachedFiles(siteName,driver, testcasename, refID, workflow_l3, testData);
 
-			Transmittals_EntryPage.switchToTramsmittalEditFrame(driver, refID, testcaseName, workflow_l3);
+			Transmittals_EntryPage.switchToTramsmittalEditFrame(driver, refID, testcasename, workflow_l3);
 			Transmittals_EntryPage.clickCompleteAction(driver, workflow_l3);
 			Transmittals_EntryPage.editAndSubmitTransmittalRecord(ApplicationMethods.getSiteName(url),driver, refID, testcaseName, workflow_l3, transmittalData,testData.get("Action-Level3"));
 			getResult=MyInboxAndActionRequiredPage_FluidTx.validate_TxComplete_StatusAndStatus(driver, Constants_Workflow.page_myInbox,workflow_l3, transmittalData,testData.get("Action-Level3"));
