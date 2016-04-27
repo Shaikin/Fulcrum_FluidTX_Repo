@@ -14,6 +14,7 @@ import com.proj.base.TestBase;
 import com.proj.library.Driver;
 import com.proj.library.LocalDriverManager;
 import com.proj.library.commonMethods;
+import com.proj.listener.TestsListenerAdapter;
 import com.proj.util.CustomExceptions;
 import com.proj.util.TestExecutionUtil;
 import com.proj.utilFulcrum.ApplicationMethods;
@@ -82,7 +83,7 @@ public class TestSuiteBase extends TestBase {
 				logsObj.log(" after test of "+testcaseName+"-AfterTest successful");			
 			}
 			else {
-				TestExecutionUtil.resultTest(isTestPass,suiteTRNSxls, testcaseName);
+				TestExecutionUtil.resultTest(TestsListenerAdapter.isScenarionPass,suiteTRNSxls, scenarioName);
 				commonMethods.cleanProcess(LocalDriverManager.getDriver(), browserName);
 			}
 		} catch (Throwable t) {
