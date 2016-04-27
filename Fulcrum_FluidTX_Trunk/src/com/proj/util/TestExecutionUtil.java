@@ -67,15 +67,15 @@ public class TestExecutionUtil extends TestBase{
 		
 		
 		//***********************   update the test case sheet with Pass/Fail ************************************************
-		public static void resultTest(boolean isTestPass,Xls_Reader xls,String testcaseName){
+		public static void resultTest(boolean isTestPass,Xls_Reader xls,String scenarioname){
 			testEndDateTime=dateObj.getFormattedDate();				
 			if (!isTestPass){
-				TestExecutionUtil.reportDataSetResult(xls, Constants_FRMWRK.TC_SHEET_NAME, TestExecutionUtil.get_testcaseRowNum(xls, testcaseName), Constants_FRMWRK.Fail);
-				logsObj.log(testcaseName+" result in the excel sheet is marked as Fail");
+				TestExecutionUtil.reportDataSetResult(xls, Constants_FRMWRK.TC_SHEET_NAME, TestExecutionUtil.get_testcaseRowNum(xls, scenarioname), Constants_FRMWRK.Fail);
+				logsObj.log("Scenario "+scenarioname+" result in the excel sheet is marked as Fail");
 				SuiteStatus=Constants_FRMWRK.Fail;
 			}else{
 				TestExecutionUtil.reportDataSetResult(xls, Constants_FRMWRK.TC_SHEET_NAME, TestExecutionUtil.get_testcaseRowNum(xls, testcaseName), Constants_FRMWRK.Pass);
-				logsObj.log(testcaseName+" result in the excel sheet is marked as Pass");
+				logsObj.log("Scenario "+scenarioname+" result in the excel sheet is marked as Pass");
 			}
 			WaitUtil.pause(200L);
 			Reporting.logTestSummaryStep(testStartDateTime, testEndDateTime);
