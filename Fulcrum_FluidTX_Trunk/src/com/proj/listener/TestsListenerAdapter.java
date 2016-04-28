@@ -20,11 +20,10 @@ import com.proj.base.TestBase;
 import com.proj.util.TestExecutionUtil;
 
 public class TestsListenerAdapter implements ITestListener, ISuiteListener, IInvokedMethodListener {
-private String beforeMethodName="befMethod";
-private String afterMethodName="aftMethod";
-public static boolean isScenarionPass;
-	
-// This belongs to ISuiteListener and will execute before the Suite start
+	private String beforeMethodName="befMethod";
+	public static boolean isScenarionPass;
+
+	// This belongs to ISuiteListener and will execute before the Suite start
 	@Override
 
 	public void onStart(ISuite arg0) {
@@ -66,7 +65,7 @@ public static boolean isScenarionPass;
 	// This belongs to ITestListener and will execute, once the Test set/batch is finished
 
 	public void onFinish(ITestContext arg0) {
-		
+
 		if(TestBase.isTestPass==Constants_FRMWRK.FalseB && isScenarionPass==Constants_FRMWRK.TrueB){
 			isScenarionPass=Constants_FRMWRK.FalseB;
 		}		
@@ -107,21 +106,32 @@ public static boolean isScenarionPass;
 		Object[] parms=arg0.getParameters();
 		Hashtable<String,String>data=(Hashtable<String, String>) parms[0];
 		TestBase.refID=data.get("RefID");
-		tc=data.get("IssueReason");
-		
-		if(!data.get("AttachDocumentName").equalsIgnoreCase("")){
-			tc=tc+" with Attachment";
+		if(data.get("IssueReason")!=null){
+			tc=data.get("IssueReason");			
 		}else{
-			tc=tc+" without Attachment";
+			tc=TestBase.scenarioName;
 		}
-		
-		if(!data.get("Action-Level2").equalsIgnoreCase("")){
-			tc=tc+"-"+data.get("Action-Level2");
+
+		if(data.get("AttachDocumentName")!=null){
+			if(!data.get("AttachDocumentName").equalsIgnoreCase("")){
+				tc=tc+" with Attachment";
+			}else{
+				tc=tc+" without Attachment";
+			}
 		}
-		
-		if(!data.get("Action-Level3").equalsIgnoreCase("")){
-			tc=tc+"-"+data.get("Action-Level3");
+
+		if(data.get("Action-Level2")!=null){
+			if(!data.get("Action-Level2").equalsIgnoreCase("")){
+				tc=tc+"-"+data.get("Action-Level2");
+			}
 		}
+
+		if(data.get("Action-Level3")!=null){
+			if(!data.get("Action-Level3").equalsIgnoreCase("")){
+				tc=tc+"-"+data.get("Action-Level3");
+			}
+		}
+
 		TestBase.testcaseName=tc;
 		//TestBase.testcaseName=data.get("IssueReason")+"-"+data.get("Action-Level2");
 	}
@@ -193,14 +203,14 @@ public static boolean isScenarionPass;
 	public void beforeInvocation(IInvokedMethod arg0, ITestResult arg1) {
 
 		String textMsg = "About to begin executing following method : " + returnMethodName(arg0.getTestMethod());
-		
+
 		if(returnMethodName(arg0.getTestMethod()).contains(beforeMethodName)){
 			TestBase.isTestPass=Constants_FRMWRK.TrueB;
 			TestExecutionUtil.initialiseTestFlags(TestBase.testcaseName);
 		}
-		
-			
-		
+
+
+
 		Reporter.log(textMsg, true);
 
 	}
