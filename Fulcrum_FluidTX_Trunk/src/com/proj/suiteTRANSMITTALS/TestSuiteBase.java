@@ -80,15 +80,16 @@ public class TestSuiteBase extends TestBase {
 		try {
 			if (!isBeforeMethodPass_trans==Constants_FRMWRK.FalseB){
 				ApplicationMethods.logOutFromApplicationAndcloseBrowser(LocalDriverManager.getDriver(),refID,testcaseName);
-				TestExecutionUtil.resultTest(isTestPass,suiteTRNSxls, testcaseName);
+				TestExecutionUtil.resultTest(isTestPass,suiteTRNSxls, scenarioName,testcaseName);
 				logsObj.log(" after test of "+testcaseName+"-AfterTest successful");			
 			}
 			else {
-				TestExecutionUtil.resultTest(TestsListenerAdapter.isScenarionPass,suiteTRNSxls, scenarioName);
+				TestExecutionUtil.resultTest(isTestPass,suiteTRNSxls, scenarioName,testcaseName);
 				commonMethods.cleanProcess(LocalDriverManager.getDriver(), browserName);
 			}
 		} catch (Throwable t) {
-			TestExecutionUtil.resultTest(isTestPass,suiteTRNSxls, testcaseName);
+			commonMethods.cleanProcess(LocalDriverManager.getDriver(), browserName);
+			TestExecutionUtil.resultTest(isTestPass,suiteTRNSxls, scenarioName,testcaseName);
 			logsObj.log("Not able to logout to the application due to error "+t+" hence cannot continue execution of "+testcaseName);
 
 		}

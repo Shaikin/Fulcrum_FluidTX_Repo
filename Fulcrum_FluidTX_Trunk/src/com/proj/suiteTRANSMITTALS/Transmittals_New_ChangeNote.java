@@ -239,7 +239,7 @@ public class Transmittals_New_ChangeNote extends TestSuiteBase{
 
 	@AfterTest
 	public void Report_TestResult() throws Throwable{
-		TestExecutionUtil.resultTest(isTestPass,suiteTRNSxls, testcaseName);
+		TestExecutionUtil.resultTest(isTestPass,suiteTRNSxls,scenarioName, testcaseName);
 	}
 
 }
