@@ -155,18 +155,18 @@ public class Reporting extends TestBase{
 	 * @param testSrtTime
 	 * @param testEndTime
 	 */
-	public static void logTestSummaryStep(String testSrtTime,String testEndTime){
+	public static void logTestSummaryStep(boolean testStatus,String testSrtTime,String testEndTime,String scenarioname,String testcasename){
 		
 		if (CONFIG.getProperty("excelReporting").equalsIgnoreCase("YES")){
-			excelReportingObj.ReporterTestSummary(scenarioName, testcaseName, isTestPass, testSrtTime, testEndTime);
+			excelReportingObj.ReporterTestSummary(scenarioname, testcasename, testStatus, testSrtTime, testEndTime);
 		}
 		
 		if (CONFIG.getProperty("htmlReporting").equalsIgnoreCase("YES")){
 			String sts="Pass";
-			if(isTestPass==false){
+			if(testStatus==false){
 				sts="Fail";
 			}
-			htmlReportingObj.logTestStatus(htmlsummary_bfw,scenarioName, testcaseName, sts, testSrtTime, testEndTime);
+			htmlReportingObj.logTestStatus(htmlsummary_bfw,scenarioname, testcasename, sts, testSrtTime, testEndTime);
 		}
 		
 		
