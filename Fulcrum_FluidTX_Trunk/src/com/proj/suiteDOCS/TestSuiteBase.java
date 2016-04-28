@@ -4,6 +4,7 @@ package com.proj.suiteDOCS;
 import org.openqa.selenium.WebDriver;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
@@ -89,5 +90,9 @@ public class TestSuiteBase extends TestBase {
 
 		}
 	}
-
+	@AfterTest
+	public static void aftTest(){
+		logsObj.log("Aft Test "+scenarioName);
+		TestExecutionUtil.resultScenario(TestsListenerAdapter.isScenarionPass, suiteDOCSxls, scenarioName);
+	}
 }
