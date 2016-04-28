@@ -25,7 +25,7 @@ public class Documents_New extends TestSuiteBase{
 
 	private static boolean isBeforeTestPass=Constants_FRMWRK.TrueB;
 	private static boolean isBeforeMethodPass=Constants_FRMWRK.TrueB;
-	private static String worflow_upload="Uploading Document -";
+//	private static String worflow_upload="Uploading Document -";
 	@BeforeTest
 
 	public void testPrerequisite() throws Throwable{
@@ -98,7 +98,7 @@ public class Documents_New extends TestSuiteBase{
 
 	@AfterTest
 	public void Report_TestResult() throws Throwable{
-		TestExecutionUtil.resultTest(isTestPass,suiteDOCSxls, testcaseName);
+		TestExecutionUtil.resultTest(isTestPass,suiteDOCSxls,scenarioName, testcaseName);
 	}
 
 }
