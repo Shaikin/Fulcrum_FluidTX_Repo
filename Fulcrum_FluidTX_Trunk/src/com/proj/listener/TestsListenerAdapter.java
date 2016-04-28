@@ -66,6 +66,10 @@ public static boolean isScenarionPass;
 	// This belongs to ITestListener and will execute, once the Test set/batch is finished
 
 	public void onFinish(ITestContext arg0) {
+		
+		if(TestBase.isTestPass==Constants_FRMWRK.FalseB && isScenarionPass==Constants_FRMWRK.TrueB){
+			isScenarionPass=Constants_FRMWRK.FalseB;
+		}		
 		TestBase.logsObj.log("================================================");
 		TestBase.logsObj.log("Completed executing of the test:- " + arg0.getName());
 		TestBase.logsObj.log("================================================");
@@ -194,11 +198,7 @@ public static boolean isScenarionPass;
 			TestBase.isTestPass=Constants_FRMWRK.TrueB;
 			TestExecutionUtil.initialiseTestFlags(TestBase.testcaseName);
 		}
-		else if(returnMethodName(arg0.getTestMethod()).contains(afterMethodName)){
-			if(TestBase.isTestPass==Constants_FRMWRK.FalseB && isScenarionPass==Constants_FRMWRK.TrueB){
-				isScenarionPass=Constants_FRMWRK.FalseB;
-			}
-		}
+		
 			
 		
 		Reporter.log(textMsg, true);
