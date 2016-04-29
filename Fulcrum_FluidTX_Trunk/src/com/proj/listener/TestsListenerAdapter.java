@@ -21,6 +21,7 @@ import com.proj.util.TestExecutionUtil;
 
 public class TestsListenerAdapter implements ITestListener, ISuiteListener, IInvokedMethodListener {
 	private String beforeMethodName="befMethod";
+	private String afterMethodName="aftMethod";
 	public static boolean isScenarionPass;
 
 	// This belongs to ISuiteListener and will execute before the Suite start
@@ -66,13 +67,11 @@ public class TestsListenerAdapter implements ITestListener, ISuiteListener, IInv
 
 	public void onFinish(ITestContext arg0) {
 
-		if(TestBase.isTestPass==Constants_FRMWRK.FalseB && isScenarionPass==Constants_FRMWRK.TrueB){
-			isScenarionPass=Constants_FRMWRK.FalseB;
-		}		
+			
 		TestBase.logsObj.log("================================================");
 		TestBase.logsObj.log("Completed executing of the test:- " + arg0.getName());
 		TestBase.logsObj.log("================================================");
-		Reporter.log("Completed executing test:- " + arg0.getName(), true);
+		Reporter.log("Completed executing test:- " + arg0.getName(), true);	
 
 	}
 
@@ -209,7 +208,11 @@ public class TestsListenerAdapter implements ITestListener, ISuiteListener, IInv
 			TestExecutionUtil.initialiseTestFlags(TestBase.testcaseName);
 		}
 
-
+		if(returnMethodName(arg0.getTestMethod()).contains(afterMethodName)){
+			if(TestBase.isTestPass==Constants_FRMWRK.FalseB && isScenarionPass==Constants_FRMWRK.TrueB){
+				isScenarionPass=Constants_FRMWRK.FalseB;
+			}	
+		}
 
 		Reporter.log(textMsg, true);
 
