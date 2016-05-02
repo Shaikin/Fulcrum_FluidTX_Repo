@@ -55,7 +55,7 @@ public class Constants {
 	
 	
 	// Application Name 
-	public static final String App_Fluid="FluidTx7";
+	public static final String App_Fluid="FluidTx";
 	public static final String App_Fulcrum="Fulcrum";
 	
 	//Locator Types
