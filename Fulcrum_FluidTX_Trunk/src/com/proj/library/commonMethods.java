@@ -22,6 +22,7 @@ import com.frw.util.PageLoadWaitUtil;
 import com.frw.util.WaitUtil;
 import com.google.common.base.Throwables;
 import com.proj.Constants.Constants;
+import com.proj.Constants.Constants_TimeOuts;
 import com.proj.base.TestBase;
 import com.proj.util.CustomExceptions;
 import com.proj.util.ErrorUtil;
@@ -346,8 +347,9 @@ public class commonMethods extends TestBase{
 	
 	public static void pageLoadWait(WebDriver driver) throws Throwable{
 		try{
-			PageLoadWaitUtil.waitForPageToLoad(driver);
-			PageLoadWaitUtil.waitForAjax(driver);
+			/*PageLoadWaitUtil.waitForPageToLoad(driver);
+			PageLoadWaitUtil.waitForAjax(driver);*/
+			PageLoadWaitUtil.completePageLoad(driver, Constants_TimeOuts.Page_TimeOut);
 		}catch (Exception ex){
 			
 		}
