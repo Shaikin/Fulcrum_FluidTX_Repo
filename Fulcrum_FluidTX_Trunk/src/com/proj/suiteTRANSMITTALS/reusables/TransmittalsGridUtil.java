@@ -35,9 +35,9 @@ public class TransmittalsGridUtil extends TestSuiteBase{
 	 * @param workflow
 	 * @param subject
 	 * @return
-	 * @throws Exception
+	 * @throws Throwable 
 	 */
-	public static String searchSubjectAndOpenRecord(WebDriver driver,String page,String workflow,String subject) throws Exception{
+	public static String searchSubjectAndOpenRecord(WebDriver driver,String page,String workflow,String subject) throws Throwable{
 		String flag="";
 		flag=WebTableUtil.searchforDataInsearchColumnAndClickInactionableLinkColumn(driver, testcaseName, workflow+" "+page+" - Subject", ObjRepository.container_transmittals, subject,"Link",subject, 4, 4);
 		Transmittals_EntryPage.waitInvisiblilityofWorkingTitle(driver);
