@@ -1,8 +1,8 @@
 package com.proj.Constants;
 
 public class Constants_TimeOuts {
-	
-	final public static int Element_TimeOut=30;
+	final public static int Implicit_Element_TimeOut=5;
+	final public static int Element_TimeOut=20;
 	final public static int Save_TimeOut=5;
 	final public static int DBFetchData_TimeOut=1;
 	final public static int generic_TimeOut=1;
