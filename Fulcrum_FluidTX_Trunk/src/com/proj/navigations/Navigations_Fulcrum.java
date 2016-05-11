@@ -6,9 +6,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import com.frw.Constants.Constants_FRMWRK;
-import com.frw.util.FetchWebElement;
 import com.frw.util.WaitUtil;
 import com.frw.util.Xls_Reader;
+import com.frw.wait.ExplicitWaitUtil;
 import com.proj.Constants.Constants;
 import com.proj.Constants.Constants_TimeOuts;
 import com.proj.base.TestBase;
@@ -48,7 +48,7 @@ public class Navigations_Fulcrum extends TestBase{
 	public static String checkSubMenusDisplayed(WebDriver driver){
 		String flag=Constants_FRMWRK.False;
 
-		WebElement element=FetchWebElement.waitForElement(driver,Constants_FRMWRK.FindElementByXPATH, ObjRepository.container_subMenu, Constants_TimeOuts.generic_TimeOut) ;
+		WebElement element=ExplicitWaitUtil.waitForElement(driver,Constants_FRMWRK.FindElementByXPATH, ObjRepository.container_subMenu, Constants_TimeOuts.generic_TimeOut) ;
 		if(element!=null){
 			if(element.isDisplayed()==true){
 				WaitUtil.pause(1);
