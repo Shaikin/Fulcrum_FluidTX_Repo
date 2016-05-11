@@ -57,8 +57,6 @@ public class FLD_Transmittals_New_IssuedForReview extends TestSuiteBase{
 
 			//************************************** LEVEL 2 *****************************************************************************		
 			for (int userIteration=1 ;userIteration<= Transmittals_EntryPage.getRecieverUserCount(data);userIteration++){
-				System.out.println("user count" +Transmittals_EntryPage.getRecieverUserCount(data));
-
 				String username = "";
 				String password = "";
 

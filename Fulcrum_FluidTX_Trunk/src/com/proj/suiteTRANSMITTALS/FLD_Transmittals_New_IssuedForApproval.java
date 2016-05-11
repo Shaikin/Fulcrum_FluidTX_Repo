@@ -55,8 +55,7 @@ public class FLD_Transmittals_New_IssuedForApproval extends TestSuiteBase{
 			transmittalData=Workflows.Level1_Initaite_Transmittal(driver_TRANS, Constants_ConfigProperties.testSiteName, workflow_lvl1, data);
 
 			//************************************** LEVEL 2 *****************************************************************************		
-			for (int userIteration=1 ;userIteration<= Transmittals_EntryPage.getRecieverUserCount(data);userIteration++){
-				System.out.println("L2 user Count" +Transmittals_EntryPage.getRecieverUserCount(data));
+			for (int userIteration=1 ;userIteration<= Transmittals_EntryPage.getRecieverUserCount(data);userIteration++){				
 				String username = "";
 				String password = "";
 
