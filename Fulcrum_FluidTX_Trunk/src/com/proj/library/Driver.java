@@ -88,7 +88,7 @@ public class Driver extends TestBase{
 			logsObj.log("launching the "+browserType+" browser");
 		}				
 		commonMethods.getBrowserVersion(driver);
-		ImplicitWaitUtil.setImplicitWait(driver, Constants_TimeOuts.Element_TimeOut);
+		ImplicitWaitUtil.setImplicitWait(driver, Constants_TimeOuts.Implicit_Element_TimeOut);
 		driver.manage().timeouts().pageLoadTimeout(Constants_TimeOuts.Page_MAX_TimeOut, TimeUnit.SECONDS);
 
 		return driver;
