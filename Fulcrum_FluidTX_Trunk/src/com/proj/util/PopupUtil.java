@@ -12,8 +12,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import com.frw.Constants.Constants_FRMWRK;
-import com.frw.util.FetchWebElement;
+import com.frw.wait.ExplicitWaitUtil;
 import com.proj.Constants.Constants;
+import com.proj.Constants.Constants_TimeOuts;
 import com.proj.base.TestBase;
 import com.proj.library.KeyMethods;
 import com.proj.library.commonMethods;
@@ -87,7 +88,7 @@ public class PopupUtil extends TestBase{
 		{
 			String maximum="* Maximum "+"";
 
-			List<WebElement>msgs=FetchWebElement.FetchWebElements(driver, Constants_FRMWRK.FindElementByXPATH, messageLocator);
+			List<WebElement>msgs=ExplicitWaitUtil.waitForPresenceOfElements(driver, Constants_FRMWRK.FindElementByXPATH, messageLocator, Constants_TimeOuts.Element_TimeOut);
 			ArrayList<String> errmsg = new ArrayList<String>();
 			for(WebElement e: msgs)   
 				if (e.getText().startsWith(maximum))
