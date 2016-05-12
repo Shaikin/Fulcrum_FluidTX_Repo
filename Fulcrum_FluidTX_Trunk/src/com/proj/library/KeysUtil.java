@@ -13,7 +13,6 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.Select;
 
 import com.frw.Constants.Constants_FRMWRK;
-import com.frw.util.FetchWebElement;
 import com.frw.util.PageLoadWaitUtil;
 import com.frw.util.WaitUtil;
 import com.frw.wait.ExplicitWaitUtil;
@@ -21,7 +20,6 @@ import com.proj.Constants.Constants;
 import com.proj.Constants.Constants_TimeOuts;
 import com.proj.objectRepository.ObjRepository;
 import com.proj.utilFulcrum.KeyMethodsUtil;
-import com.proj.utilFulcrum.WebTableUtil;
 import com.report.reporter.Reporting;
 
 public class KeysUtil extends KeyMethods{
@@ -61,7 +59,7 @@ public class KeysUtil extends KeyMethods{
 
 		}catch(StaleElementReferenceException st){
 			logsObj.logError("Stale exits for the element-"+objectLocator,st);
-			element=FetchWebElement.waitForPresenceOfElement(driver,locatorType, objectLocator, Constants_TimeOuts.Element_TimeOut) ;
+			element=ExplicitWaitUtil.waitForPresenceOfElement(driver,locatorType, objectLocator, Constants_TimeOuts.Element_TimeOut) ;
 			element.clear();	
 			element.sendKeys(input);
 			logsObj.log(testcaseName+"--> "+objectLocator+" exists after stale and the value entered is "+input);
@@ -158,7 +156,7 @@ public class KeysUtil extends KeyMethods{
 			
 			}else{
 				objectLocator=objectLocator+ObjRepository.js_autosuggest_input;
-				element=FetchWebElement.waitForElement(driver,locatorType, objectLocator, Constants_TimeOuts.Element_TimeOut) ;
+				element=ExplicitWaitUtil.waitForElement(driver,locatorType, objectLocator, Constants_TimeOuts.Element_TimeOut) ;
 				element.click();
 				if(input.contains(Constants.delimiter_data)){
 					String[] ip=commonMethods.splitString(input, Constants.delimiter_data);
@@ -244,7 +242,7 @@ public class KeysUtil extends KeyMethods{
 			Reporting.logStep(driver, refID, Step,  objectType+": "+objectLocator+" exists and the text fetched is "+flag, Constants_FRMWRK.Pass);
 		}catch (StaleElementReferenceException st)	{
 			logsObj.logError("Stale exits for the element-"+objectLocator,st);
-			element=FetchWebElement.waitForPresenceOfElement(driver,locatorType, objectLocator, Constants_TimeOuts.Element_TimeOut) ;
+			element=ExplicitWaitUtil.waitForPresenceOfElement(driver,locatorType, objectLocator, Constants_TimeOuts.Element_TimeOut) ;
 			flag=element.getText();
 			logsObj.log(testcaseName+"--> "+objectLocator+" exists after stale and the text fetched is "+flag);
 			Reporting.logStep(driver, refID, Step,  objectType+": "+objectLocator+" exists after stale and the text fetched is  "+flag, Constants_FRMWRK.Pass);
@@ -277,7 +275,7 @@ public class KeysUtil extends KeyMethods{
 			Reporting.logStep(driver, refID, Step,  objectType+": "+objectLocator+" exists and the value fetched is "+flag, Constants_FRMWRK.Pass);
 		}catch (StaleElementReferenceException st)	{
 			logsObj.logError("Stale exits for the element-"+objectLocator,st);
-			element=FetchWebElement.waitForPresenceOfElement(driver,locatorType, objectLocator, Constants_TimeOuts.Element_TimeOut) ;
+			element=ExplicitWaitUtil.waitForPresenceOfElement(driver,locatorType, objectLocator, Constants_TimeOuts.Element_TimeOut) ;
 			flag=element.getAttribute("value");
 			logsObj.log(testcaseName+"--> "+objectLocator+" exists after stale and the value fetched is "+flag);
 			Reporting.logStep(driver, refID, Step,  objectType+": "+objectLocator+" exists after stale and the value fetched is  "+flag, Constants_FRMWRK.Pass);
@@ -347,8 +345,8 @@ public class KeysUtil extends KeyMethods{
 		String flag=Constants_FRMWRK.False;
 		String generic_Step="Upload/Browse a ";
 		Step=workFlow+generic_Step+Step;
-
-		element.sendKeys(input);					    					
+		
+		element.sendKeys(input);		
 		logsObj.log(testcaseName+"--> "+objectLocator+" exists and the value entered is "+input);
 		Reporting.logStep(driver, refID, Step,  objectType+": "+objectLocator+" exists and the value entered is  "+input, Constants_FRMWRK.Pass);
 		flag=input;
@@ -368,7 +366,7 @@ public class KeysUtil extends KeyMethods{
 		String generic_Step="Select an Item from dropdown ";
 		Step=workFlow+generic_Step+Step;
 
-		Select dropdown=FetchWebElement.waitForDropdownItems(driver, element, Constants_TimeOuts.Element_TimeOut);
+		Select dropdown=ExplicitWaitUtil.waitForDropdownItems(driver, element, Constants_TimeOuts.Element_TimeOut);
 		List<WebElement>dropdownList=dropdown.getOptions();
 
 		if (dropdownList.size()==0) {			       									
@@ -595,7 +593,7 @@ public class KeysUtil extends KeyMethods{
 
 		try{
 			logsObj.log("Get Grid row count for column under search");
-			List<WebElement> listOfItems=WebTableUtil.waitUntilAllVisible(driver,listLocator);
+			List<WebElement> listOfItems=ExplicitWaitUtil.waitForPresenceOfElements(driver, Constants_FRMWRK.FindElementByXPATH,listLocator,Constants_TimeOuts.Element_TimeOut);
 
 			WaitUtil.pause(100L);
 
