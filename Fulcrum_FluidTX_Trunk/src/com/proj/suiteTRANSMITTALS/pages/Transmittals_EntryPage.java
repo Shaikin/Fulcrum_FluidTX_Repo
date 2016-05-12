@@ -1,16 +1,11 @@
 package com.proj.suiteTRANSMITTALS.pages;
 
 import java.util.Hashtable;
-import java.util.List;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 
 import com.frw.Constants.Constants_FRMWRK;
 import com.frw.util.DateUtil;
-import com.frw.util.FetchElementBackUp;
-import com.frw.util.FetchWebElement;
 import com.frw.util.WaitUtil;
 import com.frw.util.Xls_Reader;
 import com.frw.wait.ExplicitWaitUtil;
@@ -18,11 +13,9 @@ import com.proj.Constants.Constants;
 import com.proj.Constants.Constants_TimeOuts;
 import com.proj.Constants.Constants_Workflow;
 import com.proj.library.KeyMethods;
-import com.proj.library.KeysUtil;
 import com.proj.library.commonMethods;
 import com.proj.objectRepository.ObjRepository;
 import com.proj.suiteTRANSMITTALS.TestSuiteBase;
-import com.proj.suiteTRANSMITTALS.reusables.TransmittalsGridUtil;
 import com.proj.util.CustomExceptions;
 import com.proj.util.fetchObjectRepository;
 import com.proj.utilFulcrum.ApplicationMethods;
@@ -298,7 +291,8 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 			returnData.put("Tramsmittals-Issue Reason", res);
 		}
 		String dueDate = null;
-		dueDate=getDueDate(appName);
+		dueDate=getDueDate(appName, data.get("Action-Level2"));
+		returnData.put("Action-Level2", data.get("Action-Level2"));
 		res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-DueDate", objects_locatorType_Transmittals, objects_objectType_Transmittals, objects_objectLocator_Transmittals, dueDate);
 		returnData.put("Tramsmittals-DueDate", res);
 		res=KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Tramsmittals-Message", objects_locatorType_Transmittals, objects_objectType_Transmittals, objects_objectLocator_Transmittals, data.get("Message"));
@@ -438,9 +432,7 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 	public static void attachdocument(String appName,WebDriver driver,String refid,String testcasename,String workflow,Hashtable<String,String>data) throws Throwable{
 		String condition="";
 		String condition_workFlow="";
-		ApplicationMethods.switchToLatestDLGframe(driver, testcasename);
-		res=KeyMethods.f_performAction(driver, refid, testcasename, workflow, "Tramsmittals-Edit", objects_locatorType_Transmittals_toolbar, objects_objectType_Transmittals_toolbar, objects_objectLocator_Transmittals_toolbar, input);
-		
+		clickEditTab(driver, refid, testcasename, workflow);
 		if(appName.equals(Constants.App_Fulcrum)){
 			condition=Constants_Workflow.Fulcrum_WorkFlow_Data_Condition;
 			condition_workFlow=Constants_Workflow.Fulcrim_WorkFlow_ConsultantAdvice;			
@@ -526,28 +518,42 @@ public class Transmittals_EntryPage extends TestSuiteBase{
 		}
 	}
 	
-	private static String getDueDateInUS(){
-		String dueDate;		
-		dueDate=DateUtil.getCurrentDateInRequiredDateFormat("MM/dd/yyyy");
-		dueDate=DateUtil.dateIncremterInUSFormat(dueDate, 2);
+	private static String getDueDateInUS(String action){
+		String dueDate;  
+		  dueDate=DateUtil.getCurrentDateInRequiredDateFormat("MM/dd/yyyy");
+		  if(action.equalsIgnoreCase("OverDue")){
+		   dueDate=DateUtil.dateIncremterInUSFormat(dueDate, -2);
+		  }else{
+		   dueDate=DateUtil.dateIncremterInUSFormat(dueDate, 2);
+		  }
 
 		return dueDate;
 	}
-	private static String getDueDateInNZ(){
-		String dueDate;		
+	private static String getDueDateInNZ(String action){
+		String dueDate;	
 		dueDate=DateUtil.getCurrentDateInRequiredDateFormat("dd/MM/yyyy");
-		dueDate=DateUtil.dateIncremterInNonUSFormat(dueDate, 2);
+		  if(action.equalsIgnoreCase("OverDue")){
+		   dueDate=DateUtil.dateIncremterInNonUSFormat(dueDate, -2);
+		  }else{
+		   dueDate=DateUtil.dateIncremterInNonUSFormat(dueDate, 2);
+		  } 
 
 		return dueDate;
 	}
 	
-	public static String getDueDate(String appName){
+	public static String getDueDate(String appName,String action){
 		String duedate;
 		if(appName.equalsIgnoreCase(Constants.App_Fulcrum)){
-			duedate=getDueDateInNZ();
+			duedate=getDueDateInNZ(action);
 		}else{
-			duedate=getDueDateInUS();
+			duedate=getDueDateInUS(action);
 		}
 		return duedate;
+	}
+	
+	private static void clickEditTab(WebDriver driver,String refid,String testcasename,String workflow) throws Throwable{
+		ApplicationMethods.switchToLatestDLGframe(driver, testcasename);
+		res=KeyMethods.f_performAction(driver, refid, testcasename, workflow, "Tramsmittals-Edit", objects_locatorType_Transmittals_toolbar, objects_objectType_Transmittals_toolbar, objects_objectLocator_Transmittals_toolbar, input);
+		
 	}
 }
