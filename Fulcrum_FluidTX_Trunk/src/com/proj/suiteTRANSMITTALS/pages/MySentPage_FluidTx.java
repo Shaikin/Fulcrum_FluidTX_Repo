@@ -27,20 +27,21 @@ public class MySentPage_FluidTx extends TestSuiteBase{
 		String subject = null;
 		String status = null;
 		String TxComplete_Status = null;
+		
 		if(data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForInformation)){
 			status="Completed";
 			TxComplete_Status="Closed";
 			subject=data.get("Tramsmittals-Subject");			
 		}
+		else if((!data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForInformation))&& data.get("Action-Level2").equalsIgnoreCase("Overdue")){
+			status="Overdue";
+			TxComplete_Status="Open";
+			subject=data.get("Tramsmittals-Subject");
+		}
 		else if (data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForReview)||data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_RequestForInformation)|| data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForApproval)){
 			status="Outstanding";
 			TxComplete_Status="Open";
 			subject=data.get("Tramsmittals-Subject");			
-		}
-		else if((!data.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForInformation))&& data.get("Action-Level2").equalsIgnoreCase("Forward")){
-			status="Open";
-			TxComplete_Status="Outstanding";
-			subject="FW:"+data.get("Tramsmittals-Subject");
 		}
 		WaitUtil.pause(Constants_TimeOuts.processToComplete);
 		Navigations_FluidTX.Transmittals.navigateToMysent(driver);
