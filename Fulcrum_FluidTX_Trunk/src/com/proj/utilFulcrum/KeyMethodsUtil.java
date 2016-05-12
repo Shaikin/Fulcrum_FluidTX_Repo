@@ -9,7 +9,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import com.frw.Constants.Constants_FRMWRK;
-import com.frw.util.FetchWebElement;
 import com.frw.util.PageLoadWaitUtil;
 import com.frw.util.WaitUtil;
 import com.frw.wait.ExplicitWaitUtil;
@@ -95,7 +94,7 @@ public class KeyMethodsUtil extends TestBase{
 		itemsXpath=itemsXpath+choiceItemsLocator;
 
 
-		List<WebElement>elements=FetchWebElement.visibleElementsList(driver, Constants_FRMWRK.FindElementByXPATH, itemsXpath);
+		List<WebElement>elements=ExplicitWaitUtil.waitForPresenceOfElements(driver, Constants_FRMWRK.FindElementByXPATH, itemsXpath,Constants_TimeOuts.Element_TimeOut);
 		if(elements.size()!=0){
 			for (WebElement element:elements){
 
@@ -144,7 +143,7 @@ public class KeyMethodsUtil extends TestBase{
 			element.sendKeys(Keys.BACK_SPACE);
 			Reporting.logStep(driver, refID, generic_autosuggest_step, objectType+": "+objectLocator+" exists and the input value is Any hence entered Space & BackSpace to list all items available", Constants_FRMWRK.Pass);
 		}else{
-			element=FetchWebElement.waitForElement(driver,locatorType, objectLocator, Constants_TimeOuts.Element_TimeOut) ;
+			element=ExplicitWaitUtil.waitForElement(driver,locatorType, objectLocator, Constants_TimeOuts.Element_TimeOut) ;
 			element.click();
 			WaitUtil.pause(300L);
 			element.clear();
@@ -172,20 +171,20 @@ public class KeyMethodsUtil extends TestBase{
 			try{
 				//commonMethods.switchToFrameFromDefault(driver, testcaseName, Constants_FRMWRK.FindElementByXPATH, ObjRepository.frame_double);
 				ApplicationMethods.switchToLatestDLGframe(driver,testcasename);
-				WebElement prvPage=FetchWebElement.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.choice_prvpage, Constants_TimeOuts.Element_TimeOut);
+				WebElement prvPage=ExplicitWaitUtil.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.choice_prvpage, Constants_TimeOuts.Element_TimeOut);
 				if(prvPage!=null && prvPage.isDisplayed()==true){
 					prvPage.click();
 					WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);
 				}
-				WebElement choice=FetchWebElement.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, ".//*[text()='"+input+"']", Constants_TimeOuts.Element_TimeOut);
+				WebElement choice=ExplicitWaitUtil.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, ".//*[text()='"+input+"']", Constants_TimeOuts.Element_TimeOut);
 				choice.click();				
 				try{
 
-					WebElement select=FetchWebElement.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.choice_select, Constants_TimeOuts.Element_TimeOut);
+					WebElement select=ExplicitWaitUtil.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.choice_select, Constants_TimeOuts.Element_TimeOut);
 					select.click();			
 					WaitUtil.pause(500L);
 					try{
-						WebElement ok=FetchWebElement.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.choice_ok, Constants_TimeOuts.Element_TimeOut);
+						WebElement ok=ExplicitWaitUtil.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.choice_ok, Constants_TimeOuts.Element_TimeOut);
 						ok.click();
 						Reporting.logStep(driver, step, "enter_autosuggest_browse: Able to select a choice "+input, Constants_FRMWRK.Pass);
 						flag=input;
