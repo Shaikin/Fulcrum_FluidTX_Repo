@@ -6,8 +6,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import com.frw.Constants.Constants_FRMWRK;
-import com.frw.util.FetchWebElement;
 import com.frw.util.WaitUtil;
+import com.frw.wait.ExplicitWaitUtil;
 import com.frw.wait.ImplicitWaitUtil;
 import com.proj.Constants.Constants_TimeOuts;
 import com.proj.base.TestBase;
@@ -41,10 +41,10 @@ public class KeyMethods extends TestBase{
 		{
 			WaitUtil.pause(100L);
 			if(!objectType.equalsIgnoreCase("SWITCHTOFRAMEFROMDEFAULT")){
-				element=FetchWebElement.waitForElement(driver,identifyBy, objectLocator, Constants_TimeOuts.Element_TimeOut) ;
+				element=ExplicitWaitUtil.waitForElement(driver,identifyBy, objectLocator, Constants_TimeOuts.Element_TimeOut) ;
 
 				if(element==null){
-					element=FetchWebElement.waitForPresenceOfElement(driver,identifyBy, objectLocator, 2);
+					element=ExplicitWaitUtil.waitForPresenceOfElement(driver,identifyBy, objectLocator, 2);
 				}
 
 			}
@@ -209,13 +209,13 @@ public class KeyMethods extends TestBase{
 		{
 			WaitUtil.pause(100L);
 			if(!objectType.equalsIgnoreCase("SWITCHTOFRAMEFROMDEFAULT")){
-				element=FetchWebElement.waitForElement(driver,identifyBy, objectLocator, Constants_TimeOuts.Element_TimeOut) ;
+				element=ExplicitWaitUtil.waitForElement(driver,identifyBy, objectLocator, Constants_TimeOuts.Element_TimeOut) ;
 
 				if(element==null){
-					element=FetchWebElement.waitForPresenceOfElement(driver,identifyBy, objectLocator, 2);
+					element=ExplicitWaitUtil.waitForPresenceOfElement(driver,identifyBy, objectLocator, 2);
 				}
 
-			}
+			}			
 
 			WaitUtil.pause(300L);
 			ObjectType str=ObjectType.valueOf(objectType.toUpperCase());
@@ -369,10 +369,10 @@ public class KeyMethods extends TestBase{
 		try 
 		{
 			WaitUtil.pause(100L);
-			element=FetchWebElement.waitForElement(driver,identifyBy, objectLocator, Constants_TimeOuts.Element_TimeOut) ;
+			element=ExplicitWaitUtil.waitForElement(driver,identifyBy, objectLocator, Constants_TimeOuts.Element_TimeOut) ;
 
 			if(element==null){
-				element=FetchWebElement.waitForPresenceOfElement(driver,identifyBy, objectLocator, 2);
+				element=ExplicitWaitUtil.waitForPresenceOfElement(driver,identifyBy, objectLocator, 2);
 			}
 
 			WaitUtil.pause(300L);
@@ -482,10 +482,10 @@ public class KeyMethods extends TestBase{
 		try 
 		{
 			WaitUtil.pause(100L);
-			element=FetchWebElement.waitForElement(driver,identifyBy, objectLocator, Constants_TimeOuts.Element_TimeOut) ;
+			element=ExplicitWaitUtil.waitForElement(driver,identifyBy, objectLocator, Constants_TimeOuts.Element_TimeOut) ;
 
 			if(element==null){
-				element=FetchWebElement.waitForPresenceOfElement(driver,identifyBy, objectLocator, 2);
+				element=ExplicitWaitUtil.waitForPresenceOfElement(driver,identifyBy, objectLocator, 2);
 			}
 
 			WaitUtil.pause(300L);
@@ -586,7 +586,7 @@ public class KeyMethods extends TestBase{
 		WebElement staleElement=null;
 		try{
 			ImplicitWaitUtil.turnOffImplicitWait(driver);
-			staleElement=FetchWebElement.waitForElementTobeActionable(driver, identifyBy, objectLocator, Constants_TimeOuts.StaleElement_TimeOut);
+			staleElement=ExplicitWaitUtil.waitForElementTobeActionable(driver, identifyBy, objectLocator, Constants_TimeOuts.StaleElement_TimeOut);
 			if(staleElement!=null){
 				staleElement.click();
 				Reporting.logStep(driver, refID, Step,  identifyBy+": "+objectLocator+" exists and clicked after recovering stale exception ", Constants_FRMWRK.Warning);
