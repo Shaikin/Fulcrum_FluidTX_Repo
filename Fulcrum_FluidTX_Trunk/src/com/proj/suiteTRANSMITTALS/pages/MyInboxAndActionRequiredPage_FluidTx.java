@@ -36,6 +36,11 @@ public class MyInboxAndActionRequiredPage_FluidTx extends TestSuiteBase{
 			TxComplete_Status="Closed";
 			subject=returnData.get("Tramsmittals-Subject");
 		}
+		else if(!returnData.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForInformation) && (returnData.get("Action-Level2").equalsIgnoreCase("Overdue"))){
+			status="Overdue";
+			TxComplete_Status="Open";
+			subject=returnData.get("Tramsmittals-Subject");
+		}
 		else if(returnData.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForInformation)|| returnData.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForReview)||returnData.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_IssuedForApproval)||returnData.get(Constants_Workflow.FluidTX_WorkFlow_Condition).equalsIgnoreCase(Constants_Workflow.FluidTX_WorkFlow_RequestForInformation)){
 			//
 			if(data.get("To").contains(Constants.delimiter_data)&& !returnData.get("Tramsmittals-Level2-Reciever").equalsIgnoreCase(Constants_Workflow.level2_reciever_first_count)&& data.get("Action-Level2").equalsIgnoreCase("Rejected")){
@@ -51,8 +56,12 @@ public class MyInboxAndActionRequiredPage_FluidTx extends TestSuiteBase{
 		}
 		if(validationPage.equalsIgnoreCase(Constants_Workflow.page_myInbox)){
 			Navigations_FluidTX.Transmittals.navigateToMyinbox(driver);
-		}else{
+		}
+		else if(validationPage.equalsIgnoreCase(Constants_Workflow.page_actionRequired))
+		{
 			Navigations_FluidTX.Transmittals.navigateToActionRequired(driver);
+		}else {
+			Navigations_FluidTX.Transmittals.navigateToActionsOverdue(driver);
 		}
 
 		TransmittalsGridUtil.searchSubjectAndCheck_TxComplete_Status(driver,validationPage, workflow, subject, TxComplete_Status);
