@@ -10,7 +10,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import com.frw.Constants.Constants_FRMWRK;
-import com.frw.util.FetchWebElement;
 import com.frw.util.WaitUtil;
 import com.frw.wait.ExplicitWaitUtil;
 import com.proj.Constants.Constants_TimeOuts;
@@ -20,7 +19,7 @@ import com.proj.objectRepository.ObjRepository;
 import com.report.reporter.Reporting;
 
 public class WebTableUtil extends TestBase{
-
+	private static boolean isStale=false;
 	/**
 	 * Waits for the elements under test to be visible (max timeout is 10 secs)
 	 * @author shaik
@@ -35,7 +34,7 @@ public class WebTableUtil extends TestBase{
 		List<WebElement> rows_search_current = null;
 		logsObj.log("Inside waitUntilAllVisible");
 
-		while (counter <=10){
+		while (counter <=10){			
 			rows_search_previous = driver.findElements(By.xpath(colXpath)); 
 			WaitUtil.pause(1);
 			rows_search_current = driver.findElements(By.xpath(colXpath)); 
@@ -68,23 +67,29 @@ public class WebTableUtil extends TestBase{
 	 * @return
 	 */
 
-	public static String searchforDataInsearchColumnAndTickInactionableColumn(WebDriver driver,String testcaseName,String Step,String containerName,String input,int colToSearch,int actionPerformCol){
+	public static String searchforDataInsearchColumnAndTickInactionableColumn(WebDriver driver,String testcaseName,String Step,String containerName,String 
+			searchData,int colToSearch,int actionPerformCol) throws Throwable{
 		String flag=Constants_FRMWRK.False;
-
+		String colXpath_tick;
 		String rowNumber="row";
-		int rowCount=0;
+		String pageNumber="page";
+		int pageCount=1;
+		String actual_actionData = "";
+		boolean selected=Constants_FRMWRK.FalseB;
+		boolean isNextDisplayed;
+		String staleDesc="";
+		if(isStale==true){
+			staleDesc="Recovered from stale-";
+		}
 
-		WebElement webtableElement=ExplicitWaitUtil.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, "//table[@summary='"+containerName+"']", Constants_TimeOuts.Element_TimeOut);
+		WebElement webtableElement=ExplicitWaitUtil.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH,	"//table[@summary='"+containerName+"']",Constants_TimeOuts.Element_TimeOut);
 		if(webtableElement==null){
-			Reporting.logStep(driver, Step, "Webtable-"+ containerName+" is not displayed on the page", Constants_FRMWRK.Fail);
+			Reporting.logStep(driver, Step, staleDesc+"Webtable-"+ containerName+" is not displayed on the page", Constants_FRMWRK.Fail);
 			flag=Constants_FRMWRK.False;
 		}
-		//String colXpath_search="//div[@class='containerName']/descendant::div[@class='ngCell colToSearchColumn coltToSearchColumn']/descendant::div[@class='gridCellClass ng-scope ng-binding']";
-		//String colXpath_tick="//div[@class='containerName']/descendant::div[@class='ngCell colactionPerformCol coltactionPerformCol']/descendant::input[@type='checkbox']";
-
 
 		String colXpath_search= "//table[@summary='containerName']/descendant :: tr /td[ToSearchColumn]";
-		String colXpath_tick="//table[@summary='containerName']/descendant :: tr /td[actionPerformCol]/div[@role='checkbox']";
+		colXpath_tick="//table[@summary='containerName']/descendant :: tr /td[actionPerformCol]/div[@role='checkbox']";
 
 		colXpath_search=commonMethods.replaceString("containerName",colXpath_search,containerName);
 		colXpath_search=commonMethods.replaceString("ToSearchColumn",colXpath_search,Integer.toString(colToSearch));
@@ -92,42 +97,51 @@ public class WebTableUtil extends TestBase{
 		colXpath_tick=commonMethods.replaceString("containerName",colXpath_tick,containerName);
 		colXpath_tick=commonMethods.replaceString("actionPerformCol",colXpath_tick,Integer.toString(actionPerformCol));
 
+
 		LinkedHashMap<String,String> tableData=new LinkedHashMap<String,String>();
+		//
+		do{
+			int rowCount=0;
 
-		try{
-			logsObj.log("Get Grid row count for column under search");
+			try{
+				logsObj.log("Get Grid row count for column under search");
 
-			final List<WebElement> rows_search = waitUntilAllVisible(driver,colXpath_search);
-			final List<WebElement> rows_tick = waitUntilAllVisible(driver,colXpath_tick);
+				final List<WebElement> rows_search = waitUntilAllVisible(driver,colXpath_search);
+				final List<WebElement> rows_tick = waitUntilAllVisible(driver,colXpath_tick);
+				WaitUtil.pause(100L);
+				
+				if (rows_search==null || rows_search.size()== 0)
+				{
+					Reporting.logStep(driver, Step, staleDesc+"Unable to list the required search data "+searchData+" in the table "+colXpath_search+ " As searched data records are not fetched " ,Constants_FRMWRK.Fail);
+					
+				}
 
-			WaitUtil.pause(1);
+				for (WebElement rowSearch : rows_search) { 
 
-			for (WebElement rowSearch : rows_search) { 
+					tableData.put(pageNumber+Integer.toString(pageCount)+" "+rowNumber+Integer.toString(rowCount), rowSearch.getText());
+					logsObj.log(staleDesc+"Table- "+"Page-"+pageCount+" ,RowNumber-"+rowNumber+" Data:-"+rowSearch.getText().trim()+" Input Data:-"+searchData.trim());
 
-				tableData.put(rowNumber+Integer.toString(rowCount), rowSearch.getText());
-				logsObj.log("Table- RowNumber-"+rowNumber+" Data:-"+rowSearch.getText().trim()+" Input Data:-"+input.trim());
-
-				if(rowSearch.getText().trim().equals(input.trim())){
-					WaitUtil.pause(1);
-					String expted=rowSearch.getText();
-					logsObj.log("Table-Expected Data-"+expted);
-					int counter=0;
-					boolean selected;
-					try{
+					if(rowSearch.getText().trim().equals(searchData.trim())){
+						WaitUtil.pause(1);
+						actual_actionData=rowSearch.getText();
+						logsObj.log("Table-Expected Data-"+actual_actionData);
+						int counter=0;
+						
+						try{
 
 
-						while (counter< 5){
-							try{
-								WebElement row_tick=rows_tick.get(rowCount);
-								WaitUtil.pause(1);								
-								selected=row_tick.isSelected();
-								WaitUtil.pause(1);
-								if(selected==false){
-									logsObj.log("Grid Checkbox after click action is not tick");
+							while (counter< 5){
+								try{
+									WebElement row_tick=rows_tick.get(rowCount);
+									WaitUtil.pause(1);								
+									selected=row_tick.isSelected();
 									WaitUtil.pause(1);
-									row_tick.click();
-									logsObj.log("Checkbox is selected for the record");
-									/*if(browserName.equalsIgnoreCase(Constants.browserie)){
+									if(selected==false){
+										logsObj.log("Grid Checkbox after click action is not tick");
+										WaitUtil.pause(1);
+										row_tick.click();
+										logsObj.log("Checkbox is selected for the record");
+										/*if(browserName.equalsIgnoreCase(Constants.browserie)){
 										WorkaroundsSelenium.sendControlToElement(browserName, Constants.browserie, row_tick);
 										row_tick.click();
 										logsObj.log("Grid Checkbox is forced to send keys to select for ie browser");
@@ -137,49 +151,69 @@ public class WebTableUtil extends TestBase{
 									}*/
 
 
-									selected=row_tick.isSelected();
-								}else{
-									logsObj.log("Grid Checkbox status is already "+selected);
+										selected=row_tick.isSelected();
+									}else{
+										logsObj.log("Grid Checkbox status is already "+selected);
+									}
+									logsObj.log("Successfully Tick the required column in the table") ;
+
+									break;
+								}catch(StaleElementReferenceException ex){
+									counter=counter+1;
+									WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);
 								}
-								logsObj.log("Successfully Tick the required column in the table") ;
+								WaitUtil.pause(Constants_TimeOuts.Save_TimeOut);
 
-								break;
-							}catch(StaleElementReferenceException ex){
-								counter=counter+1;
-								WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);
 							}
-							WaitUtil.pause(Constants_TimeOuts.Save_TimeOut);
 
+
+						}catch (ElementNotVisibleException e){
+							isTestPass=Constants_FRMWRK.FalseB;
+							Reporting.logStep(driver, Step, staleDesc+"Unable to Tick the required column data after successfully matching the expected data in the table"+colXpath_search+" due to error-->"+e+ "and stack is "+commonMethods.getStackTrace(e), Constants_FRMWRK.Fail);
+
+						} 	
+						if(selected=Constants_FRMWRK.TrueB){
+							flag=Constants_FRMWRK.True;
+							Reporting.logStep(driver, Step, staleDesc+"Successfully Ticked on the required column data after matching the expected data:-"+searchData+" with actual data:-"+actual_actionData+" in the table "+colXpath_search, Constants_FRMWRK.Pass);
+						}else{
+							Reporting.logStep(driver, Step, staleDesc+"Unable to tick the Checkbox after matching the expected data:-"+searchData+" with actual data:-"+actual_actionData+" in the table "+colXpath_search, Constants_FRMWRK.Fail);
+							flag=Constants_FRMWRK.False;
 						}
 
-
-					}catch (ElementNotVisibleException e){
-						isTestPass=Constants_FRMWRK.FalseB;
-						Reporting.logStep(driver, Step, "Unable to Tick the required column data after successfully matching the expected data in the table"+colXpath_search+" due to error-->"+e+ "and stack is "+commonMethods.getStackTrace(e), Constants_FRMWRK.Fail);
-
-					} 	
-					if(selected=Constants_FRMWRK.TrueB){
-						flag=Constants_FRMWRK.True;
-						Reporting.logStep(driver, Step, "Successfully Ticked on the required column data after matching the expected data:-"+input+" with actual data:-"+expted+" in the table "+colXpath_search, Constants_FRMWRK.Pass);
-					}else{
-						Reporting.logStep(driver, Step, "Unable to tick the Checkbox after matching the expected data:-"+input+" with actual data:-"+expted+" in the table "+colXpath_search, Constants_FRMWRK.Fail);
-						flag=Constants_FRMWRK.False;
+						break;
 					}
+					rowCount++;
 
-					break;
 				}
-				rowCount++;
-
 			}
-		}catch(Exception e){
-			isTestPass=Constants_FRMWRK.FalseB;
-			Reporting.logStep(driver, Step, "Could not locate the required input data "+input+" in the table "+colXpath_search+" due to error-->"+e+ "and stack is "+commonMethods.getStackTrace(e), Constants_FRMWRK.Fail);
-			return flag;		
-		}
+			catch(StaleElementReferenceException stl){
+				isStale=true;
+				logsObj.log("searchforDataInsearchColumnAndTickInactionableColumn:Stale exception... need to recover..") ;
+				flag=searchforDataInsearchColumnAndTickInactionableColumn(driver, testcaseName, Step, containerName, searchData,colToSearch, actionPerformCol);
+				isStale=false;
+				return flag;
+			}
+			catch(Exception e){
+				isTestPass=Constants_FRMWRK.FalseB;
+				Reporting.logStep(driver, Step, staleDesc+"Could not locate the required search data "+searchData+" in the table "+colXpath_search+" due to	error-->"+e+ "and stack is "+commonMethods.getStackTrace(e), Constants_FRMWRK.Fail);
+				return flag;		
+			}
+			if(selected==Constants_FRMWRK.TrueB){
+				break;
+			}else{
+				pageCount++;
+				isNextDisplayed=clicknextPage(driver);
+			}
 
-		if(flag.equalsIgnoreCase(Constants_FRMWRK.False)){
+		}while (isNextDisplayed==Constants_FRMWRK.TrueB && selected==Constants_FRMWRK.FalseB);
+		//
+		if(selected==Constants_FRMWRK.FalseB){
+			Reporting.logStep(driver, Step, staleDesc+"Unable to Tick the record from the required column after matching the expected data:-"+searchData+" with actual data:-"+actual_actionData+" in the table "+colXpath_search+" for the search record "+searchData, Constants_FRMWRK.Fail);
+			flag=Constants_FRMWRK.False;
+		}
+		else if(flag.equalsIgnoreCase(Constants_FRMWRK.False)){
 			isTestPass=Constants_FRMWRK.FalseB;
-			Reporting.logStep(driver, Step, "Unable to list the required input data "+input+" in the table "+colXpath_search+ " the complete table data available is: "+tableData, Constants_FRMWRK.Fail);
+			Reporting.logStep(driver, Step, staleDesc+"Unable to list the required search data "+searchData+" in the table "+colXpath_search+ " the complete table data available is: "+tableData, Constants_FRMWRK.Fail);
 		}
 		return flag;
 	}
@@ -207,8 +241,8 @@ public class WebTableUtil extends TestBase{
 		String rowNumber="row";
 		int rowCount=0;
 		boolean retrieved=Constants_FRMWRK.FalseB;
-		
-		WebElement webtableElement=FetchWebElement.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, "//table[@summary='"+containerName+"']",Constants_TimeOuts.Element_TimeOut);
+
+		WebElement webtableElement=ExplicitWaitUtil.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, "//table[@summary='"+containerName+"']",Constants_TimeOuts.Element_TimeOut);
 		if(webtableElement==null){
 			Reporting.logStep(driver, Step, "Webtable-"+ containerName+" is not displayed on the page", Constants_FRMWRK.Fail);
 			flag=Constants_FRMWRK.False;
@@ -241,7 +275,7 @@ public class WebTableUtil extends TestBase{
 				if(rowSearch.getText().trim().equals(searchData.trim())){
 					WaitUtil.pause(100L);					
 					int counter=0;
-					
+
 					try{							
 						while (counter< 5){
 							try{
@@ -394,8 +428,9 @@ public class WebTableUtil extends TestBase{
 	 * @param colToSearch
 	 * @param actionPerformCol
 	 * @return
+	 * @throws Throwable 
 	 */
-	public static String searchforDataInsearchColumnAndClickInactionableLinkColumn(WebDriver driver,String testcaseName,String Step,String containerName,String searchData,String actionColumnType,String actionData,int colToSearch,int actionPerformCol){
+	public static String searchforDataInsearchColumnAndClickInactionableLinkColumn(WebDriver driver,String testcaseName,String Step,String containerName,String searchData,String actionColumnType,String actionData,int colToSearch,int actionPerformCol) throws Throwable{
 		String flag=Constants_FRMWRK.False;
 		String colXpath_action;
 		String rowNumber="row";
@@ -404,10 +439,14 @@ public class WebTableUtil extends TestBase{
 		String actual_actionData = "";
 		boolean clicked=Constants_FRMWRK.FalseB;
 		boolean isNextDisplayed;
+		String staleDesc="";
+		if(isStale==true){
+			staleDesc="Recovered from stale-";
+		}
 
 		WebElement webtableElement=ExplicitWaitUtil.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, "//table[@summary='"+containerName+"']",Constants_TimeOuts.Element_TimeOut);
 		if(webtableElement==null){
-			Reporting.logStep(driver, Step, "Webtable-"+ containerName+" is not displayed on the page", Constants_FRMWRK.Fail);
+			Reporting.logStep(driver, Step, staleDesc+"Webtable-"+ containerName+" is not displayed on the page", Constants_FRMWRK.Fail);
 			flag=Constants_FRMWRK.False;
 		}
 
@@ -426,80 +465,92 @@ public class WebTableUtil extends TestBase{
 		colXpath_action=commonMethods.replaceString("actionPerformCol",colXpath_action,Integer.toString(actionPerformCol));
 
 		LinkedHashMap<String,String> tableData=new LinkedHashMap<String,String>();
-//
-do{
-	int rowCount=0;
+		//
+		do{
+			int rowCount=0;
 
-		try{
-			logsObj.log("Get Grid row count for column under search");
+			try{
+				logsObj.log("Get Grid row count for column under search");
 
-			final List<WebElement> rows_search = waitUntilAllVisible(driver,colXpath_search);
-			final List<WebElement> rows_action = waitUntilAllVisible(driver,colXpath_action);
+				final List<WebElement> rows_search = waitUntilAllVisible(driver,colXpath_search);
+				final List<WebElement> rows_action = waitUntilAllVisible(driver,colXpath_action);
 
-			WaitUtil.pause(100L);
+				WaitUtil.pause(100L);
+				if (rows_search==null || rows_search.size()== 0)
+				{
+					Reporting.logStep(driver, Step, staleDesc+"Unable to list the required search data "+searchData+" in the table "+colXpath_search+ " As searched data records are not fetched " ,Constants_FRMWRK.Fail);
 
-			for (WebElement rowSearch : rows_search) { 
+				}
+				for (WebElement rowSearch : rows_search) { 
 
-				tableData.put(pageNumber+Integer.toString(pageCount)+" "+rowNumber+Integer.toString(rowCount), rowSearch.getText());
-				logsObj.log("Table- "+"Page-"+pageCount+" ,RowNumber-"+rowNumber+" Data:-"+rowSearch.getText().trim()+" Input Data:-"+searchData.trim());
+					tableData.put(pageNumber+Integer.toString(pageCount)+" "+rowNumber+Integer.toString(rowCount), rowSearch.getText());
+					logsObj.log(staleDesc+"Table- "+"Page-"+pageCount+" ,RowNumber-"+rowNumber+" Data:-"+rowSearch.getText().trim()+" Input Data:-"+searchData.trim());
 
-				if(rowSearch.getText().trim().equals(searchData.trim())){
-					WaitUtil.pause(100L);				
-					int counter=0;
-					
-					try{							
-						while (counter< 5){
-							try{
-								rows_action.get(rowCount).click();
-								WaitUtil.pause(1);
-								clicked=Constants_FRMWRK.TrueB;
-								logsObj.log("searchforDataInColumnAndClickInAcionableColumn:Successfully clicked the record from required column in the table") ;
-								break;
-							}catch(StaleElementReferenceException ex){
-								counter=counter+1;
-								WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);
+					if(rowSearch.getText().trim().equals(searchData.trim())){
+						WaitUtil.pause(100L);				
+						int counter=0;
+
+						try{							
+							while (counter< 5){
+								try{
+									rows_action.get(rowCount).click();
+									WaitUtil.pause(1);
+									clicked=Constants_FRMWRK.TrueB;
+									logsObj.log(staleDesc+"searchforDataInColumnAndClickInAcionableColumn:Successfully clicked the record from required column in the table") ;
+									break;
+								}catch(StaleElementReferenceException ex){
+									counter=counter+1;
+									WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);
+								}
+								WaitUtil.pause(100L);
+
 							}
-							WaitUtil.pause(100L);
 
+
+						}catch (ElementNotVisibleException e){
+							isTestPass=Constants_FRMWRK.FalseB;
+							Reporting.logStep(driver, Step, staleDesc+"Unable to click the record from the required column after successfully matching the expected data from search coloumn in the table"+colXpath_search+" due to error-->"+e+ "and stack is "+commonMethods.getStackTrace(e), Constants_FRMWRK.Fail);
+
+						} 	
+						if(clicked==Constants_FRMWRK.TrueB){
+							flag=Constants_FRMWRK.True;
+							Reporting.logStep(driver, Step, staleDesc+"Successfully clicked the record  from the required column after matching the expected data:-"+actionData+" with actual data:-"+actual_actionData+" in the table "+colXpath_search, Constants_FRMWRK.Pass);
 						}
 
-
-					}catch (ElementNotVisibleException e){
-						isTestPass=Constants_FRMWRK.FalseB;
-						Reporting.logStep(driver, Step, "Unable to click the record from the required column after successfully matching the expected data from search coloumn in the table"+colXpath_search+" due to error-->"+e+ "and stack is "+commonMethods.getStackTrace(e), Constants_FRMWRK.Fail);
-
-					} 	
-					if(clicked==Constants_FRMWRK.TrueB){
-						flag=Constants_FRMWRK.True;
-						Reporting.logStep(driver, Step, "Successfully clicked the record  from the required column after matching the expected data:-"+actionData+" with actual data:-"+actual_actionData+" in the table "+colXpath_search, Constants_FRMWRK.Pass);
+						break;
 					}
+					rowCount++;
 
-					break;
 				}
-				rowCount++;
-
 			}
-		}catch(Exception e){
-			isTestPass=Constants_FRMWRK.FalseB;
-			Reporting.logStep(driver, Step, "Could not locate the required search data "+searchData+" in the table "+colXpath_search+" due to error-->"+e+ "and stack is "+commonMethods.getStackTrace(e), Constants_FRMWRK.Fail);
-			return flag;		
-		}
-		if(clicked==Constants_FRMWRK.TrueB){
-			break;
-		}else{
-			pageCount++;
-			isNextDisplayed=clicknextPage(driver);
-		}
-		
-}while (isNextDisplayed==Constants_FRMWRK.TrueB && clicked==Constants_FRMWRK.FalseB);
-//
+			catch(StaleElementReferenceException stl){
+				isStale=true;
+				logsObj.log("searchforDataInColumnAndClickInAcionableColumn:Stale exception... need to recover..") ;
+				flag=searchforDataInsearchColumnAndClickInactionableLinkColumn(driver, testcaseName, Step, containerName, searchData, actionColumnType, actual_actionData, colToSearch, actionPerformCol);
+				isStale=false;
+				return flag;
+			}
+			catch(Exception e){
+				isTestPass=Constants_FRMWRK.FalseB;
+				Reporting.logStep(driver, Step, staleDesc+"Could not locate the required search data "+searchData+" in the table "+colXpath_search+" due to error-->"+e+ "and stack is "+commonMethods.getStackTrace(e), Constants_FRMWRK.Fail);
+				return flag;		
+			}
+			if(clicked==Constants_FRMWRK.TrueB){
+				break;
+			}else{
+				pageCount++;
+				isNextDisplayed=clicknextPage(driver);
+			}
+
+		}while (isNextDisplayed==Constants_FRMWRK.TrueB && clicked==Constants_FRMWRK.FalseB);
+		//
 		if(clicked==Constants_FRMWRK.FalseB){
-			Reporting.logStep(driver, Step, "Unable to click the record from the required column after matching the expected data:-"+actionData+" with actual data:-"+actual_actionData+" in the table "+colXpath_search+" for the search record "+searchData, Constants_FRMWRK.Fail);
+			Reporting.logStep(driver, Step, staleDesc+"Unable to click the record from the required column after matching the expected data:-"+actionData+" with actual data:-"+actual_actionData+" in the table "+colXpath_search+" for the search record "+searchData, Constants_FRMWRK.Fail);
 			flag=Constants_FRMWRK.False;
 		}
 		else if(flag.equalsIgnoreCase(Constants_FRMWRK.False)){
 			isTestPass=Constants_FRMWRK.FalseB;
-			Reporting.logStep(driver, Step, "Unable to list the required search data "+searchData+" in the table "+colXpath_search+ " the complete table data available is: "+tableData, Constants_FRMWRK.Fail);
+			Reporting.logStep(driver, Step, staleDesc+"Unable to list the required search data "+searchData+" in the table "+colXpath_search+ " the complete table data available is: "+tableData, Constants_FRMWRK.Fail);
 		}
 		return flag;
 	}
@@ -539,7 +590,7 @@ do{
 			logsObj.log("Get Grid row count for column under search");
 
 			final List<WebElement> rows_search = waitUntilAllVisible(driver,colXpath_search);
-			
+
 			WaitUtil.pause(100L);
 
 			for (WebElement rowSearch : rows_search) { 
@@ -629,7 +680,7 @@ do{
 		}
 		return flag;
 	}
-	
+
 	/**
 	 * Searches the data in the required column and fetches the data in the actionable column(With Reporting)
 	 * @author Khaleel
@@ -698,19 +749,20 @@ do{
 
 		return flag;
 	}
-	
-	
-	private static boolean clicknextPage(WebDriver driver){
+
+
+	private static boolean clicknextPage(WebDriver driver) throws Throwable{
 		boolean flag=Constants_FRMWRK.FalseB;
 		try{
 			WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);
 			WebElement element=ExplicitWaitUtil.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.grid_nextButton, Constants_TimeOuts.Element_TimeOut);
 			element.click();
 			WaitUtil.pause(Constants_TimeOuts.generic_TimeOut);
+			commonMethods.pageLoadWait(driver);
 			flag=Constants_FRMWRK.TrueB;
 			logsObj.log("Click next page of Webtable");
 		}
-		
+
 		catch(StaleElementReferenceException st){
 			logsObj.log("Click next page of Webtable occured stale..need to recover..");
 			clicknextPage(driver);
@@ -720,4 +772,8 @@ do{
 		}
 		return flag;
 	}
+
+
+	
+
 }
