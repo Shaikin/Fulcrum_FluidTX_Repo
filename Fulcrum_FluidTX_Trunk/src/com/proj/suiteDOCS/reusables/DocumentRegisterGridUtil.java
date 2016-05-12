@@ -20,9 +20,9 @@ public class DocumentRegisterGridUtil extends TestSuiteBase{
 	 * @param driver
 	 * @param workflow
 	 * @param subject
-	 * @throws Exception
+	 * @throws Throwable 
 	 */
-	public static String searchDocumentAndTickRecord(WebDriver driver,String workflow,String docName) throws Exception{
+	public static String searchDocumentAndTickRecord(WebDriver driver,String workflow,String docName) throws Throwable{
 		return WebTableUtil.searchforDataInsearchColumnAndTickInactionableColumn(driver, testcaseName, workflow+" - Name", ObjRepository.container_documentRegister, docName, 4, 1);
 
 	}

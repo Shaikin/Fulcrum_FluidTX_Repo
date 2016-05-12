@@ -21,9 +21,9 @@ public class TransmittalsGridUtil extends TestSuiteBase{
 	 * @param driver
 	 * @param workflow
 	 * @param subject
-	 * @throws Exception
+	 * @throws Throwable 
 	 */
-	public static String searchSubjectAndTickRecord(WebDriver driver,String workflow,String subject) throws Exception{
+	public static String searchSubjectAndTickRecord(WebDriver driver,String workflow,String subject) throws Throwable{
 		return WebTableUtil.searchforDataInsearchColumnAndTickInactionableColumn(driver, testcaseName, workflow+" My Sent - Subject", ObjRepository.container_transmittals, subject, 4, 1);
 
 	}
