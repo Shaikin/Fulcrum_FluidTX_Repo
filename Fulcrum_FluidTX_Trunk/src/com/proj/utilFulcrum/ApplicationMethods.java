@@ -8,7 +8,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 
 import com.frw.Constants.Constants_FRMWRK;
-import com.frw.util.FetchWebElement;
 import com.frw.util.PageLoadWaitUtil;
 import com.frw.util.PopUpUtil;
 import com.frw.util.WaitUtil;
@@ -95,7 +94,7 @@ public class ApplicationMethods extends TestBase{
 		WebElement element;
 		//closeAllDialogs(driver, refID, testcaseName);
 		commonMethods.switchToDefaultPage(driver);
-		element=FetchWebElement.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.link_user, Constants_TimeOuts.Element_TimeOut);
+		element=ExplicitWaitUtil.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.link_user, Constants_TimeOuts.Element_TimeOut);
 
 		if(element!=null){
 			try{
@@ -116,7 +115,7 @@ public class ApplicationMethods extends TestBase{
 		}
 
 
-		element=FetchWebElement.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.link_signOut, Constants_TimeOuts.Element_TimeOut);
+		element=ExplicitWaitUtil.waitForElement(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.link_signOut, Constants_TimeOuts.Element_TimeOut);
 
 		if(element!=null){
 			try{
@@ -228,10 +227,7 @@ public class ApplicationMethods extends TestBase{
 	public static int getApplicationFrameCount(WebDriver driver){
 		int flag=0;
 		commonMethods.switchToDefaultPage(driver);
-		List<WebElement> frames=FetchWebElement.visibleElementsList(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.frame_single);
-		if(frames.size()!=0){
-			flag=frames.size();
-		}
+		flag=ExplicitWaitUtil.getVisibleElementsSize(driver, Constants_FRMWRK.FindElementByXPATH, ObjRepository.frame_single,Constants_TimeOuts.Save_TimeOut);
 		return flag;
 	}
 	/**
