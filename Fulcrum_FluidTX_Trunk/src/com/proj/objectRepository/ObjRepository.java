@@ -46,6 +46,7 @@ public class ObjRepository {
 	public static String container_transmittalFiles="transmittalFiles";
 	public static String container_supportingDocumentFiles="supportingDocumentFiles";
 	public static String grid_nextButton=".//*[@id='pagingWPQ2next']/a";
+	public static String container_uploadedOrNewDocuments="Documents";
 	
 	//close
 	public static String icon_close="//*[@title='Close dialog']";	
