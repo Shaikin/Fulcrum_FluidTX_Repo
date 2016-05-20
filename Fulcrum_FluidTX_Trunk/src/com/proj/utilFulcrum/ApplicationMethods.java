@@ -291,7 +291,7 @@ public class ApplicationMethods extends TestBase{
 
 	}
 
-	private static void waitforHomePage() throws Exception{
+	private static void waitforHomePage() throws Throwable{
 		ExplicitWaitUtil.waitForElementTobeActionable(LocalDriverManager.getDriver(), Constants_FRMWRK.FindElementByID, ObjRepository.homePage_element, Constants_TimeOuts.Page_TimeOut);
 	}
 }
