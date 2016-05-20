@@ -31,7 +31,7 @@ public class DocumentRegisterGridUtil extends TestSuiteBase{
 		
 	}
 	
-	public static String validateVersion(WebDriver driver,String workflow,String testcasename,String docName , String version) {
+	public static String validateVersion(WebDriver driver,String workflow,String testcasename,String docName , String version) throws Throwable {
 	
 	
 		return WebTableUtil.searchforDataInsearchColumnAndValidateDataInactionableColumn(driver,testcaseName,workflow+" - Major version",ObjRepository.container_uploadedOrNewDocuments,docName ,version,3,7);	
