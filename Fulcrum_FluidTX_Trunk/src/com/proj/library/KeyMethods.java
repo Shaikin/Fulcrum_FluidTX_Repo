@@ -360,9 +360,10 @@ public class KeyMethods extends TestBase{
 	 * @param objectLocator
 	 * @param input
 	 * @return return a default value/Selected value for success ,Fail for failure
+	 * @throws Throwable 
 	 */
 	@SuppressWarnings({ "incomplete-switch" })
-	public static String f_fetchElementDetails(WebDriver driver,String testcaseName,String workFlow,String Step,String identifyBy, String objectType, String objectLocator,String input) 	 
+	public static String f_fetchElementDetails(WebDriver driver,String testcaseName,String workFlow,String Step,String identifyBy, String objectType, String objectLocator,String input) throws Throwable 	 
 	{
 		WebElement element = null;
 		String flag=Constants_FRMWRK.False;
@@ -468,9 +469,10 @@ public class KeyMethods extends TestBase{
 	 * @param objectLocator
 	 * @param input
 	 * @return return a default value/Selected value for success ,Fail for failure
+	 * @throws Throwable 
 	 */
 	@SuppressWarnings({ "incomplete-switch" })
-	public static String f_fetchElementDetails(WebDriver driver,String refID,String testcaseName,String workFlow,String Step,Hashtable<String,String>f_performAction_objects_locatorType, Hashtable<String,String>f_performAction_objects_objectType, Hashtable<String,String>f_performAction_objects_objectLocator,String input) 	 
+	public static String f_fetchElementDetails(WebDriver driver,String refID,String testcaseName,String workFlow,String Step,Hashtable<String,String>f_performAction_objects_locatorType, Hashtable<String,String>f_performAction_objects_objectType, Hashtable<String,String>f_performAction_objects_objectLocator,String input) throws Throwable 	 
 	{
 
 		String identifyBy=f_performAction_objects_locatorType.get(Step);

@@ -37,8 +37,9 @@ public class KeysUtil extends KeyMethods{
 	 * @param input
 	 * @param element
 	 * @return
+	 * @throws Throwable 
 	 */
-	protected static String enter(WebDriver driver,String refID,String testcaseName,String workFlow,String Step,String locatorType, String objectType, String objectLocator,String input,WebElement element){
+	protected static String enter(WebDriver driver,String refID,String testcaseName,String workFlow,String Step,String locatorType, String objectType, String objectLocator,String input,WebElement element) throws Throwable{
 		String flag=Constants_FRMWRK.False;
 		String generic_Step="";
 
