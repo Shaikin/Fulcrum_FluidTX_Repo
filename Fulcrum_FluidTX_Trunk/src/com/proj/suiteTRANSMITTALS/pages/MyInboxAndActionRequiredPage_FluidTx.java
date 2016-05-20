@@ -188,7 +188,7 @@ public class MyInboxAndActionRequiredPage_FluidTx extends TestSuiteBase{
 		return status;
 	}
 	
-	public static void validate_TransmittalID(WebDriver driver,String page,String workflow,Hashtable<String,String> data) throws Exception{
+	public static void validate_TransmittalID(WebDriver driver,String page,String workflow,Hashtable<String,String> data) throws Throwable{
 		String subject=data.get("Tramsmittals-Subject");
 		String res=TransmittalsGridUtil.searchSubjectAndGetTransmittalID(driver, page, workflow, subject);
 		if(!res.equalsIgnoreCase(Constants_FRMWRK.Error)||!res.equalsIgnoreCase(Constants_FRMWRK.False)){
