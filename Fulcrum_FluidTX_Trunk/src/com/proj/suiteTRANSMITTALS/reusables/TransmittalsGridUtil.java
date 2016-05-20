@@ -50,9 +50,9 @@ public class TransmittalsGridUtil extends TestSuiteBase{
 	 * @param workflow
 	 * @param subject
 	 * @param TxComplete_Status
-	 * @throws Exception
+	 * @throws Throwable 
 	 */
-	public static String searchSubjectAndCheck_TxComplete_Status(WebDriver driver,String page,String workflow,String subject,String TxComplete_Status) throws Exception{
+	public static String searchSubjectAndCheck_TxComplete_Status(WebDriver driver,String page,String workflow,String subject,String TxComplete_Status) throws Throwable{
 		return WebTableUtil.searchforDataInsearchColumnAndValidateDataInactionableColumn(driver, testcaseName, workflow+" "+page+" - TxComplete_Status", ObjRepository.container_transmittals, subject, TxComplete_Status, 4, 12);
 	}
 	/**
@@ -62,17 +62,17 @@ public class TransmittalsGridUtil extends TestSuiteBase{
 	 * @param workflow
 	 * @param subject
 	 * @param status
-	 * @throws Exception
+	 * @throws Throwable 
 	 */
-	public static String searchSubjectAndCheck_Status(WebDriver driver,String page,String workflow,String subject,String status) throws Exception{
+	public static String searchSubjectAndCheck_Status(WebDriver driver,String page,String workflow,String subject,String status) throws Throwable{
 		return WebTableUtil.searchforDataInsearchColumnAndValidateDataInactionableColumn(driver, testcaseName, workflow+" "+page+" - Status", ObjRepository.container_transmittals, subject, status, 4, 13);
 	}
 
-	public static String searchSubject(WebDriver driver,String page,String workflow,String subject) throws Exception{
+	public static String searchSubject(WebDriver driver,String page,String workflow,String subject) throws Throwable{
 		return WebTableUtil.searchforDataInsearchColumn_WOR(driver, testcaseName, workflow+" "+page+" - Subject", ObjRepository.container_transmittals, subject, 4);
 		
 	}
-	public static String searchSubjectAndGetTransmittalID(WebDriver driver,String page,String workflow,String subject) throws Exception{
+	public static String searchSubjectAndGetTransmittalID(WebDriver driver,String page,String workflow,String subject) throws Throwable{
 		return WebTableUtil.searchforDataInsearchColumnAndFetchDataInactionableColumn_WOR(driver, testcaseName, workflow+" "+page+" - Transmittal ID", ObjRepository.container_transmittals, subject, "text", 4, 3);
 		 
 	}
