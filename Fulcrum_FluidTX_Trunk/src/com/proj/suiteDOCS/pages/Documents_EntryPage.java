@@ -22,8 +22,6 @@ import com.report.reporter.Reporting;
 
 public class Documents_EntryPage extends TestSuiteBase{
 	
-	private static final String True = null;
-	private static final String False = null;
 	static String res="";
 	static String input="";
 	//static WebDriver dr; //Remove this after getting new logStep method
@@ -31,14 +29,13 @@ public class Documents_EntryPage extends TestSuiteBase{
 	private static Xls_Reader xlsReader_objects_Documents=new Xls_Reader(Constants.OR_DOCS_Path);
 	private static String locator_document_pattern =".//*[@id='js-newdocWOPI-divMain-WPQ2']/descendant::a[contains(@id,'js-newdocWOPI-divobjectlocator')]";
     
-	private static String workflow_UploadDocument="Uploading a file ";
-	private static String workflow_createOnlineDocument="New online file creation ";                                    
-	
+
 	private static Hashtable<String,String>objects_step_Documents=null;
 	private static Hashtable<String,String>objects_locatorType_Documents=null; 
 	private static Hashtable<String,String>objects_objectType_Documents=null;
 	private static Hashtable<String,String>objects_objectLocator_Documents=null;
 	
+	@SuppressWarnings("unused")
 	private static Hashtable<String,String>objects_step_Documents_Toolbar=null;
 	private static Hashtable<String,String>objects_locatorType_Documents_Toolbar=null; 
 	private static Hashtable<String,String>objects_objectType_Documents_Toolbar=null;
@@ -288,7 +285,7 @@ public class Documents_EntryPage extends TestSuiteBase{
 		}
 		else if(res.equalsIgnoreCase(Constants_FRMWRK.False) ){
 			validateCheckIn(driver, refID,testcaseName,workflow);
-			if (res == True)
+			if (res.equalsIgnoreCase(Constants_FRMWRK.True))
 			{
 				checkIn(driver,refID, testcaseName, workflow);
 			}
