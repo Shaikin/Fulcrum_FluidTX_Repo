@@ -8,6 +8,7 @@ import com.frw.Constants.Constants_FRMWRK;
 import com.frw.util.WaitUtil;
 import com.frw.util.Xls_Reader;
 import com.proj.Constants.Constants;
+import com.proj.Constants.Constants_TimeOuts;
 import com.proj.library.KeyMethods;
 import com.proj.library.commonMethods;
 import com.proj.suiteTRANSMITTALS.TestSuiteBase;
@@ -69,7 +70,23 @@ public class Navigations_FluidTX extends TestSuiteBase{
 			CustomExceptions.Exit(locator, " Navigate Failure - "+Step, "Please refer above details for more details");
 		}
 	}
-
+	/**
+	 * Navigates to Documents
+	 * @param driver
+	 * @throws Throwable 
+	 */
+	public static void navigateToDocuments(WebDriver driver) throws Throwable{
+		String Step="Usersite Menu - Documents";
+		WaitUtil.pause(Constants_TimeOuts.Save_TimeOut);
+		commonMethods.switchToDefaultPage(driver);
+		commonMethods.pageLoadWait(driver);
+		String locator=locator_menu_pattern.replaceAll("objectlocator", objects_objectLocator_Navigation.get(Step));
+		res=KeyMethods.f_performAction(driver, refID, testcaseName, "", objects_step_Navigation.get(Step), objects_locatorType_Navigation.get(Step), objects_objectType_Navigation.get(Step),locator , input);
+		if(res.equals(Constants_FRMWRK.False)){
+			CustomExceptions.Exit(locator, " Navigate Failure - "+Step, "Please refer above details for more details");
+		}
+	}
+	
 	public static class Transmittals{
 		/**
 		 * Navigates to New Transmittals sub menu
@@ -151,8 +168,6 @@ public class Navigations_FluidTX extends TestSuiteBase{
 				CustomExceptions.Exit(locator, " Navigate Failure - "+key_step, "Please refer above details for more details");
 			}
 		}
-
-
 	}
 	public static void verify_menu(WebDriver driver,String ApplicationName, Hashtable<String,String>data){
 
