@@ -232,10 +232,11 @@ public class WebTableUtil extends TestBase{
 	 * @param colToSearch
 	 * @param actionPerformCol
 	 * @return
+	 * @throws Throwable 
 	 */
 
 
-	public static String searchforDataInsearchColumnAndValidateDataInactionableColumn(WebDriver driver,String testcaseName,String Step,String containerName,String searchData,String actionData,int colToSearch,int actionPerformCol){
+	public static String searchforDataInsearchColumnAndValidateDataInactionableColumn(WebDriver driver,String testcaseName,String Step,String containerName,String searchData,String actionData,int colToSearch,int actionPerformCol) throws Throwable{
 		String flag=Constants_FRMWRK.False;		
 		String actual_actionData = "";
 		String rowNumber="row";
@@ -326,7 +327,7 @@ public class WebTableUtil extends TestBase{
 	}
 
 
-	public static String searchforDataInsearchColumnAndValidateDataInactionableLinkColumn(WebDriver driver,String testcaseName,String Step,String containerName,String searchData,String actionData,int colToSearch,int actionPerformCol){
+	public static String searchforDataInsearchColumnAndValidateDataInactionableLinkColumn(WebDriver driver,String testcaseName,String Step,String containerName,String searchData,String actionData,int colToSearch,int actionPerformCol) throws Throwable{
 		String flag=Constants_FRMWRK.False;		
 		String actual_actionData = "";
 		String rowNumber="row";
@@ -565,8 +566,9 @@ public class WebTableUtil extends TestBase{
 	 * @param searchData
 	 * @param colToSearch
 	 * @return
+	 * @throws Throwable 
 	 */
-	public static String searchforDataInsearchColumn_WOR(WebDriver driver,String testcaseName,String Step,String containerName,String searchData,int colToSearch){
+	public static String searchforDataInsearchColumn_WOR(WebDriver driver,String testcaseName,String Step,String containerName,String searchData,int colToSearch) throws Throwable{
 		String flag=Constants_FRMWRK.False;
 		String rowNumber="row";
 		int rowCount=0;
@@ -625,8 +627,9 @@ public class WebTableUtil extends TestBase{
 	 * @param searchData
 	 * @param colToSearch
 	 * @return
+	 * @throws Throwable 
 	 */
-	public static String searchforDataInsearchColumn(WebDriver driver,String testcaseName,String Step,String containerName,String searchData,String actionColumnType,int colToSearch){
+	public static String searchforDataInsearchColumn(WebDriver driver,String testcaseName,String Step,String containerName,String searchData,String actionColumnType,int colToSearch) throws Throwable{
 		String flag=Constants_FRMWRK.False;
 		String rowNumber="row";
 		int rowCount=0;
@@ -693,8 +696,9 @@ public class WebTableUtil extends TestBase{
 	 * @param colToSearch
 	 * @param actionPerformCol
 	 * @return data for success, Error for failure and False for un-successful search
+	 * @throws Throwable 
 	 */
-	public static String searchforDataInsearchColumnAndFetchDataInactionableColumn_WOR(WebDriver driver,String testcaseName,String Step,String containerName,String searchData,String actionColumnType,int colToSearch,int actionPerformCol){
+	public static String searchforDataInsearchColumnAndFetchDataInactionableColumn_WOR(WebDriver driver,String testcaseName,String Step,String containerName,String searchData,String actionColumnType,int colToSearch,int actionPerformCol) throws Throwable{
 		String flag=Constants_FRMWRK.False;
 		String colXpath_action;
 		String rowNumber="row";
