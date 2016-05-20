@@ -45,7 +45,7 @@ public class Navigations_Fulcrum extends TestBase{
 		}
 	}
 
-	public static String checkSubMenusDisplayed(WebDriver driver){
+	public static String checkSubMenusDisplayed(WebDriver driver) throws Throwable{
 		String flag=Constants_FRMWRK.False;
 
 		WebElement element=ExplicitWaitUtil.waitForElement(driver,Constants_FRMWRK.FindElementByXPATH, ObjRepository.container_subMenu, Constants_TimeOuts.generic_TimeOut) ;
@@ -57,7 +57,7 @@ public class Navigations_Fulcrum extends TestBase{
 		}
 		return flag;
 	}
-	public static void navigateToTramsmittals(WebDriver driver) throws Exception{
+	public static void navigateToTramsmittals(WebDriver driver) throws Throwable{
 		commonMethods.switchToDefaultPage(driver);
 		if(checkSubMenusDisplayed(driver).equalsIgnoreCase(Constants_FRMWRK.False)){
 			String locator=locator_menu_pattern.replaceAll("objectlocator", objects_objectLocator_Navigation.get("Usersite Menu - Transmittals"));
@@ -69,7 +69,7 @@ public class Navigations_Fulcrum extends TestBase{
 
 	}
 	
-	public static void navigateToDocumentsAndFileStorage(WebDriver driver) throws Exception{
+	public static void navigateToDocumentsAndFileStorage(WebDriver driver) throws Throwable{
 		commonMethods.switchToDefaultPage(driver);
 		if(checkSubMenusDisplayed(driver).equalsIgnoreCase(Constants_FRMWRK.False)){
 			String locator=locator_menu_pattern.replaceAll("objectlocator", objects_objectLocator_Navigation.get("Usersite Menu - Document & File Storage"));
@@ -84,7 +84,7 @@ public class Navigations_Fulcrum extends TestBase{
 	
 	
 	public static class Transmittals{
-		public static void navigateToNewTransmittal(WebDriver driver) throws Exception{
+		public static void navigateToNewTransmittal(WebDriver driver) throws Throwable{
 			navigateToTramsmittals(driver);
 			WaitUtil.pause(1);
 			String locator=locator_submenu_pattern.replaceAll("objectlocator", objects_objectLocator_Navigation.get("Usersite SubMenu - New Transmittal"));
@@ -95,7 +95,7 @@ public class Navigations_Fulcrum extends TestBase{
 			//ApplicationMethods_Falcrum.getApplicationFrameCount(driver);
 		}
 
-		public static void navigateToMysent(WebDriver driver) throws Exception{
+		public static void navigateToMysent(WebDriver driver) throws Throwable{
 			navigateToTramsmittals(driver);
 			String key_step="Usersite SubMenu - My Sent";
 			String locator=locator_submenu_pattern.replaceAll("objectlocator", objects_objectLocator_Navigation.get(key_step));
@@ -106,7 +106,7 @@ public class Navigations_Fulcrum extends TestBase{
 			}
 		}
 
-		public static void navigateToMyinbox(WebDriver driver) throws Exception{
+		public static void navigateToMyinbox(WebDriver driver) throws Throwable{
 			navigateToTramsmittals(driver);
 			String key_step="Usersite SubMenu - My Inbox";
 			String locator=locator_submenu_pattern.replaceAll("objectlocator", objects_objectLocator_Navigation.get(key_step));
@@ -120,7 +120,7 @@ public class Navigations_Fulcrum extends TestBase{
 	}
 	
 	public static class DocumentsAndFileStorage{
-		public static void navigateToBusinessCenter(WebDriver driver) throws Exception{
+		public static void navigateToBusinessCenter(WebDriver driver) throws Throwable{
 			navigateToDocumentsAndFileStorage(driver);
 			String key_step="Usersite SubMenu - Business Case";
 			String locator=locator_submenu_pattern.replaceAll("objectlocator", objects_objectLocator_Navigation.get(key_step));
