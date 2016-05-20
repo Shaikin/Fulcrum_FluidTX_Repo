@@ -41,13 +41,13 @@ public class ToolbarsUtil extends TestBase{
 		}
 	}
 	
-		public static void clickItems(WebDriver driver,String workFlow){
+		public static void clickItems(WebDriver driver,String workFlow) throws Throwable{
 			commonMethods.switchToDefaultPage(driver);
 			ExplicitWaitUtil.waitForElementTobeActionable(driver, objects_locatorType_Toolbar.get("Toolbar - Items"), objects_objectLocator_Toolbar.get("Toolbar - Items"), Constants_TimeOuts.Element_TimeOut);
 			KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Toolbar - Items", objects_locatorType_Toolbar, objects_objectType_Toolbar, objects_objectLocator_Toolbar, input);
 		}
 	public static class Items {
-		public static void clickSendTranmittals(WebDriver driver,String workFlow){
+		public static void clickSendTranmittals(WebDriver driver,String workFlow) throws Throwable{
 			commonMethods.switchToDefaultPage(driver);
 			ExplicitWaitUtil.waitForElementTobeActionable(driver, objects_locatorType_Toolbar.get("Toolbar - Items - Start New Tranmittal"), objects_objectLocator_Toolbar.get("Toolbar - Items - Start New Tranmittal"), Constants_TimeOuts.Element_TimeOut);
 			KeyMethods.f_performAction(driver, refID, testcaseName, workFlow, "Toolbar - Items - Start New Tranmittal", objects_locatorType_Toolbar, objects_objectType_Toolbar, objects_objectLocator_Toolbar, input);
