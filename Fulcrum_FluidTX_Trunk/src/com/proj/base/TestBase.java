@@ -17,6 +17,7 @@ import com.frw.util.TestUtil;
 import com.frw.util.Xls_Reader;
 import com.frw.util.baseUtil;
 import com.proj.Constants.Constants;
+import com.proj.Constants.Constants_ConfigProperties;
 import com.proj.util.DataProviders;
 import com.report.reporter.Reporting;
 
@@ -115,9 +116,13 @@ public class TestBase extends Base{
 		DataProviders.getConfigParams();
 		AUT_URL=CONFIG.getProperty("testSiteName");		
 			
-		if (CONFIG.getProperty("IS_REMOTEDRIVER").equalsIgnoreCase("YES")){
+		/*if (CONFIG.getProperty("IS_REMOTEDRIVER").equalsIgnoreCase("YES")){
+			
+		}*/
+		if(Constants_ConfigProperties.captureTool.equalsIgnoreCase("REMOTEDRIVER")){
 			isRemoteDriverExecution=true;
 		}
+		
 		resultsFileLoc=System.getProperty("user.dir")+"\\Results";
 		//screenshotsFileLoc=System.getProperty("user.dir")+"\\Screenshots\\";
 		screenshotsFileLoc=resultsFileLoc+"\\Screenshots\\";
@@ -156,7 +161,7 @@ public class TestBase extends Base{
 			String resultsFile=resultsFileLoc+"\\ExcelResults";
 			excelReportingObj=ExcelReporting.getExcelReportingObject();
 			excelresultsFileLoc=excelReportingObj.CreateResultFile(resultsFile);
-			excelReportingObj.createTestSummarySheet(excelresultsFileLoc, summarySheetName,isRemoteDriverExecution,CONFIG.getProperty("testRepository_URL"), CONFIG.getProperty("testSiteName"));
+			excelReportingObj.createTestSummarySheet(excelresultsFileLoc, summarySheetName,Constants_ConfigProperties.captureTool,CONFIG.getProperty("testRepository_URL"), CONFIG.getProperty("testSiteName"));
 			logsObj.log("Excel reporting is initailized sucessfully..");
 		}else{
 			logsObj.log("Excel reporting is not enabled..");
@@ -178,7 +183,7 @@ public class TestBase extends Base{
 				htmlReportingObj=HTMLReporting.getHTMLReportingObject();				
 				LinkedHashMap <String,String>runnableSuites=TestUtil.fetch_SuitesRunnable(suiteXls, CONFIG.getProperty("SuiteMode"));
 				suites_size=runnableSuites.size();
-				htmlsummary_bfw=htmlReportingObj.createHTMLForTestSummary(testSummaryFilePath, htmlresultsFileLoc, isRemoteDriverExecution,  CONFIG.getProperty("testRepository_URL"), "Selenium Automation Test Results", runnableSuites, CONFIG.getProperty("testSiteName"));
+				htmlsummary_bfw=htmlReportingObj.createHTMLForTestSummary(testSummaryFilePath, htmlresultsFileLoc, Constants_ConfigProperties.captureTool,  CONFIG.getProperty("testRepository_URL"), "Selenium Automation Test Results", runnableSuites, CONFIG.getProperty("testSiteName"));
 				logsObj.log("HTML reporting is initailized sucessfully..");
 		}else{
 			logsObj.log("HTML reporting is not enabled..");
