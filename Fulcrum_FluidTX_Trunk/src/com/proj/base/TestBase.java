@@ -82,8 +82,7 @@ public class TestBase extends Base{
 	public static int current_suiteCounter=0;
 	static String configFolder=System.getProperty("user.dir")+"\\src\\com\\proj\\config\\";
 	static String environmentFile=configFolder+"Environment.properties";
-	
-	
+		
 	/**
 	 * @author: Shaik Khaleel
 	 * This is used the initiliazed all the required files 
