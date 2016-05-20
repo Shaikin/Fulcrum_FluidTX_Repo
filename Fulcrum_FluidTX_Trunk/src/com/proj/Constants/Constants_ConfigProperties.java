@@ -9,12 +9,15 @@ public class Constants_ConfigProperties extends TestSuiteBase{
 	   //#R for Regression,p for Partial Regression,S for sanity
 		
 			final public static String SuiteMode = CONFIG.getProperty("SuiteMode");
-		
+			
+			final public static String captureTool = CONFIG.getProperty("captureTool");
 		//# ie, firefox,chrome
 		
 			final public static String browserType_DOCS = CONFIG.getProperty("browserType_DOCS");
 		
 			final public static String browserType_TRANS = CONFIG.getProperty("browserType_TRANS");
+			
+			
 		
 		//# User Credentials  
 			
