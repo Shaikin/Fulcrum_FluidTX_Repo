@@ -50,9 +50,9 @@ public class FLD_Transmittals_ActionRequired_CaC_IssuedForApproval extends TestS
 			condition=" ["+data.get("RecieverRole")+"-"+data.get("Action-Level2")+"]";
 
 			//************************************** LEVEL 1 *****************************************************************************
-			workflow_l1=workflow_l1+condition+workflow_end;		
+			String workflow_lvl1=workflow_l1+condition+workflow_end;		
 
-			transmittalData=Workflows.Level1_Initaite_Transmittal(driver_TRANS, Constants_ConfigProperties.testSiteName, workflow_l1, data);
+			transmittalData=Workflows.Level1_Initaite_Transmittal(driver_TRANS, Constants_ConfigProperties.testSiteName, workflow_lvl1, data);
 
 			//************************************** LEVEL 2 *****************************************************************************		
 			driver_TRANS=Workflows.Level2_Close_Cancel_Transmittal(siteName,Constants_Workflow.page_actionRequired,driver_TRANS,refID,testcaseName,workflow_l2,condition,workflow_end,Constants_ConfigProperties.testSiteName,browserName,username2, password2, transmittalData, data);
