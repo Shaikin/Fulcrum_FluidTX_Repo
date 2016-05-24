@@ -486,8 +486,9 @@ public class WebTableUtil extends TestBase{
 
 					tableData.put(pageNumber+Integer.toString(pageCount)+" "+rowNumber+Integer.toString(rowCount), rowSearch.getText());
 					logsObj.log(staleDesc+"Table- "+"Page-"+pageCount+" ,RowNumber-"+rowNumber+" Data:-"+rowSearch.getText().trim()+" Input Data:-"+searchData.trim());
-
-					if(rowSearch.getText().trim().equals(searchData.trim())){
+					
+					actual_actionData=rowSearch.getText().trim();
+					if(actual_actionData.equals(searchData.trim())){
 						WaitUtil.pause(100L);				
 						int counter=0;
 
@@ -527,7 +528,7 @@ public class WebTableUtil extends TestBase{
 			catch(StaleElementReferenceException stl){
 				isStale=true;
 				logsObj.log("searchforDataInColumnAndClickInAcionableColumn:Stale exception... need to recover..") ;
-				flag=searchforDataInsearchColumnAndClickInactionableLinkColumn(driver, testcaseName, Step, containerName, searchData, actionColumnType, actual_actionData, colToSearch, actionPerformCol);
+				flag=searchforDataInsearchColumnAndClickInactionableLinkColumn(driver, testcaseName, Step, containerName, searchData, actionColumnType,actionData, colToSearch, actionPerformCol);
 				isStale=false;
 				return flag;
 			}
