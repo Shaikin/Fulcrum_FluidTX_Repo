@@ -26,12 +26,12 @@ public class DocumentRegisterGridUtil extends TestSuiteBase{
 		return WebTableUtil.searchforDataInsearchColumnAndTickInactionableColumn(driver, testcaseName, workflow+" - Name", ObjRepository.container_documentRegister, docName, 4, 1);
 
 	}
-	public static String validateUploadedDocument(WebDriver driver,String workflow,String testcasename,String docName)throws Throwable {
+	public static String validateUploadedDocument(WebDriver driver,String refID,String workflow,String testcasename,String docName)throws Throwable {
 		return WebTableUtil.searchforDataInsearchColumnAndTickInactionableColumn(driver, testcaseName, workflow+" - Name", ObjRepository.container_uploadedOrNewDocuments, docName, 3, 1);
 		
 	}
 	
-	public static String validateVersion(WebDriver driver,String workflow,String testcasename,String docName , String version) throws Throwable {
+	public static String validateVersion(WebDriver driver,String refID,String workflow,String testcasename,String docName , String version) throws Throwable {
 	
 	
 		return WebTableUtil.searchforDataInsearchColumnAndValidateDataInactionableColumn(driver,testcaseName,workflow+" - Major version",ObjRepository.container_uploadedOrNewDocuments,docName ,version,3,7);	
