@@ -20,8 +20,8 @@ public class FLD_Transmittals_New_IssuedForReview extends TestSuiteBase{
 	static Hashtable<String,String>transmittalData=new Hashtable<String,String>();
 
 	private static String workflow_l1="Level-1:-Initiation of Transmittal";
-	private static String workflow_l2="Level-2:-Recieve Transmittal and ";
-	private static String workflow_l3="Level-3:-Recieve Transmittal and ";
+	private static String workflow_l2="Level-2:-Recieve Transmittal ";
+	private static String workflow_l3="Level-3:-Recieve Transmittal ";
 	private static String workflow_end=" || ";
 
 	private static String username2;
