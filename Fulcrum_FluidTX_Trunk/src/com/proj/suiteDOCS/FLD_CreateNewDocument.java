@@ -13,7 +13,7 @@ import com.proj.util.CustomExceptions;
 import com.proj.util.TestExecutionUtil;
 
 public class FLD_CreateNewDocument extends TestSuiteBase{
-	private static String workflow_UploadDocument="Uploading a file";
+	private static String workflow_UploadDocument="Uploading a file-";
 	private static String workflow_createOnlineDocument="New file creation";
 
 	@Test(dataProviderClass=com.proj.util.DataProviders.class,dataProvider="getData_Global")
@@ -37,16 +37,9 @@ public class FLD_CreateNewDocument extends TestSuiteBase{
 				CustomExceptions.Exit(testcaseName, "Before Method-Failure", "Due to above error in the Before Method cannot execute the test..");
 			}
 
-			String condition="";
-
 			Navigations_FluidTX.navigateToDocuments(LocalDriverManager.getDriver());
-
-			String getName = Documents_EntryPage.uploadOrCreateOnlineDocument(LocalDriverManager.getDriver(), condition, testcaseName, workflow, data);
-
-
-			condition=" ["+data.get("IssueReason")+"]";
-
-			DocumentRegisterGridUtil.validateUploadedDocument(LocalDriverManager.getDriver(), workflow, testcaseName, getName);
+			String getName = Documents_EntryPage.uploadOrCreateOnlineDocument(LocalDriverManager.getDriver(), refID, testcaseName, workflow, data);
+			DocumentRegisterGridUtil.validateUploadedDocument(LocalDriverManager.getDriver(),refID, workflow, testcaseName, getName);
 			Documents_EntryPage.publishMajorVersion(LocalDriverManager.getDriver(), refID, testcaseName, workflow, data,getName,data.get("Major version"));
 
 			logsObj.log(" after test of "+testcaseName+"-testresult"+isTestPass);
