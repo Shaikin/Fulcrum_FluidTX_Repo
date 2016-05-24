@@ -75,7 +75,7 @@ public class Documents_EntryPage extends TestSuiteBase{
 		}
 		ApplicationMethods.switchToLatestDLGframe(driver, testcasename);
 	}
-	public static void browseAFile(WebDriver driver,String testcasename,String workflow,Hashtable<String,String>data) throws Throwable{
+	public static void browseAFile(WebDriver driver,String refID, String testcasename,String workflow,Hashtable<String,String>data) throws Throwable{
 		ApplicationMethods.switchToLatestDLGframe(driver,testcasename);
 		String filename=Constants.DataFileLocation_Documents+data.get("Choose a file");
 		KeyMethods.f_performAction(driver, refID, testcasename, workflow, "Choose a file", objects_locatorType_Documents, objects_objectType_Documents, objects_objectLocator_Documents, filename);
@@ -83,11 +83,11 @@ public class Documents_EntryPage extends TestSuiteBase{
 	public static void destinationFolder(){
 		//Need to implement after POC and when sprint starts.
 	}
-	public static String name(WebDriver driver,String testcasename,String workflow,Hashtable<String,String>data){
+	public static String name(WebDriver driver,String refID,String testcasename,String workflow,Hashtable<String,String>data){
 		res=KeyMethods.f_performAction(driver, refID, testcasename, workflow, "Name", objects_locatorType_Documents, objects_objectType_Documents, objects_objectLocator_Documents, data.get("Name")+"-"+DateUtil.getCurrentDateInRequiredDateFormat("ddMMyyyy hhmmss"));
 		return res;
 	}
-	public static String title(WebDriver driver,String testcasename,String workflow,Hashtable<String,String>data){
+	public static String title(WebDriver driver,String refID,String testcasename,String workflow,Hashtable<String,String>data){
 		res=KeyMethods.f_performAction(driver, refID, testcasename, workflow, "Title", objects_locatorType_Documents, objects_objectType_Documents, objects_objectLocator_Documents, data.get("Title")+"-"+DateUtil.getCurrentDateInRequiredDateFormat("dd/MM/yyyy hh:mm:ss"));
 		return res;
 	}
@@ -103,15 +103,15 @@ public class Documents_EntryPage extends TestSuiteBase{
 			}
 			ApplicationMethods.switchToLatestDLGframe(driver, testcasename);
 		}
-	public static String uploadADocumentIntoApplication(WebDriver driver,String refID,String testcasename,String workflow,Hashtable<String,String>data) throws Throwable{
-		clickNewDocument(driver, refID, testcasename, workflow);
-		clickUploadExistingFile(driver, refID, testcasename, workflow); 
-		browseAFile(driver, testcasename, workflow, data);
-		versionComments(driver, refID, testcasename, workflow, data);
-		clickOK(driver, refID, testcasename, workflow);
-		String getName = name(driver, testcasename, workflow, data);
-		title(driver, testcasename, workflow, data);
-		clickSave(driver, refID, testcasename, workflow);
+	public static String uploadADocumentIntoApplication(WebDriver driver,String refid,String testcasename,String workflow,Hashtable<String,String>data) throws Throwable{
+		clickNewDocument(driver, refid, testcasename, workflow);
+		clickUploadExistingFile(driver, refid, testcasename, workflow); 
+		browseAFile(driver, refid, testcasename, workflow, data);
+		versionComments(driver, refid, testcasename, workflow, data);
+		clickOK(driver, refid, testcasename, workflow);
+		String getName = name(driver,refid, testcasename, workflow, data);
+		title(driver, refid,testcasename, workflow, data);
+		clickSave(driver, refid, testcasename, workflow);
 		return getName;
 	}
 	public static void clickOnlineWord(WebDriver driver,String workflow) throws Throwable{
@@ -187,7 +187,7 @@ public class Documents_EntryPage extends TestSuiteBase{
 		WaitUtil.pause(Constants_TimeOuts.Save_TimeOut);
 		if(data.get("Document type").contains("Upload Document"))
 		{
-			 getName = uploadADocumentIntoApplication(driver, condition, testcasename, workflow, data); 
+			 getName = uploadADocumentIntoApplication(driver, refID, testcasename, workflow, data); 
 		}
 		else 
 			createOnlineDocument(driver,refID,testcasename,workflow,data);
@@ -266,7 +266,7 @@ public class Documents_EntryPage extends TestSuiteBase{
 			CustomExceptions.Exit(testcasename, objects_step_Documents.get("Publish")+" - Failure", "Please refer above details for more information");
 	}
 	}
-	public static String publishComments(WebDriver driver,String testcasename,String workflow,Hashtable<String,String>data) throws Throwable{
+	public static String publishComments(WebDriver driver,String refID,String testcasename,String workflow,Hashtable<String,String>data) throws Throwable{
 		ApplicationMethods.switchToLatestDLGframe(driver, testcaseName);
 		res=KeyMethods.f_performAction(driver, refID, testcasename, workflow, "Publish Comments", objects_locatorType_Documents, objects_objectType_Documents, objects_objectLocator_Documents, data.get("Publish Comments"));
 		return res;
@@ -295,10 +295,10 @@ public class Documents_EntryPage extends TestSuiteBase{
 			}
 		}
 		
-		publishComments(driver,testcasename,workflow,data);
-		clickOK(LocalDriverManager.getDriver(), condition, testcaseName, workflow);
+		publishComments(driver,refID,testcasename,workflow,data);
+		clickOK(LocalDriverManager.getDriver(), refID, testcaseName, workflow);
 		WaitUtil.pause(10);
-		DocumentRegisterGridUtil.validateVersion(driver, workflow, testcaseName, getName, version);
+		DocumentRegisterGridUtil.validateVersion(driver, refID,workflow, testcaseName, getName, version);
 }
 }
 	
