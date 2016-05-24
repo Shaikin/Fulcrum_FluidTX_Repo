@@ -46,7 +46,7 @@ public class MySentPage_FluidTx extends TestSuiteBase{
 		WaitUtil.pause(Constants_TimeOuts.processToComplete);
 		Navigations_FluidTX.Transmittals.navigateToMysent(driver);
 		TransmittalsGridUtil.searchSubjectAndCheck_TxComplete_Status(driver,page, workflow, subject, TxComplete_Status);
-		TransmittalsGridUtil.searchSubjectAndCheck_Status(driver, workflow,page, subject, status);
+		TransmittalsGridUtil.searchSubjectAndCheck_Status(driver,page, workflow, subject, status);
 		return TxComplete_Status;
 	}
 
