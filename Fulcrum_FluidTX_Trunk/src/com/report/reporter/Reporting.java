@@ -220,7 +220,7 @@ public class Reporting extends TestBase{
 				testResultsLocationForShare=CreateTestResutlsFolderinSharedRepo(dropboxSourceLocation);
 			}
 			
-			if (CONFIG.getProperty("excelReporting").equalsIgnoreCase("YES") && CONFIG.getProperty("email").equalsIgnoreCase("YES")){
+			if (CONFIG.getProperty("email").equalsIgnoreCase("YES") && (CONFIG.getProperty("excelReporting").equalsIgnoreCase("YES")) ){
 				CopyExcelReports_TomcatServer_TestResults(resultsFolder, testResultsLocationForShare);
 			}
 			if (CONFIG.getProperty("htmlReporting").equalsIgnoreCase("YES") && CONFIG.getProperty("email").equalsIgnoreCase("YES")){
