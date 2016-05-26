@@ -12,6 +12,7 @@ import com.frw.excelreporting.ExcelReporting;
 import com.frw.htmlreporting.HTMLReporting;
 import com.frw.log.Logs;
 import com.frw.util.DateUtil;
+import com.frw.util.FileUtil;
 import com.frw.util.OracleDBUtil;
 import com.frw.util.TestUtil;
 import com.frw.util.Xls_Reader;
@@ -131,6 +132,7 @@ public class TestBase extends Base{
 		initializeExcelReporting();
 		//**************  HTML reporting initialization  *********************************************	
 		initializeHTMLReporting();
+		FileUtil.createFolder(screenshotsFileLoc);
 		
 		//*****************  DB initialization **********************************************************
 		if (CONFIG.getProperty("DB_FLAG").equalsIgnoreCase("YES")){
