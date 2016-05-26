@@ -216,7 +216,7 @@ public class Reporting extends TestBase{
 				dropboxSourceLocation=sourceFolder;
 			}
 			
-			if(CONFIG.getProperty("excelReporting").equalsIgnoreCase("YES")||CONFIG.getProperty("htmlReporting").equalsIgnoreCase("YES") && CONFIG.getProperty("email").equalsIgnoreCase("YES")){
+			if(CONFIG.getProperty("email").equalsIgnoreCase("YES") && (CONFIG.getProperty("excelReporting").equalsIgnoreCase("YES")||CONFIG.getProperty("htmlReporting").equalsIgnoreCase("YES") )){
 				testResultsLocationForShare=CreateTestResutlsFolderinSharedRepo(dropboxSourceLocation);
 			}
 			
