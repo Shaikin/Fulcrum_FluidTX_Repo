@@ -96,11 +96,12 @@ public class TestBase extends Base{
 		System.out.println("Test Base Initialization starts");
 	
 		
-		logsObj=Logs.getLogsObjAndInitialize();
+		System.setProperty("log4j.configuration", "log4j_exe.properties");
+		logsObj=Logs.getLogsObjAndInitialize("file");
 		
 		Properties environmentProperties=baseUtil.loadPropertiesFile(environmentFile);
 		
-		Base.baseInitialize(configFolder+environmentProperties.getProperty("Environment")+".properties", System.getProperty("user.dir")+"\\src\\com\\proj\\objectRepository\\OR.properties");
+		Base.baseInitialize("file",configFolder+environmentProperties.getProperty("Environment")+".properties", System.getProperty("user.dir")+"\\src\\com\\proj\\objectRepository\\OR.properties");
 		
 		configXls=new Xls_Reader(System.getProperty("user.dir")+"\\src\\com\\proj\\config\\"+ Constants.CONFIG_FILE_NAME);
 		logsObj.log("configXLSdone..");
