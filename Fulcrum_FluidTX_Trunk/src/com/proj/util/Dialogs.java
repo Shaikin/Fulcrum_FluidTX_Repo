@@ -13,6 +13,7 @@ import atu.utils.windows.handler.WindowHandler;
 import atu.utils.windows.handler.exceptions.WindowsHandlerException;
 
 import com.frw.Constants.Constants_FRMWRK;
+import com.frw.util.WaitUtil;
 import com.proj.library.commonMethods;
 import com.report.reporter.Reporting;
 
@@ -131,14 +132,17 @@ public class Dialogs {
 	}
 	
 	private static void user_auth_ie(WindowHandler handle,WindowElement authwindowElement,String username,String password) throws WindowsHandlerException{
+		WaitUtil.pause(3000L);
 		WindowElement userNameElement=AutoIT_ActionsUtil.elementByName(handle, authwindowElement, "User name");
 		AutoIT_ActionsUtil.clear(handle, userNameElement);		
 		AutoIT_ActionsUtil.type(handle, userNameElement, username);
 		
+		WaitUtil.pause(1000L);
 		WindowElement passwordElement=AutoIT_ActionsUtil.elementByName(handle, authwindowElement, "Password");
 		AutoIT_ActionsUtil.clear(handle, passwordElement);		
 		AutoIT_ActionsUtil.type(handle, passwordElement, password);
 		
+		WaitUtil.pause(1000L);
 		WindowElement button_OK=AutoIT_ActionsUtil.elementByName(handle, authwindowElement, "OK");
 		AutoIT_ActionsUtil.clickElement(handle, button_OK);	
 	}
